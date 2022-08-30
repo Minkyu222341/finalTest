@@ -1,5 +1,6 @@
 package sparta.seed.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.NoArgsConstructor;
 import sparta.seed.util.Timestamped;
 
@@ -20,6 +21,8 @@ public class Comment extends Timestamped {
   private String content;
   //인증글
   @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "replay_id")
   private Replay replay;
 
 }

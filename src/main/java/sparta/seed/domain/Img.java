@@ -1,6 +1,7 @@
 package sparta.seed.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import sparta.seed.util.Timestamped;
 
@@ -32,5 +33,13 @@ public class Img extends Timestamped {
   @JoinColumn(name = "campaignId")
   private Campaign campaign;
 
-
+  @Builder
+  public Img(Long id, String imgUrl, String fileName, Article article, Replay replay, Campaign campaign) {
+    this.id = id;
+    this.imgUrl = imgUrl;
+    this.fileName = fileName;
+    this.article = article;
+    this.replay = replay;
+    this.campaign = campaign;
+  }
 }

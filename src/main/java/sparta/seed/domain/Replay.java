@@ -1,5 +1,6 @@
 package sparta.seed.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.NoArgsConstructor;
 import sparta.seed.util.Timestamped;
 
@@ -15,6 +16,10 @@ public class Replay extends Timestamped {
   private Long id;
 
 
+  @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "article_id")
+  private Article article;
 
   //댓글리스트
   @OneToMany(mappedBy = "replay",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
