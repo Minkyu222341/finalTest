@@ -26,14 +26,13 @@ public class LoginController {
    */
   @GetMapping("/user/kakao/callback")
   public MemberResponseDto kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-    MemberResponseDto tokenAndUserInfo = kakaoUserService.kakaoLogin(code, response);
-    return tokenAndUserInfo;
+    return kakaoUserService.kakaoLogin(code, response);
   }
 
   /**
    * 구글 로그인
    */
-  @GetMapping("/oauth/google/callback")
+  @GetMapping("/user/google/callback")
   public MemberResponseDto googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
     return googleUserService.googleLogin(code, response);
   }
@@ -41,7 +40,7 @@ public class LoginController {
   /**
    * 네이버 로그인
    */
-  @GetMapping("/oauth/naver/callback")
+  @GetMapping("/user/naver/callback")
   public MemberResponseDto naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws JsonProcessingException {
     return naverUserService.naverLogin(code, state, response);
   }

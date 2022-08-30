@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,10 +15,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import sparta.seed.domain.Authority;
 import sparta.seed.domain.Member;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
@@ -27,6 +31,7 @@ import sparta.seed.sercurity.UserDetailsImpl;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class GoogleUserService {
@@ -37,8 +42,9 @@ public class GoogleUserService {
   String googleClientSecret;
   @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
   String googleRedirectUri;
-  private final MemberRepository memberRepository;
+
   private final TokenProvider tokenProvider;
+  private final MemberRepository memberRepository;
 
   public MemberResponseDto googleLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
@@ -117,8 +123,6 @@ public class GoogleUserService {
 
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-    System.out.println(jsonNode);
-
     String socialId = jsonNode.get("sub").asText();
     String userEmail = jsonNode.get("email").asText();
     String nickname = jsonNode.get("name").asText();
@@ -140,20 +144,24 @@ public class GoogleUserService {
   // 3. 유저확인 & 회원가입
   private Member getUser(SocialMemberRequestDto requestDto) {
     // 다른 소셜로그인이랑 이메일이 겹쳐서 잘못 로그인 될까봐. 다른 사용자인줄 알고 로그인이 된다. 그래서 소셜아이디로 구분해보자
-    String username = requestDto.getUsername();
+
     String googleSocialID = requestDto.getSocialId();
     Member googleUser = memberRepository.findBySocialId(googleSocialID).orElse(null);
 
     if (googleUser == null) {  // 회원가입
+      String username = requestDto.getUsername();
+      String nickname = requestDto.getNickname();
       String socialId = requestDto.getSocialId();
       String password = UUID.randomUUID().toString();
       String profileImage = requestDto.getProfileImage();
 
       Member signUpMember = Member.builder()
               .username(username)
+              .nickname(nickname)
               .password(password)
               .profileImage(profileImage)
               .socialId(socialId)
+              .authority(Authority.ROLE_USER)
               .build();
       memberRepository.save(signUpMember);
       return signUpMember;
@@ -181,6 +189,8 @@ public class GoogleUserService {
             .id(member.getId())
             .username(member.getUsername())
             .nickname(member.getNickname())
+            .profileImage(member.getProfileImage())
+            .socialId(member.getSocialId())
             .accessToken(responseDto.getAccessToken())
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
