@@ -8,11 +8,8 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 public class ArticleRequestDto {
-  private Timestamp startRecruitment;
-  private Timestamp endRecruitment;
   private Timestamp startDate;
   private Timestamp endDate;
-
   private Integer limitScore;
   private Integer limitParticipants;
   private boolean isSecret;

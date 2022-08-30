@@ -1,19 +1,14 @@
 package sparta.seed.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.Article;
 import sparta.seed.domain.dto.requestDto.ArticleRequestDto;
-import sparta.seed.domain.dto.responseDto.ArticleResponseDto;
-import sparta.seed.domain.dto.responseDto.ArticleSearchCondition;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.ArticleService;
 
@@ -29,10 +24,10 @@ public class ArticleController {
   /**
    * 그룹미션 전체조회
    */
-  @GetMapping("/api/articles")
-  public Slice<ArticleResponseDto> getAllArticle(Pageable pageable, ArticleSearchCondition condition) {
-    return articleService.getAllArticle(pageable, condition);
-  }
+//  @GetMapping("/api/articles")
+//  public Slice<ArticleResponseDto> getAllArticle(Pageable pageable, ArticleSearchCondition condition) {
+//    return articleService.getAllArticle(pageable, condition);
+//  }
   /**
    * 그룹미션 상세조회
    */

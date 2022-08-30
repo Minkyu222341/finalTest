@@ -1,8 +1,10 @@
 package sparta.seed.service;
 
+import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.Article;
@@ -29,11 +31,20 @@ public class ArticleService {
   private final S3Uploader s3Uploader;
 
   public Slice<ArticleResponseDto> getAllArticle(Pageable pageable, ArticleSearchCondition condition) {
+    QueryResults<Article> allArticle = articleRepository.getAllArticle(pageable, condition);
+    List<ArticleResponseDto> dto = new ArrayList<>();
+    for (Article article : allArticle.getResults()) {
 
-
-
-    return articleRepository.getAllArticle(pageable,condition);
+      }
+      boolean hasNext = false;
+      if (dto.size() > pageable.getPageSize()) {
+        dto.remove(pageable.getPageSize());
+        hasNext = true;
+      }
+    return new SliceImpl<>(dto, pageable, hasNext);
   }
+
+
 
   /**
    * 게시글 작성
@@ -67,12 +78,9 @@ public class ArticleService {
             .title(requestDto.getTitle())
             .content(requestDto.getContent())
             .isSecret(requestDto.isSecret())
-            .category(requestDto.getCategory())
             .password(requestDto.getPassword())
             .memberId(loginUserId)
             .nickname(nickname)
-            .startRecruitment(requestDto.getStartRecruitment())
-            .endRecruitment(requestDto.getEndRecruitment())
             .startDate(requestDto.getStartDate())
             .endDate(requestDto.getEndDate())
             .limitParticipants(requestDto.getLimitParticipants())
