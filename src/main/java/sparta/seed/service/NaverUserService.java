@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import sparta.seed.domain.Authority;
 import sparta.seed.domain.Member;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
@@ -27,7 +28,6 @@ import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -117,23 +117,17 @@ public class NaverUserService {
     // response에서 유저정보 가져오기
     String responseBody = response.getBody();
     ObjectMapper objectMapper = new ObjectMapper();
+
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
     String socialId = String.valueOf(jsonNode.get("response").get("id").asText());
     String username = jsonNode.get("response").get("email").asText();
+    String nickname = jsonNode.get("response").get("nickname").asText();
 
-    // nickname 랜덤
-    Random rnd = new Random();
-    String rdNick="";
-    for (int i = 0; i < 8; i++) {
-      rdNick += String.valueOf(rnd.nextInt(10));
-    }
-    String nickname = "N" + "_" + rdNick;
 
     String profileImage = jsonNode.get("response").get("profile_image").asText();
-    String naverDefaultImg = "https://ssl.pstatic.net/static/pwe/address/img_profile.png";
     String defaultImage = "https://mytest-coffick.s3.ap-northeast-2.amazonaws.com/coffindBasicImage.png";
-    if (profileImage==null || profileImage.equals(naverDefaultImg))
+    if (profileImage==null)
       profileImage = defaultImage; // 우리 사이트 기본 이미지
 
     return SocialMemberRequestDto.builder()
@@ -147,11 +141,11 @@ public class NaverUserService {
   // 3. 유저확인 & 회원가입
   private Member getUser(SocialMemberRequestDto naverUserInfo) {
     // 다른 소셜로그인이랑 이메일이 겹쳐서 잘못 로그인 될까봐. 다른 사용자인줄 알고 로그인이 된다. 그래서 소셜아이디로 구분해보자
-    String naverEmail = naverUserInfo.getUsername();
     String naverSocialID = naverUserInfo.getSocialId();
     Member naverUser = memberRepository.findBySocialId(naverSocialID).orElse(null);
 
     if (naverUser == null) {  // 회원가입
+      String naverEmail = naverUserInfo.getUsername();
       String socialId = naverUserInfo.getSocialId();
       String nickname = naverUserInfo.getNickname();
       String password = passwordEncoder.encode(UUID.randomUUID().toString()); // 비밀번호 암호화
@@ -163,6 +157,7 @@ public class NaverUserService {
               .password(password)
               .profileImage(profileImage)
               .nickname(nickname)
+              .authority(Authority.ROLE_USER)
               .build();
 
       memberRepository.save(signUpMember);
@@ -191,6 +186,8 @@ public class NaverUserService {
             .id(member.getId())
             .username(member.getUsername())
             .nickname(member.getNickname())
+            .socialId(member.getSocialId())
+            .profileImage(member.getProfileImage())
             .accessToken(responseDto.getAccessToken())
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
