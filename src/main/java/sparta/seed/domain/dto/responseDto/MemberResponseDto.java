@@ -14,10 +14,12 @@ public class MemberResponseDto {
     private String username;
     private String socialId;
     private String profileImage;
+    private Integer level;
+    private Integer exp;
 
     @Builder
 
-    public MemberResponseDto(Long id, String grantType, String accessToken, String refreshToken, Long accessTokenExpiresIn, String nickname, String username, String socialId, String profileImage) {
+    public MemberResponseDto(Long id, String grantType, String accessToken, String refreshToken, Long accessTokenExpiresIn, String nickname, String username, String socialId, String profileImage, Integer level, Integer exp) {
         this.id = id;
         this.grantType = grantType;
         this.accessToken = accessToken;
@@ -27,6 +29,8 @@ public class MemberResponseDto {
         this.username = username;
         this.socialId = socialId;
         this.profileImage = profileImage;
+        this.level = level;
+        this.exp = exp;
     }
 }
 

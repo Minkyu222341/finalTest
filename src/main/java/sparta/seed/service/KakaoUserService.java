@@ -64,7 +64,8 @@ public class KakaoUserService {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", "f072c106f2f26c3921bee727b2df0ccd");
-    body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
+//    body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
+    body.add("redirect_uri", "http://localhost:3000/user/kakao/callback");
     body.add("code", code);
     /**
      * 받은 인가코드로 카카오에 엑세스토큰 요청
@@ -117,11 +118,15 @@ public class KakaoUserService {
     String id = jsonNode.get("id").toString();
     String nickname = jsonNode.get("properties").get("nickname").asText();
     String username = jsonNode.get("kakao_account").get("email").asText();
+    String profileImage = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
+
+    System.out.println("jsonNode = " + jsonNode.toString());
 
     return SocialMemberRequestDto.builder()
             .socialId(id)
             .username(username)
             .nickname(nickname)
+            .profileImage(profileImage)
             .build();
   }
 
@@ -132,17 +137,19 @@ public class KakaoUserService {
     // DB 에 중복된 Kakao Id 가 있는지 확인
     String socialId = kakaoUserInfo.getSocialId();
     Optional<Member> member = memberRepository.findBySocialId(socialId);
-    if (member == null) {
+    if (!member.empty().isPresent()) {
       // 회원가입
       String username = kakaoUserInfo.getUsername();
       String nickname = kakaoUserInfo.getNickname();
       String password = passwordEncoder.encode(UUID.randomUUID().toString());
+      String profileImage = kakaoUserInfo.getProfileImage();
 
       Member signUp = Member.builder()
               .socialId(socialId)
               .username(username)
               .nickname(nickname)
               .password(password)
+              .profileImage(profileImage)
               .authority(Authority.ROLE_USER)
               .build();
       Member signUpMember = memberRepository.save(signUp);

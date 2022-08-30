@@ -3,13 +3,14 @@ package sparta.seed.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class Member {
+public class Member extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +22,6 @@ public class Member {
 
   private String nickname;
 
-
   private String socialId;
 
   @Enumerated(EnumType.STRING)
@@ -29,9 +29,11 @@ public class Member {
 
   private String profileImage;
 
+  private Integer level;
+  private Integer exp;
 
   @Builder
-  public Member(Long id, String username, String password, String nickname, String socialId, Authority authority, String profileImage) {
+  public Member(Long id, String username, String password, String nickname, String socialId, Authority authority, String profileImage, Integer level, Integer exp) {
     this.id = id;
     this.username = username;
     this.password = password;
@@ -39,5 +41,7 @@ public class Member {
     this.socialId = socialId;
     this.authority = authority;
     this.profileImage = profileImage;
+    this.level = level;
+    this.exp = exp;
   }
 }

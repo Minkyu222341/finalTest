@@ -11,12 +11,16 @@ public class SocialMemberRequestDto {
     private String nickname;
     private String username;
     private String profileImage;
+    private Integer level;
+    private Integer exp;
 
     @Builder
-    public SocialMemberRequestDto(String socialId, String nickname, String username, String profileImage) {
+    public SocialMemberRequestDto(String socialId, String nickname, String username, String profileImage, Integer level, Integer exp) {
         this.socialId = socialId;
         this.nickname = nickname;
         this.username = username;
         this.profileImage = profileImage;
+        this.level = level;
+        this.exp = exp;
     }
 }
