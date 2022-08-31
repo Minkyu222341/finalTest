@@ -2,6 +2,7 @@ package sparta.seed.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.seed.util.Timestamped;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
+@Getter
 public class Img extends Timestamped {
 
   @Id
@@ -18,7 +20,7 @@ public class Img extends Timestamped {
   private String imgUrl;
   private String fileName;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "articleId")
   private Article article;

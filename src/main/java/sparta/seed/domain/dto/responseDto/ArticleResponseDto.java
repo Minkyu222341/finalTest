@@ -4,8 +4,8 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import sparta.seed.domain.Article;
 import sparta.seed.domain.Img;
-import sparta.seed.domain.Member;
 
 import java.util.List;
 
@@ -16,10 +16,9 @@ public class ArticleResponseDto {
   private Long articleId;
   private List<Img> imgList;
   private String title;
-  private String category;
   //모집여부
   private boolean isRecruitment;
-  private List<Member> participantsList;
+  private List<Article> participantsList;
   //달성도
   private long participantsPer;
   //참가인원
@@ -27,11 +26,10 @@ public class ArticleResponseDto {
 
   @QueryProjection
   @Builder
-  public ArticleResponseDto(Long articleId, List<Img> imgList, String title, String category, boolean isRecruitment, List<Member> participantsList, long participantsPer, Integer participantsCnt) {
+  public ArticleResponseDto(Long articleId, List<Img> imgList, String title, boolean isRecruitment, List<Article> participantsList, long participantsPer, Integer participantsCnt) {
     this.articleId = articleId;
     this.imgList = imgList;
     this.title = title;
-    this.category = category;
     this.isRecruitment = isRecruitment;
     this.participantsList = participantsList;
     this.participantsPer = participantsPer;
