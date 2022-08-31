@@ -36,3 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/resources/application.properties
+application.properties
+application-aws.properties
+application-oauth.properties

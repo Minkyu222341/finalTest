@@ -1,28 +1,30 @@
 package sparta.seed.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
 @NoArgsConstructor
-public class Comment extends Timestamped {
+public class Participants {
   //PK
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  //닉네임
-  private String nickname;
-  //작성한 유저의 Pk
-  private Long memberId;
-  //내용
-  private String content;
-  //인증글
   @ManyToOne
   @JsonBackReference
-  @JoinColumn(name = "replay_id")
-  private Replay replay;
+  private Article article;
 
+  private Long memberId;
+
+  @Builder
+  public Participants(Long id, Article article, Long memberId) {
+    this.id = id;
+    this.article = article;
+    this.memberId = memberId;
+  }
 }
