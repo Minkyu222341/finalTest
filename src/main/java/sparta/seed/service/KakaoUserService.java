@@ -11,11 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -30,8 +26,6 @@ import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -68,6 +62,7 @@ public class KakaoUserService {
     body.add("grant_type", "authorization_code");
     body.add("client_id", "f072c106f2f26c3921bee727b2df0ccd");
     body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
+//    body.add("redirect_uri", "http://localhost:3000/user/kakao/callback");
     body.add("code", code);
     /**
      * 받은 인가코드로 카카오에 엑세스토큰 요청
@@ -138,8 +133,8 @@ public class KakaoUserService {
      */
     // DB 에 중복된 Kakao Id 가 있는지 확인
     String socialId = kakaoUserInfo.getSocialId();
-   Member member = memberRepository.findBySocialId(socialId).orElse(null);
-    if (member == null) {
+    Member member = memberRepository.findBySocialId(socialId).orElse(null);
+    if (member==null) {
       // 회원가입
       String username = kakaoUserInfo.getUsername();
       String nickname = kakaoUserInfo.getNickname();
@@ -164,10 +159,8 @@ public class KakaoUserService {
      *  가입된 유저의 정보를 받아서 authentication 객체를 생성해서 프론트와 통신할 유효한 토큰을 생성하고 SecurityContextHolder에
      *  authentication 객체를 SET 해서 강제로 로그인처리.
      */
-    //이부분 수정 소셜로그인 유저의 권한이 자꾸 null로 찍혀서 가입이 안됨
-    UserDetails userDetails = new UserDetailsImpl(kakaoUser);
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    UserDetailsImpl member = (UserDetailsImpl) authentication.getPrincipal();
+    UserDetailsImpl member = new UserDetailsImpl(kakaoUser);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());
     //토큰생성
     MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
     response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());

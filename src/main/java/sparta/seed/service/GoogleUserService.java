@@ -144,7 +144,6 @@ public class GoogleUserService {
   // 3. 유저확인 & 회원가입
   private Member getUser(SocialMemberRequestDto requestDto) {
     // 다른 소셜로그인이랑 이메일이 겹쳐서 잘못 로그인 될까봐. 다른 사용자인줄 알고 로그인이 된다. 그래서 소셜아이디로 구분해보자
-
     String googleSocialID = requestDto.getSocialId();
     Member googleUser = memberRepository.findBySocialId(googleSocialID).orElse(null);
 
@@ -154,11 +153,12 @@ public class GoogleUserService {
       String socialId = requestDto.getSocialId();
       String password = UUID.randomUUID().toString();
       String profileImage = requestDto.getProfileImage();
-
+      String nickname = requestDto.getNickname();
       Member signUpMember = Member.builder()
               .username(username)
               .nickname(nickname)
               .password(password)
+              .nickname(nickname)
               .profileImage(profileImage)
               .socialId(socialId)
               .authority(Authority.ROLE_USER)
@@ -195,6 +195,8 @@ public class GoogleUserService {
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
             .refreshToken(responseDto.getRefreshToken())
+            .profileImage(member.getProfileImage())
+            .socialId(member.getSocialId())
             .build();
   }
 

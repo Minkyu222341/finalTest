@@ -145,7 +145,7 @@ public class NaverUserService {
     Member naverUser = memberRepository.findBySocialId(naverSocialID).orElse(null);
 
     if (naverUser == null) {  // 회원가입
-      String naverEmail = naverUserInfo.getUsername();
+      String username = naverUserInfo.getUsername();
       String socialId = naverUserInfo.getSocialId();
       String nickname = naverUserInfo.getNickname();
       String password = passwordEncoder.encode(UUID.randomUUID().toString()); // 비밀번호 암호화
@@ -153,7 +153,7 @@ public class NaverUserService {
 
       Member signUpMember = Member.builder()
               .socialId(socialId)
-              .username(naverEmail)
+              .username(username)
               .password(password)
               .profileImage(profileImage)
               .nickname(nickname)
@@ -192,6 +192,8 @@ public class NaverUserService {
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
             .refreshToken(responseDto.getRefreshToken())
+            .socialId(member.getSocialId())
+            .profileImage(member.getProfileImage())
             .build();
   }
 }
