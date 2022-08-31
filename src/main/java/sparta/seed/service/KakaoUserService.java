@@ -39,14 +39,17 @@ public class KakaoUserService {
 
   public MemberResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
     // 1. "인가 코드"로 "액세스 토큰" 요청
+    System.out.println("카카오 로그인 1번 접근");
     String accessToken = getAccessToken(code);
     // 2. 토큰으로 카카오 API 호출
+    System.out.println("카카오 로그인 2번 접근");
     SocialMemberRequestDto kakaoUserInfo = getKakaoUserInfo(accessToken);
     // 3. 필요시에 회원가입
+    System.out.println("카카오 로그인 3번 접근");
     Member kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
     // 4. 강제 로그인 처리
-    MemberResponseDto memberResponseDto = forceLogin(kakaoUser,response);
-    return memberResponseDto;
+    System.out.println("카카오 로그인 4번 접근");
+    return forceLogin(kakaoUser,response);
   }
 
   private String getAccessToken(String code) throws JsonProcessingException {
@@ -114,7 +117,7 @@ public class KakaoUserService {
     String username = jsonNode.get("kakao_account").get("email").asText();
     String profileImage = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
 
-    System.out.println("jsonNode = " + jsonNode.toString());
+    System.out.println("jsonNode = " + jsonNode);
 
     return SocialMemberRequestDto.builder()
             .socialId(id)
@@ -146,8 +149,7 @@ public class KakaoUserService {
               .profileImage(profileImage)
               .authority(Authority.ROLE_USER)
               .build();
-      Member signUpMember = memberRepository.save(signUp);
-      return signUpMember;
+      return memberRepository.save(signUp);
     }
     return member;
   }

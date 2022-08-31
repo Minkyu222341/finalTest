@@ -117,6 +117,7 @@ public class NaverUserService {
     // response에서 유저정보 가져오기
     String responseBody = response.getBody();
     ObjectMapper objectMapper = new ObjectMapper();
+
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
     String socialId = String.valueOf(jsonNode.get("response").get("id").asText());
@@ -125,9 +126,8 @@ public class NaverUserService {
 
 
     String profileImage = jsonNode.get("response").get("profile_image").asText();
-    String naverDefaultImg = "https://ssl.pstatic.net/static/pwe/address/img_profile.png";
     String defaultImage = "https://mytest-coffick.s3.ap-northeast-2.amazonaws.com/coffindBasicImage.png";
-    if (profileImage==null || profileImage.equals(naverDefaultImg))
+    if (profileImage==null)
       profileImage = defaultImage; // 우리 사이트 기본 이미지
 
     return SocialMemberRequestDto.builder()
@@ -186,6 +186,8 @@ public class NaverUserService {
             .id(member.getId())
             .username(member.getUsername())
             .nickname(member.getNickname())
+            .socialId(member.getSocialId())
+            .profileImage(member.getProfileImage())
             .accessToken(responseDto.getAccessToken())
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
