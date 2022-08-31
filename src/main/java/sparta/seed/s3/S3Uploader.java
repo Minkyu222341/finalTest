@@ -38,7 +38,6 @@ public class S3Uploader {
     // S3로 파일 업로드하기
     @Transactional
     public S3Dto uploadToS3(File uploadFile) throws IOException {
-
         String fileName = UUID.randomUUID() + uploadFile.getName();   // S3에 저장된 파일 이름
         String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
         removeNewFile(uploadFile);

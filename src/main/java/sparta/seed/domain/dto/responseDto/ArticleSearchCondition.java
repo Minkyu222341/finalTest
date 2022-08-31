@@ -5,6 +5,5 @@ import lombok.Data;
 
 @Data
 public class ArticleSearchCondition {
-  private String category;
   private String title;
 }
