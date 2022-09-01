@@ -6,22 +6,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.Article;
 import sparta.seed.domain.Img;
+import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.ArticleRequestDto;
 import sparta.seed.domain.dto.responseDto.ArticleResponseDto;
 import sparta.seed.domain.dto.responseDto.ArticleSearchCondition;
 import sparta.seed.repository.ArticleRepository;
 import sparta.seed.repository.ImgRepository;
+import sparta.seed.repository.ParticipantsRepository;
 import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
-import sparta.seed.util.TimeCustom;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +33,13 @@ public class ArticleService {
   private final ArticleRepository articleRepository;
   private final ImgRepository imgRepository;
   private final S3Uploader s3Uploader;
-  private final TimeCustom timeCustom;
+  private final ParticipantsRepository participantsRepository;
 
   /**
    * 게시글 전체조회 , 검색 , 스크롤
    */
   public Slice<ArticleResponseDto> getAllArticle(Pageable pageable, ArticleSearchCondition condition) {
-    QueryResults<Article> allArticle = articleRepository.getAllArticle(pageable,condition);
+    QueryResults<Article> allArticle = articleRepository.getAllArticle(pageable, condition);
     List<ArticleResponseDto> articleList = getAllArticleList(allArticle);
     boolean hasNext = hasNextPage(pageable, articleList);
     return new SliceImpl<>(articleList, pageable, hasNext);
@@ -51,7 +54,7 @@ public class ArticleService {
               .title(article.getTitle())
               .isRecruitment(article.isRecruitment())
               .participantsCnt(article.getParticipantsList().size())
-              .participantsPer(article.getParticipantsList().size()/article.getLimitParticipants())
+              .participantsPer(article.getParticipantsList().size() / article.getLimitParticipants())
               .build());
     }
     return articleList;
@@ -96,9 +99,9 @@ public class ArticleService {
                 .article(article)
                 .build();
         imgList.add(findImage);
+//        article.addImage(findImage);
         imgRepository.save(findImage);
       }
-
       articleRepository.save(article);
       return article;
     }
@@ -119,16 +122,69 @@ public class ArticleService {
   }
 
 
+  /**
+   * 게시글 상세조회
+   */
+  public ArticleResponseDto getDetailArticle(Long id) {
+    Optional<Article> detailArticle = articleRepository.findById(id);
+
+    return ArticleResponseDto.builder()
+            .articleId(detailArticle.get().getId())
+            .createAt(String.valueOf(detailArticle.get().getCreatedAt()))
+            .nickname(detailArticle.get().getNickname())
+            .imgList(detailArticle.get().getImgList())
+            .startDate(detailArticle.get().getStartDate())
+            .endDate(detailArticle.get().getEndDate())
+            .isSecret(detailArticle.get().isSecret())
+            .password(detailArticle.get().getPassword())
+            .title(detailArticle.get().getTitle())
+            .content(detailArticle.get().getContent())
+            .build();
+  }
 
 
+  /**
+   * 게시글 수정
+   */
+  @Transactional
+  public Boolean updateArticle(Long id, ArticleRequestDto articleRequestDto, UserDetailsImpl userDetails) {
+    Optional<Article> article = articleRepository.findById(id);
+    if (article.get().getMemberId().equals(userDetails.getId())) {
+      article.get().update(articleRequestDto);
+      return true;
+    }
+    return false;
+  }
 
+  /**
+   * 게시글 삭제
+   */
+  public Boolean deleteArticle(Long id, UserDetailsImpl userDetails) {
+    Optional<Article> article = articleRepository.findById(id);
+    if (article.get().getMemberId().equals(userDetails.getId())) {
+       articleRepository.deleteById(id);
+      return true;
+    }
+    return false;
+  }
 
-
-//  public ArticleResponseDto getDetailArticle(Long id) {
-//    Optional<Article> article = articleRepository.findById(id);
-//    ArticleResponseDto.builder()
-//            .
-//
-//    return null;
-//  }
+  /**
+   * 그룹미션 참여하기
+   */
+  public Boolean joinMission(Long id, UserDetailsImpl userDetails) {
+    Optional<Article> article = articleRepository.findById(id);
+    Long loginUserId = userDetails.getId();
+    long limitParticipantCount = article.get().getLimitParticipants();
+    int participantSize = article.get().getParticipantsList().size();
+    if (!participantsRepository.existsByArticleAndMemberId(article.get(), loginUserId) && participantSize < limitParticipantCount) {
+      Participants participants = Participants.builder()
+              .article(article.get())
+              .memberId(loginUserId)
+              .build();
+      article.get().addParticipant(participants);
+      participantsRepository.save(participants);
+      return true;
+    }
+    return false;
+  }
 }
