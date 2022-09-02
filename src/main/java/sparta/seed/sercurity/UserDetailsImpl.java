@@ -48,7 +48,6 @@ public class UserDetailsImpl implements UserDetails {
         return member.getNickname();
     }
 
-
     public Long getId() {
         return member.getId();
     }

@@ -163,7 +163,6 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
     response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());
     response.setHeader("Access-Token-Expire-Time", String.valueOf(memberResponseDto.getAccessTokenExpiresIn()));
-
     return MemberResponseDto.builder()
             .id(member.getId())
             .username(member.getUsername())
