@@ -162,29 +162,39 @@ public class ArticleService {
   public Boolean deleteArticle(Long id, UserDetailsImpl userDetails) {
     Optional<Article> article = articleRepository.findById(id);
     if (article.get().getMemberId().equals(userDetails.getId())) {
-       articleRepository.deleteById(id);
+      articleRepository.deleteById(id);
       return true;
     }
     return false;
   }
 
   /**
-   * 그룹미션 참여하기
+   * 그룹미션 참여 , 취소 하기
    */
+  @Transactional
   public Boolean joinMission(Long id, UserDetailsImpl userDetails) {
     Optional<Article> article = articleRepository.findById(id);
     Long loginUserId = userDetails.getId();
     long limitParticipantCount = article.get().getLimitParticipants();
     int participantSize = article.get().getParticipantsList().size();
-    if (!participantsRepository.existsByArticleAndMemberId(article.get(), loginUserId) && participantSize < limitParticipantCount) {
-      Participants participants = Participants.builder()
-              .article(article.get())
-              .memberId(loginUserId)
-              .build();
-      article.get().addParticipant(participants);
-      participantsRepository.save(participants);
-      return true;
+    if (participantsRepository.existsByArticleAndMemberId(article.get(), loginUserId) || participantSize >= limitParticipantCount) {
+      participantsRepository.deleteByMemberId(loginUserId);
+      return false;
     }
-    return false;
+    Participants participants = Participants.builder()
+            .article(article.get())
+            .memberId(loginUserId)
+            .build();
+    article.get().addParticipant(participants);
+    participantsRepository.save(participants);
+    return true;
+  }
+
+  /**
+   * 참여현황
+   */
+  public List<Participants> getParticipantsList(Long id) {
+    Optional<Article> article = articleRepository.findById(id);
+    return participantsRepository.findByArticle(article.get());
   }
 }

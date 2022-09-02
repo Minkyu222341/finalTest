@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.Article;
+import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.ArticleRequestDto;
 import sparta.seed.domain.dto.responseDto.ArticleResponseDto;
 import sparta.seed.domain.dto.responseDto.ArticleSearchCondition;
@@ -54,7 +55,7 @@ public class ArticleController {
    * 그룹미션 수정
    */
   @PatchMapping("/api/articles/{id}")
-  private Boolean updateArticle(@PathVariable Long id, @RequestBody ArticleRequestDto articleRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public Boolean updateArticle(@PathVariable Long id, @RequestBody ArticleRequestDto articleRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return articleService.updateArticle(id, articleRequestDto, userDetails);
   }
 
@@ -63,8 +64,8 @@ public class ArticleController {
    * 그룹미션 삭제하기
    */
   @DeleteMapping("/api/articles/{id}")
-  private Boolean deleteArticle(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    return articleService.deleteArticle(id,userDetails);
+  public Boolean deleteArticle(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return articleService.deleteArticle(id, userDetails);
   }
 
 
@@ -72,14 +73,15 @@ public class ArticleController {
    * 그룹미션 참여하기
    */
   @PatchMapping("/api/articles/join/{id}")
-  private Boolean joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    return articleService.joinMission(id,userDetails);
+  public Boolean joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return articleService.joinMission(id, userDetails);
   }
 
   /**
    * 그룹미션 참여현황
    */
-
-
-
+  @GetMapping("/api/articles/{id}/participants")
+  public List<Participants> ParticipantsList(@PathVariable Long id) {
+    return articleService.getParticipantsList(id);
+  }
 }
