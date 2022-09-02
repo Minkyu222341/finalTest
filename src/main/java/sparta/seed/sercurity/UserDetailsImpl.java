@@ -43,16 +43,16 @@ public class UserDetailsImpl implements UserDetails {
         return member.getNickname();
     }
 
-    public String getProfileImage(){
-        return member.getProfileImage();
+    public Long getId() {
+        return member.getId();
     }
 
-    public String getSocialId(){
+    public String getSocialId() {
         return member.getSocialId();
     }
 
-    public Long getId() {
-        return member.getId();
+    public String getProfileImage() {
+        return member.getProfileImage();
     }
 
 

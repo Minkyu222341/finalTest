@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -144,7 +142,6 @@ public class GoogleUserService {
   // 3. 유저확인 & 회원가입
   private Member getUser(SocialMemberRequestDto requestDto) {
     // 다른 소셜로그인이랑 이메일이 겹쳐서 잘못 로그인 될까봐. 다른 사용자인줄 알고 로그인이 된다. 그래서 소셜아이디로 구분해보자
-
     String googleSocialID = requestDto.getSocialId();
     Member googleUser = memberRepository.findBySocialId(googleSocialID).orElse(null);
 
@@ -154,7 +151,6 @@ public class GoogleUserService {
       String socialId = requestDto.getSocialId();
       String password = UUID.randomUUID().toString();
       String profileImage = requestDto.getProfileImage();
-
       Member signUpMember = Member.builder()
               .username(username)
               .nickname(nickname)
@@ -195,6 +191,7 @@ public class GoogleUserService {
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
             .refreshToken(responseDto.getRefreshToken())
+            .profileImage(member.getProfileImage())
             .build();
   }
 

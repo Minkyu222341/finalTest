@@ -11,11 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -30,8 +25,6 @@ import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,14 +38,17 @@ public class KakaoUserService {
 
   public MemberResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
     // 1. "인가 코드"로 "액세스 토큰" 요청
+    System.out.println("카카오 로그인 1번 접근");
     String accessToken = getAccessToken(code);
     // 2. 토큰으로 카카오 API 호출
+    System.out.println("카카오 로그인 2번 접근");
     SocialMemberRequestDto kakaoUserInfo = getKakaoUserInfo(accessToken);
     // 3. 필요시에 회원가입
+    System.out.println("카카오 로그인 3번 접근");
     Member kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
     // 4. 강제 로그인 처리
-    MemberResponseDto memberResponseDto = forceLogin(kakaoUser,response);
-    return memberResponseDto;
+    System.out.println("카카오 로그인 4번 접근");
+    return forceLogin(kakaoUser,response);
   }
 
   private String getAccessToken(String code) throws JsonProcessingException {
@@ -64,8 +60,8 @@ public class KakaoUserService {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", "f072c106f2f26c3921bee727b2df0ccd");
-//    body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
-    body.add("redirect_uri", "http://localhost:3000/user/kakao/callback");
+    body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
+//    body.add("redirect_uri", "http://localhost:3000/user/kakao/callback");
     body.add("code", code);
     /**
      * 받은 인가코드로 카카오에 엑세스토큰 요청
@@ -120,7 +116,7 @@ public class KakaoUserService {
     String username = jsonNode.get("kakao_account").get("email").asText();
     String profileImage = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
 
-    System.out.println("jsonNode = " + jsonNode.toString());
+    System.out.println("jsonNode = " + jsonNode);
 
     return SocialMemberRequestDto.builder()
             .socialId(id)
@@ -136,8 +132,8 @@ public class KakaoUserService {
      */
     // DB 에 중복된 Kakao Id 가 있는지 확인
     String socialId = kakaoUserInfo.getSocialId();
-    Optional<Member> member = memberRepository.findBySocialId(socialId);
-    if (!member.empty().isPresent()) {
+    Member member = memberRepository.findBySocialId(socialId).orElse(null);
+    if (member==null) {
       // 회원가입
       String username = kakaoUserInfo.getUsername();
       String nickname = kakaoUserInfo.getNickname();
@@ -152,10 +148,9 @@ public class KakaoUserService {
               .profileImage(profileImage)
               .authority(Authority.ROLE_USER)
               .build();
-      Member signUpMember = memberRepository.save(signUp);
-      return signUpMember;
+      return memberRepository.save(signUp);
     }
-    return member.get();
+    return member;
   }
 
   private MemberResponseDto forceLogin(Member kakaoUser,HttpServletResponse response) {
@@ -163,17 +158,12 @@ public class KakaoUserService {
      *  가입된 유저의 정보를 받아서 authentication 객체를 생성해서 프론트와 통신할 유효한 토큰을 생성하고 SecurityContextHolder에
      *  authentication 객체를 SET 해서 강제로 로그인처리.
      */
-    //이부분 수정 소셜로그인 유저의 권한이 자꾸 null로 찍혀서 가입이 안됨
-    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(kakaoUser.getAuthority().toString());
-    UserDetails userDetails = new User(kakaoUser.getUsername(), kakaoUser.getPassword(), Collections.singleton(grantedAuthority));
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    UserDetailsImpl member = (UserDetailsImpl) authentication.getPrincipal();
+    UserDetailsImpl member = new UserDetailsImpl(kakaoUser);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());
     //토큰생성
     MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
     response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());
     response.setHeader("Access-Token-Expire-Time", String.valueOf(memberResponseDto.getAccessTokenExpiresIn()));
-    //로그인이 실제로 일어나는 부분
-    SecurityContextHolder.getContext().setAuthentication(authentication);
     return MemberResponseDto.builder()
             .id(member.getId())
             .username(member.getUsername())

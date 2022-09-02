@@ -1,14 +1,19 @@
 package sparta.seed.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
+@Getter
 public class Article extends Timestamped {
   //PK
   @Id
@@ -22,33 +27,52 @@ public class Article extends Timestamped {
   private Long memberId;
   //내용
   private String content;
-  //모집시작일
-  private Timestamp startRecruitment;
-  //모집마감일
-  private Timestamp endRecruitment;
   //캠페인시작일
-  private Timestamp startDate;
+  private String startDate;
   //캠페인마감일
-  private Timestamp endDate;
-  //인증주기
-  //인증횟수
+  private String endDate;
+  //목표 달성 횟수
+  private long limitScore;
+  //참가인원 제한
+  private long limitParticipants;
   //비밀글여부
   private boolean isSecret;
   //글비밀번호
   private String password;
-  //카테고리
-  private String category;
-  //좋아요
-  @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
-  @JsonManagedReference
-  private List<Heart> heartList = new ArrayList<>();
-
+  //모집여부
+  @ColumnDefault("true")
+  private boolean isRecruitment;
   @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Replay> replayList = new ArrayList<>();
-
   @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
+
+  @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private List<Participants> participantsList = new ArrayList<>();
+
+
+  @Builder
+
+  public Article(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
+    this.id = id;
+    this.title = title;
+    this.nickname = nickname;
+    this.memberId = memberId;
+    this.content = content;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.limitScore = limitScore;
+    this.limitParticipants = limitParticipants;
+    this.isSecret = isSecret;
+    this.password = password;
+    this.isRecruitment = isRecruitment;
+    this.replayList = replayList;
+    this.imgList = imgList;
+    this.participantsList = participantsList;
+  }
+
 
 }
