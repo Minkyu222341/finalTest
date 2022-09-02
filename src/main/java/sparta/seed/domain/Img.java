@@ -35,13 +35,19 @@ public class Img extends Timestamped {
   @JoinColumn(name = "campaignId")
   private Campaign campaign;
 
+  @OneToOne
+  @JsonBackReference
+  @JoinColumn(name = "commentId")
+  private Comment comment;
+
   @Builder
-  public Img(Long id, String imgUrl, String fileName, Article article, Replay replay, Campaign campaign) {
+  public Img(Long id, String imgUrl, String fileName, Article article, Replay replay, Campaign campaign, Comment comment) {
     this.id = id;
     this.imgUrl = imgUrl;
     this.fileName = fileName;
     this.article = article;
     this.replay = replay;
     this.campaign = campaign;
+    this.comment = comment;
   }
 }
