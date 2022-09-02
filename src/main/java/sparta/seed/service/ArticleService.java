@@ -175,6 +175,7 @@ public class ArticleService {
   public Boolean joinMission(Long id, UserDetailsImpl userDetails) {
     Optional<Article> article = articleRepository.findById(id);
     Long loginUserId = userDetails.getId();
+    String nickname = userDetails.getNickname();
     long limitParticipantCount = article.get().getLimitParticipants();
     int participantSize = article.get().getParticipantsList().size();
     if (participantsRepository.existsByArticleAndMemberId(article.get(), loginUserId) || participantSize >= limitParticipantCount) {
@@ -184,6 +185,7 @@ public class ArticleService {
     Participants participants = Participants.builder()
             .article(article.get())
             .memberId(loginUserId)
+            .nickname(nickname)
             .build();
     article.get().addParticipant(participants);
     participantsRepository.save(participants);
@@ -195,6 +197,6 @@ public class ArticleService {
    */
   public List<Participants> getParticipantsList(Long id) {
     Optional<Article> article = articleRepository.findById(id);
-    return participantsRepository.findByArticle(article.get());
+    return article.get().getParticipantsList();
   }
 }
