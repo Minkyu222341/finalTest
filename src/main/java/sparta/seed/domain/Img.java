@@ -30,12 +30,12 @@ public class Img extends Timestamped {
   @JoinColumn(name = "replayId")
   private Replay replay;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "campaignId")
   private Campaign campaign;
 
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "commentId")
   private Comment comment;
