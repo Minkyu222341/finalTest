@@ -42,10 +42,6 @@ public class Article extends Timestamped {
   //모집여부
   @ColumnDefault("true")
   private boolean isRecruitment;
-  //좋아요
-  @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-  @JsonManagedReference
-  private List<Heart> heartList = new ArrayList<>();
   @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Replay> replayList = new ArrayList<>();
@@ -60,7 +56,7 @@ public class Article extends Timestamped {
 
   @Builder
 
-  public Article(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Heart> heartList, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
+  public Article(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
     this.nickname = nickname;
@@ -73,7 +69,6 @@ public class Article extends Timestamped {
     this.isSecret = isSecret;
     this.password = password;
     this.isRecruitment = isRecruitment;
-    this.heartList = heartList;
     this.replayList = replayList;
     this.imgList = imgList;
     this.participantsList = participantsList;
