@@ -191,7 +191,6 @@ public class GoogleUserService {
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
             .refreshToken(responseDto.getRefreshToken())
-            .profileImage(member.getProfileImage())
             .build();
   }
 
