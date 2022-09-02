@@ -192,8 +192,6 @@ public class NaverUserService {
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
             .refreshToken(responseDto.getRefreshToken())
-            .socialId(member.getSocialId())
-            .profileImage(member.getProfileImage())
             .build();
   }
 }

@@ -11,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -165,8 +164,6 @@ public class KakaoUserService {
     MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
     response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());
     response.setHeader("Access-Token-Expire-Time", String.valueOf(memberResponseDto.getAccessTokenExpiresIn()));
-    //로그인이 실제로 일어나는 부분
-    SecurityContextHolder.getContext().setAuthentication(authentication);
     return MemberResponseDto.builder()
             .id(member.getId())
             .username(member.getUsername())
