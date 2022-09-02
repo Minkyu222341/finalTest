@@ -17,15 +17,15 @@ public class Heart {
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "articleId")
-    private Article article;
+    @JoinColumn(name = "replayId")
+    private Replay replay;
     //누른 유저의 Pk
     private Long memberId;
 
     @Builder
-    public Heart(Long id, Article article, Long memberId) {
+    public Heart(Long id, Replay replay, Long memberId) {
         this.id = id;
-        this.article = article;
+        this.replay = replay;
         this.memberId = memberId;
     }
 

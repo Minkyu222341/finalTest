@@ -25,23 +25,29 @@ public class Img extends Timestamped {
   @JoinColumn(name = "articleId")
   private Article article;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "replayId")
   private Replay replay;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "campaignId")
   private Campaign campaign;
 
+  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+  @JsonBackReference
+  @JoinColumn(name = "commentId")
+  private Comment comment;
+
   @Builder
-  public Img(Long id, String imgUrl, String fileName, Article article, Replay replay, Campaign campaign) {
+  public Img(Long id, String imgUrl, String fileName, Article article, Replay replay, Campaign campaign, Comment comment) {
     this.id = id;
     this.imgUrl = imgUrl;
     this.fileName = fileName;
     this.article = article;
     this.replay = replay;
     this.campaign = campaign;
+    this.comment = comment;
   }
 }

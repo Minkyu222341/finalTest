@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -153,12 +151,10 @@ public class GoogleUserService {
       String socialId = requestDto.getSocialId();
       String password = UUID.randomUUID().toString();
       String profileImage = requestDto.getProfileImage();
-      String nickname = requestDto.getNickname();
       Member signUpMember = Member.builder()
               .username(username)
               .nickname(nickname)
               .password(password)
-              .nickname(nickname)
               .profileImage(profileImage)
               .socialId(socialId)
               .authority(Authority.ROLE_USER)
@@ -195,8 +191,6 @@ public class GoogleUserService {
             .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
             .grantType(responseDto.getGrantType())
             .refreshToken(responseDto.getRefreshToken())
-            .profileImage(member.getProfileImage())
-            .socialId(member.getSocialId())
             .build();
   }
 

@@ -18,6 +18,7 @@ public class UserDetailsImpl implements UserDetails {
     }
 
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String authority = "ROLE_USER";
@@ -27,6 +28,10 @@ public class UserDetailsImpl implements UserDetails {
         authorities.add(simpleGrantedAuthority);
 
         return authorities;
+    }
+
+    public Member getMember() {
+        return member;
     }
 
     @Override
@@ -41,14 +46,6 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getNickname(){
         return member.getNickname();
-    }
-
-    public String getProfileImage(){
-        return member.getProfileImage();
-    }
-
-    public String getSocialId(){
-        return member.getSocialId();
     }
 
     public Long getId() {

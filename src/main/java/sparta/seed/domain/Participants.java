@@ -20,11 +20,16 @@ public class Participants {
   private Article article;
 
   private Long memberId;
+  private String nickname;
+
+
+
 
   @Builder
-  public Participants(Long id, Article article, Long memberId) {
+  public Participants(Long id, Article article, Long memberId,String nickname) {
     this.id = id;
     this.article = article;
     this.memberId = memberId;
+    this.nickname = nickname;
   }
 }

@@ -11,8 +11,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -31,10 +31,12 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class KakaoUserService {
+public class KakaoUserService extends DefaultOAuth2UserService {
   private final PasswordEncoder passwordEncoder;
   private final TokenProvider tokenProvider;
   private final MemberRepository memberRepository;
+
+
 
 
   public MemberResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
@@ -155,18 +157,12 @@ public class KakaoUserService {
   }
 
   private MemberResponseDto forceLogin(Member kakaoUser,HttpServletResponse response) {
-    /**
-     *  가입된 유저의 정보를 받아서 authentication 객체를 생성해서 프론트와 통신할 유효한 토큰을 생성하고 SecurityContextHolder에
-     *  authentication 객체를 SET 해서 강제로 로그인처리.
-     */
     UserDetailsImpl member = new UserDetailsImpl(kakaoUser);
     Authentication authentication = new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());
     //토큰생성
     MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
     response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());
     response.setHeader("Access-Token-Expire-Time", String.valueOf(memberResponseDto.getAccessTokenExpiresIn()));
-    //로그인이 실제로 일어나는 부분
-    SecurityContextHolder.getContext().setAuthentication(authentication);
     return MemberResponseDto.builder()
             .id(member.getId())
             .username(member.getUsername())
