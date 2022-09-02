@@ -26,5 +26,4 @@ public abstract class Timestamped { //abstract클래스는 new Timestamped와 �
     private LocalDateTime modifiedAt;
 
 
-
 }

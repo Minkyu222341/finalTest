@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.Article;
+import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.ArticleRequestDto;
 import sparta.seed.domain.dto.responseDto.ArticleResponseDto;
 import sparta.seed.domain.dto.responseDto.ArticleSearchCondition;
@@ -29,32 +30,19 @@ public class ArticleController {
   @GetMapping("/api/articles")
   public Slice<ArticleResponseDto> getAllArticle(Pageable pageable, ArticleSearchCondition condition) {
     System.out.println("ArticleController.getAllArticle");
-    return articleService.getAllArticle(pageable,condition);
+    return articleService.getAllArticle(pageable, condition);
   }
 
   /**
    * 그룹미션 상세조회
    */
-//  @GetMapping("/api/articles/{id}")
-//  public ArticleResponseDto getDetailArticle(@PathVariable Long id) {
-//    return articleService.getDetailArticle(id);
-//  }
-
-
-  /**
-   * 그룹미션 댓글 , 좋아요 갯수 조회
-   */
+  @GetMapping("/api/articles/{id}")
+  public ArticleResponseDto getDetailArticle(@PathVariable Long id) {
+    return articleService.getDetailArticle(id);
+  }
 
   /**
-   * 그룹미션 참여현황
-   */
-
-  /**
-   * 그룹미션 참여하기
-   */
-
-  /**
-   * 게시글 작성
+   * 그룹미션 작성
    */
   @PostMapping(value = "/api/articles", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
   public Article creatMemo(@RequestPart(value = "dto") ArticleRequestDto requestDto,
@@ -63,16 +51,37 @@ public class ArticleController {
     return articleService.createArticle(requestDto, multipartFile, userDetails);
   }
 
+  /**
+   * 그룹미션 수정
+   */
+  @PatchMapping("/api/articles/{id}")
+  public Boolean updateArticle(@PathVariable Long id, @RequestBody ArticleRequestDto articleRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return articleService.updateArticle(id, articleRequestDto, userDetails);
+  }
+
 
   /**
-   * 게시글 수정
+   * 그룹미션 삭제하기
    */
-
+  @DeleteMapping("/api/articles/{id}")
+  public Boolean deleteArticle(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return articleService.deleteArticle(id, userDetails);
+  }
 
 
   /**
-   * 게시글 삭제하기
+   * 그룹미션 참여하기
    */
+  @PatchMapping("/api/articles/join/{id}")
+  public Boolean joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return articleService.joinMission(id, userDetails);
+  }
 
-
+  /**
+   * 그룹미션 참여현황
+   */
+  @GetMapping("/api/articles/{id}/participants")
+  public List<Participants> ParticipantsList(@PathVariable Long id) {
+    return articleService.getParticipantsList(id);
+  }
 }

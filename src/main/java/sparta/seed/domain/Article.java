@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import sparta.seed.domain.dto.requestDto.ArticleRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -59,7 +60,6 @@ public class Article extends Timestamped {
 
 
   @Builder
-
   public Article(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Heart> heartList, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
@@ -77,6 +77,25 @@ public class Article extends Timestamped {
     this.replayList = replayList;
     this.imgList = imgList;
     this.participantsList = participantsList;
+  }
+
+  public void update(ArticleRequestDto requestDto) {
+    this.startDate = requestDto.getStartDate();
+    this.endDate = requestDto.getEndDate();
+    this.limitScore = requestDto.getLimitScore();
+    this.limitParticipants = requestDto.getLimitParticipants();
+    this.isSecret = requestDto.isSecret();
+    this.password = requestDto.getPassword();
+    this.title = requestDto.getTitle();
+    this.content = requestDto.getContent();
+  }
+
+  public void addParticipant(Participants participants) {
+    participantsList.add(participants);
+  }
+
+  public void addImage(Img img) {
+    imgList.add(img);
   }
 
 
