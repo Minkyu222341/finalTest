@@ -25,7 +25,7 @@ public class Img extends Timestamped {
   @JoinColumn(name = "articleId")
   private Article article;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "replayId")
   private Replay replay;
