@@ -5,7 +5,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.dto.requestDto.CampaignRequestDto;
-import sparta.seed.domain.dto.requestDto.ReplayRequestDto;
 import sparta.seed.domain.dto.responseDto.CampaignResponseDto;
 import sparta.seed.service.CampaignService;
 

@@ -6,5 +6,5 @@ import sparta.seed.domain.Comment;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
-	List<Comment> findAllByReplay_Id(Long replayId);
+	List<Comment> findAllByProof_Id(Long replayId);
 }
