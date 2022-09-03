@@ -22,7 +22,6 @@ public class CampaignController {
    */
 	@GetMapping("/api/campaigns")
 	public List<CampaignResponseDto> getAllCampaign(@RequestParam("page") int page, @RequestParam("size") int size){
-		page = page-1;
 		return campaignService.getAllCampaign(page, size);
 	}
 

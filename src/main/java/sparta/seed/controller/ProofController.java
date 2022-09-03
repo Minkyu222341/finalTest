@@ -28,7 +28,6 @@ public class ProofController {
                                              @RequestParam("size") int size,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
 
-	  page = page-1;
 			return proofService.getAllReplay(communityId, page, size, userDetails);
 	}
 
