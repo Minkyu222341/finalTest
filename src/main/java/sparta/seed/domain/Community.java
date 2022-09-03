@@ -45,7 +45,7 @@ public class Community extends Timestamped {
   private boolean isRecruitment;
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
-  private List<Replay> replayList = new ArrayList<>();
+  private List<Proof> proofList = new ArrayList<>();
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
@@ -56,7 +56,7 @@ public class Community extends Timestamped {
 
 
   @Builder
-  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
+  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Proof> proofList, List<Img> imgList, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
     this.nickname = nickname;
@@ -69,7 +69,7 @@ public class Community extends Timestamped {
     this.isSecret = isSecret;
     this.password = password;
     this.isRecruitment = isRecruitment;
-    this.replayList = replayList;
+    this.proofList = proofList;
     this.imgList = imgList;
     this.participantsList = participantsList;
   }

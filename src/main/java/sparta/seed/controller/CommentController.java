@@ -22,20 +22,20 @@ public class CommentController {
   /**
    * 댓글 조회
    */
-	@GetMapping("/api/comments/{replayId}")
-	public List<CommentResponseDto> getAllComment(@PathVariable Long replayId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-		return commentService.getAllComment(replayId, userDetails);
+	@GetMapping("/api/comments/{proofId}")
+	public List<CommentResponseDto> getAllComment(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+		return commentService.getAllComment(proofId, userDetails);
 	}
 
   /**
    * 댓글작성
    */
-	@PostMapping(value = "/api/comments/{replayId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public CommentResponseDto createComment(@PathVariable Long replayId,
+	@PostMapping(value = "/api/comments/{proofId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+	public CommentResponseDto createComment(@PathVariable Long proofId,
 	                                        @Valid @RequestPart(value = "dto") CommentRequestDto commentRequestDto,
 	                                        @RequestPart(required = false) MultipartFile multipartFile,
 	                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-		return commentService.createComment(replayId, commentRequestDto, multipartFile, userDetails);
+		return commentService.createComment(proofId, commentRequestDto, multipartFile, userDetails);
 	}
 
 	/**

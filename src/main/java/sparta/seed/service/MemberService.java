@@ -29,9 +29,9 @@ public class MemberService {
   /**
    * 마이페이지
    */
-  public MemberResponseDto getMyPage(UserDetailsImpl userDetails) {
+  public ResponseEntity<MemberResponseDto> getMyPage(UserDetailsImpl userDetails) {
     Optional<Member> member = memberRepository.findById(userDetails.getId());
-    return MemberResponseDto.builder()
+    MemberResponseDto memberResponseDto = MemberResponseDto.builder()
             .id(member.get().getId())
             .nickname(member.get().getNickname())
             .profileImage(member.get().getProfileImage())
@@ -40,6 +40,7 @@ public class MemberService {
             .exp(member.get().getExp())
             .nextLevelExp(20) //로직 아직 고민중
             .build();
+    return ResponseEntity.ok().body(memberResponseDto);
   }
 
   /**
@@ -66,7 +67,7 @@ public class MemberService {
               .communityId(community.getId())
               .createAt(String.valueOf(community.getCreatedAt()))
               .title(community.getTitle())
-              .successPercent(community.getReplayList().size() / community.getLimitScore() * 100) // 인증글 갯수에 비례한 달성도
+              .successPercent(community.getProofList().size() / community.getLimitScore() * 100) // 인증글 갯수에 비례한 달성도
               .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId())) // 내가 이 모임글의 작성자인지
               .dateStatus(getDateStatus(community)) // 모임이 시작전인지 시작했는지 종료되었는지
               .isRecruitment(getDateStatus(community).equals("before"))
@@ -78,4 +79,23 @@ public class MemberService {
   private String getDateStatus(Community community) throws ParseException {
     return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
+
+  /**
+   * 유저정보 공개 / 비공개 설정
+   */
+  @Transactional
+  public ResponseEntity<Boolean> isSceret(UserDetailsImpl userDetails) {
+    Optional<Member> member = memberRepository.findById(userDetails.getId());
+    if (!member.get().isSecret()) {
+      member.get().updateIsSecret(true);
+      return ResponseEntity.ok().body(true);
+    }
+    member.get().updateIsSecret(false);
+    return ResponseEntity.ok().body(false);
+  }
+
+  /**
+   * 다른유저 정보 확인
+   */
+
 }

@@ -26,6 +26,7 @@ import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -113,9 +114,14 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
+    Random rnd = new Random();
+    String rdNick="";
+    for (int i = 0; i < 8; i++) {
+      rdNick += String.valueOf(rnd.nextInt(10));
+    }
 
     String id = jsonNode.get("id").toString();
-    String nickname = jsonNode.get("properties").get("nickname").asText();
+    String nickname = "K" + "_" + rdNick;
     String username = jsonNode.get("kakao_account").get("email").asText();
     String profileImage = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
 

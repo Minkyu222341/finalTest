@@ -7,6 +7,8 @@ import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -33,6 +35,11 @@ public class Member extends Timestamped {
   private Integer level;
   private Integer exp;
 
+  @ElementCollection
+  private Map<String,Boolean> dailyMission = new HashMap<>(6,1);
+
+  private boolean isSecret;
+
   @Builder
   public Member(Long id, String username, String password, String nickname, String socialId, Authority authority, String profileImage, Integer level, Integer exp) {
     this.id = id;
@@ -48,5 +55,9 @@ public class Member extends Timestamped {
 
   public void updateNickname(SocialMemberRequestDto requestDto) {
     nickname = requestDto.getNickname();
+  }
+
+  public void updateIsSecret(boolean isSecret) {
+    this.isSecret = isSecret;
   }
 }

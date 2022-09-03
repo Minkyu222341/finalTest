@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Entity
@@ -28,20 +26,20 @@ public class Comment extends Timestamped {
   //인증글
   @ManyToOne
   @JsonBackReference
-  @JoinColumn(name = "replay_id")
-  private Replay replay;
+  @JoinColumn(name = "proof_id")
+  private Proof proof;
 
   @OneToOne(mappedBy = "comment", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private Img img;
 
   @Builder
-  public Comment(String nickname, Long memberId, String content, Img img, Replay replay) {
+  public Comment(String nickname, Long memberId, String content, Img img, Proof proof) {
     this.nickname = nickname;
     this.memberId = memberId;
     this.content = content;
     this.img = img;
-    this.replay = replay;
+    this.proof = proof;
   }
 
   public void update(String content){

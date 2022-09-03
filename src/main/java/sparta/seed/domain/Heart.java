@@ -17,15 +17,15 @@ public class Heart {
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "replayId")
-    private Replay replay;
+    @JoinColumn(name = "proofId")
+    private Proof proof;
     //누른 유저의 Pk
     private Long memberId;
 
     @Builder
-    public Heart(Long id, Replay replay, Long memberId) {
+    public Heart(Long id, Proof proof, Long memberId) {
         this.id = id;
-        this.replay = replay;
+        this.proof = proof;
         this.memberId = memberId;
     }
 

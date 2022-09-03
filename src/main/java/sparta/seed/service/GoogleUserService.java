@@ -27,6 +27,7 @@ import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -121,9 +122,16 @@ public class GoogleUserService {
 
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
+    Random rnd = new Random();
+    String rdNick="";
+    for (int i = 0; i < 8; i++) {
+      rdNick += String.valueOf(rnd.nextInt(10));
+    }
+
+
     String socialId = jsonNode.get("sub").asText();
     String userEmail = jsonNode.get("email").asText();
-    String nickname = jsonNode.get("name").asText();
+    String nickname = "G" + "_" + rdNick;
 
     // 구글에서 이미지 가져오기
     String profileImage = jsonNode.get("picture").asText();

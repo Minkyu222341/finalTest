@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Replay extends Timestamped {
+public class Proof extends Timestamped {
   //PK
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,21 +34,21 @@ public class Replay extends Timestamped {
   private Community community;
 
   //이미지리스트
-  @OneToMany(mappedBy = "replay", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "proof", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
 
   //댓글리스트
-  @OneToMany(mappedBy = "replay",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "proof",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
   private List<Comment> commentList = new ArrayList<>();
 
   //좋아요
-  @OneToMany(mappedBy = "replay", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "proof", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Heart> heartList = new ArrayList<>();
 
   @Builder
-  public Replay(Long memberId, String nickname, String title, String content, Community community) {
+  public Proof(Long memberId, String nickname, String title, String content, Community community) {
     this.memberId = memberId;
     this.nickname = nickname;
     this.title = title;
