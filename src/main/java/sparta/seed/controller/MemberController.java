@@ -3,10 +3,7 @@ package sparta.seed.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
@@ -25,12 +22,16 @@ public class MemberController {
   /**
    * 유저 정보보기
    */
-
+//  @GetMapping("/api/userinfo/{memberId}")
+//  public ResponseEntity<MemberResponseDto> getMemberInfo(@PathVariable Long memberId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//    return memberService.getMemberInfo(memberId,userDetails);
+//  }
   /**
    * 마이페이지
    */
   @GetMapping("/api/mypage")
-  public MemberResponseDto getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<MemberResponseDto> getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
     return memberService.getMyPage(userDetails);
   }
 
@@ -49,7 +50,6 @@ public class MemberController {
   public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return memberService.showGroupMissionList(userDetails);
   }
-
 
   /**
    * 미션 통계 - 주간 , 월간

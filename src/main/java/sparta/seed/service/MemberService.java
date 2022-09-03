@@ -29,9 +29,9 @@ public class MemberService {
   /**
    * 마이페이지
    */
-  public MemberResponseDto getMyPage(UserDetailsImpl userDetails) {
+  public ResponseEntity<MemberResponseDto> getMyPage(UserDetailsImpl userDetails) {
     Optional<Member> member = memberRepository.findById(userDetails.getId());
-    return MemberResponseDto.builder()
+    MemberResponseDto memberResponseDto = MemberResponseDto.builder()
             .id(member.get().getId())
             .nickname(member.get().getNickname())
             .profileImage(member.get().getProfileImage())
@@ -40,6 +40,7 @@ public class MemberService {
             .exp(member.get().getExp())
             .nextLevelExp(20) //로직 아직 고민중
             .build();
+    return ResponseEntity.ok().body(memberResponseDto);
   }
 
   /**
@@ -78,4 +79,17 @@ public class MemberService {
   private String getDateStatus(Community community) throws ParseException {
     return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
+
+  /**
+   * 다른유저 정보 확인
+   */
+//  public ResponseEntity<MemberResponseDto> getMemberInfo(Long memberId, UserDetailsImpl userDetails) {
+//    Optional<Member> member = memberRepository.findById(memberId);
+//
+//    MemberResponseDto.builder()
+//            .id(member.get().getId())
+//            .nickname(member.get().getNickname())
+//            .profileImage(member.get().getProfileImage())
+//            .totalClear(member.get())
+//  }
 }
