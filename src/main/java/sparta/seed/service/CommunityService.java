@@ -57,8 +57,6 @@ public class CommunityService {
     }
     return hasNext;
   }
-
-
   private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {

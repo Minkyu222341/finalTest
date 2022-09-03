@@ -22,10 +22,7 @@ public class MemberController {
   /**
    * 유저 정보보기
    */
-//  @GetMapping("/api/userinfo/{memberId}")
-//  public ResponseEntity<MemberResponseDto> getMemberInfo(@PathVariable Long memberId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//    return memberService.getMemberInfo(memberId,userDetails);
-//  }
+
   /**
    * 마이페이지
    */

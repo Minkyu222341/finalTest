@@ -97,13 +97,5 @@ public class MemberService {
   /**
    * 다른유저 정보 확인
    */
-//  public ResponseEntity<MemberResponseDto> getMemberInfo(Long memberId, UserDetailsImpl userDetails) {
-//    Optional<Member> member = memberRepository.findById(memberId);
-//
-//    MemberResponseDto.builder()
-//            .id(member.get().getId())
-//            .nickname(member.get().getNickname())
-//            .profileImage(member.get().getProfileImage())
-//            .totalClear(member.get())
-//  }
+
 }
