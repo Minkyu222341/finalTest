@@ -7,7 +7,7 @@ import sparta.seed.domain.Img;
 @Getter
 public class CommentResponseDto {
 	private Long commentId;
-	private Long replayId;
+	private Long proofId;
 	private String nickname;
 	private String content;
 	private Img img;
@@ -15,9 +15,9 @@ public class CommentResponseDto {
 
 
 	@Builder
-	public CommentResponseDto(Long commentId, Long replayId, String nickname, String content, Img img, Boolean isWriter) {
+	public CommentResponseDto(Long commentId, Long proofId, String nickname, String content, Img img, Boolean isWriter) {
 		this.commentId = commentId;
-		this.replayId = replayId;
+		this.proofId = proofId;
 		this.nickname = nickname;
 		this.content = content;
 		this.img = img;

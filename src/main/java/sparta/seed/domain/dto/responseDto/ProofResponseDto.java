@@ -7,9 +7,9 @@ import sparta.seed.domain.Img;
 import java.util.List;
 
 @Getter
-public class ReplayResponseDto {
+public class ProofResponseDto {
 
-	private Long replayId;
+	private Long proofId;
 	private String title;
 	private String content;
 	private List<Img> img;
@@ -19,8 +19,8 @@ public class ReplayResponseDto {
 	private boolean isHeart;
 
 	@Builder
-	public ReplayResponseDto(Long replayId, String title, String content, List<Img> img, int commentCnt, int heartCnt, boolean isWriter, boolean isHeart) {
-		this.replayId = replayId;
+	public ProofResponseDto(Long proofId, String title, String content, List<Img> img, int commentCnt, int heartCnt, boolean isWriter, boolean isHeart) {
+		this.proofId = proofId;
 		this.title = title;
 		this.content = content;
 		this.img = img;

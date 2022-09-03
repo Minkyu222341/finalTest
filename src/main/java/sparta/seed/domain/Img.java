@@ -27,8 +27,8 @@ public class Img extends Timestamped {
 
   @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
-  @JoinColumn(name = "replayId")
-  private Replay replay;
+  @JoinColumn(name = "proofId")
+  private Proof proof;
 
   @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
@@ -41,12 +41,12 @@ public class Img extends Timestamped {
   private Comment comment;
 
   @Builder
-  public Img(Long id, String imgUrl, String fileName, Community community, Replay replay, Campaign campaign, Comment comment) {
+  public Img(Long id, String imgUrl, String fileName, Community community, Proof proof, Campaign campaign, Comment comment) {
     this.id = id;
     this.imgUrl = imgUrl;
     this.fileName = fileName;
     this.community = community;
-    this.replay = replay;
+    this.proof = proof;
     this.campaign = campaign;
     this.comment = comment;
   }

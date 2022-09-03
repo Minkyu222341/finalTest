@@ -7,6 +7,8 @@ import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -32,6 +34,9 @@ public class Member extends Timestamped {
 
   private Integer level;
   private Integer exp;
+
+  @ElementCollection
+  private Map<String,Boolean> dailyMission = new HashMap<>(6,1);
 
   private boolean isSecret;
 
