@@ -3,10 +3,7 @@ package sparta.seed.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
@@ -30,7 +27,8 @@ public class MemberController {
    * 마이페이지
    */
   @GetMapping("/api/mypage")
-  public MemberResponseDto getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<MemberResponseDto> getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
     return memberService.getMyPage(userDetails);
   }
 
@@ -50,7 +48,6 @@ public class MemberController {
     return memberService.showGroupMissionList(userDetails);
   }
 
-
   /**
    * 미션 통계 - 주간 , 월간
    */
@@ -58,4 +55,12 @@ public class MemberController {
   /**
    * 일일 미션 달성 현황 확인
    */
+
+  /**
+   * 유저정보 비공개 / 공개 설정
+   */
+  @PatchMapping("/api/mypage/status")
+  public ResponseEntity<Boolean> isSecret(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return memberService.isSceret(userDetails);
+  }
 }

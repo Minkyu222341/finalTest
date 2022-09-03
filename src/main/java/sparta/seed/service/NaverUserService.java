@@ -28,6 +28,7 @@ import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -120,9 +121,15 @@ public class NaverUserService {
 
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
+    Random rnd = new Random();
+    String rdNick="";
+    for (int i = 0; i < 8; i++) {
+      rdNick += String.valueOf(rnd.nextInt(10));
+    }
+
     String socialId = String.valueOf(jsonNode.get("response").get("id").asText());
     String username = jsonNode.get("response").get("email").asText();
-    String nickname = jsonNode.get("response").get("nickname").asText();
+    String nickname = "N" + "_" + rdNick;
 
 
     String profileImage = jsonNode.get("response").get("profile_image").asText();
