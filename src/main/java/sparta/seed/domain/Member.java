@@ -3,6 +3,7 @@ package sparta.seed.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -43,5 +44,9 @@ public class Member extends Timestamped {
     this.profileImage = profileImage;
     this.level = level;
     this.exp = exp;
+  }
+
+  public void updateNickname(SocialMemberRequestDto requestDto) {
+    nickname = requestDto.getNickname();
   }
 }

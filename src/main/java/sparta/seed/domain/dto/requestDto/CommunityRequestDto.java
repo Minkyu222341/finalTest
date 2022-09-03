@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class ArticleRequestDto {
+public class CommunityRequestDto {
   private String startDate;
   private String endDate;
   private Integer limitScore;

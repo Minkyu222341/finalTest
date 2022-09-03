@@ -30,8 +30,8 @@ public class Replay extends Timestamped {
 
   @ManyToOne
   @JsonBackReference
-  @JoinColumn(name = "article_id")
-  private Article article;
+  @JoinColumn(name = "community_id")
+  private Community community;
 
   //이미지리스트
   @OneToMany(mappedBy = "replay", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
@@ -48,12 +48,12 @@ public class Replay extends Timestamped {
   private List<Heart> heartList = new ArrayList<>();
 
   @Builder
-  public Replay(Long memberId, String nickname, String title, String content, Article article) {
+  public Replay(Long memberId, String nickname, String title, String content, Community community) {
     this.memberId = memberId;
     this.nickname = nickname;
     this.title = title;
     this.content = content;
-    this.article = article;
+    this.community = community;
   }
 
   public void addImg(Img img){

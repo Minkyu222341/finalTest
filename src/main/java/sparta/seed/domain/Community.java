@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import sparta.seed.domain.dto.requestDto.ArticleRequestDto;
+import sparta.seed.domain.dto.requestDto.CommunityRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Article extends Timestamped {
+public class Community extends Timestamped {
   //PK
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,20 +43,20 @@ public class Article extends Timestamped {
   //모집여부
   @ColumnDefault("true")
   private boolean isRecruitment;
-  @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Replay> replayList = new ArrayList<>();
-  @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
 
-  @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Participants> participantsList = new ArrayList<>();
 
 
   @Builder
-  public Article(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
+  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Replay> replayList, List<Img> imgList, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
     this.nickname = nickname;
@@ -74,7 +74,7 @@ public class Article extends Timestamped {
     this.participantsList = participantsList;
   }
 
-  public void update(ArticleRequestDto requestDto) {
+  public void update(CommunityRequestDto requestDto) {
     this.startDate = requestDto.getStartDate();
     this.endDate = requestDto.getEndDate();
     this.limitScore = requestDto.getLimitScore();

@@ -7,13 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sparta.seed.domain.Article;
+import sparta.seed.domain.Community;
 import sparta.seed.domain.Heart;
 import sparta.seed.domain.Img;
 import sparta.seed.domain.Replay;
 import sparta.seed.domain.dto.requestDto.ReplayRequestDto;
 import sparta.seed.domain.dto.responseDto.ReplayResponseDto;
-import sparta.seed.repository.ArticleRepository;
+import sparta.seed.repository.CommunityRepository;
 import sparta.seed.repository.HeartRepository;
 import sparta.seed.repository.ImgRepository;
 import sparta.seed.repository.ReplayRepository;
@@ -30,7 +30,7 @@ import java.util.List;
 public class ReplayService {
 
 	private final ReplayRepository replayRepository;
-	private final ArticleRepository articleRepository;
+	private final CommunityRepository communityRepository;
 	private final HeartRepository heartRepository;
 	private final ImgRepository imgRepository;
 	private final S3Uploader s3Uploader;
@@ -38,12 +38,12 @@ public class ReplayService {
 	/**
 	  글에 달린 인증글 조회
 	 */
-	public List<ReplayResponseDto> getAllReplay(Long articleId, int page, int size, UserDetailsImpl userDetails) {
+	public List<ReplayResponseDto> getAllReplay(Long CommunityId, int page, int size, UserDetailsImpl userDetails) {
 
 		Sort.Direction direction = Sort.Direction.DESC;
 		Sort sort = Sort.by(direction, "createdAt");
 		Pageable pageable = PageRequest.of(page, size, sort);
-		Page<Replay> replayList = replayRepository.findAllByArticle_Id(articleId, pageable);
+		Page<Replay> replayList = replayRepository.findAllByCommunity_Id(CommunityId, pageable);
 		List<ReplayResponseDto> replayResponseDtoList = new ArrayList<>();
 		for(Replay replay : replayList){
 			replayResponseDtoList.add(ReplayResponseDto.builder()
@@ -81,12 +81,12 @@ public class ReplayService {
 	/**
 	 * 인증글 작성
 	 */
-	public ReplayResponseDto createReplay(Long articleId, ReplayRequestDto replayRequestDto,
+	public ReplayResponseDto createReplay(Long CommunityId, ReplayRequestDto replayRequestDto,
 	                                      List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
 
 		Long loginUserId = userDetails.getId();
 		String nickname = userDetails.getNickname();
-		Article article = articleRepository.findById(articleId)
+		Community community = communityRepository.findById(CommunityId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다."));
 
 		Replay replay = Replay.builder()
@@ -94,7 +94,7 @@ public class ReplayService {
 				.nickname(nickname)
 				.title(replayRequestDto.getTitle())
 				.content(replayRequestDto.getContent())
-				.article(article)
+				.community(community)
 				.build();
 
 		for (MultipartFile file : multipartFile) {
@@ -142,8 +142,8 @@ public class ReplayService {
 	/**
 	 * 전체 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	public List<ReplayResponseDto> countAllReplay(Long articleId) {
-		List<Replay> replayList = replayRepository.findAllByArticle_Id(articleId);
+	public List<ReplayResponseDto> countAllReplay(Long CommunityId) {
+		List<Replay> replayList = replayRepository.findAllByCommunity_Id(CommunityId);
 		List<ReplayResponseDto> replayResponseDtoList = new ArrayList<>();
 		for (Replay replay : replayList){
 			replayResponseDtoList.add(ReplayResponseDto.builder()

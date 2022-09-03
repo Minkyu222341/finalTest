@@ -9,11 +9,11 @@
 //@RequiredArgsConstructor
 //@Slf4j
 //public class Scheduler {
-//    private final ArticleService articleService;
+//    private final CommunityService CommunityService;
 //
 //    @Scheduled(cron = "0 0 1 * * *")
 //    public void removeImage() {
 //        log.info("S3이미지 삭제 완료");
-//        articleService.removeS3Image();
+//        CommunityService.removeS3Image();
 //    }
 //}
