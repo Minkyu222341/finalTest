@@ -77,7 +77,7 @@ public class CommunityController {
   /**
    * 그룹미션 참여하기
    */
-  @PatchMapping("/api/community/join/{id}")
+  @PatchMapping("/api/join/{id}")
   public Boolean joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return communityService.joinMission(id, userDetails);
   }
