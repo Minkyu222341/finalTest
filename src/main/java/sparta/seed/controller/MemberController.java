@@ -13,6 +13,7 @@ import sparta.seed.domain.dto.responseDto.MemberResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.MemberService;
 
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -45,7 +46,7 @@ public class MemberController {
    * 그룹미션 확인
    */
   @GetMapping("/api/mypage/groupmission")
-  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return memberService.showGroupMissionList(userDetails);
   }
 

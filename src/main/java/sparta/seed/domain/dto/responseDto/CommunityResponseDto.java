@@ -21,7 +21,7 @@ public class CommunityResponseDto {
   private boolean isRecruitment;
   private List<Community> participantsList;
   //달성도
-  private long participantsPer;
+  private long successPercent;
   //참가인원
   private Integer participantsCnt;
   //사용자 닉네임
@@ -37,6 +37,8 @@ public class CommunityResponseDto {
   //내용
   private String content;
 
+  private String dateStatus;
+
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
   private String createAt;
   private boolean isWriter;
@@ -45,21 +47,23 @@ public class CommunityResponseDto {
 
   @QueryProjection
   @Builder
-  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isRecruitment, List<Community> participantsList, long participantsPer, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password,String createAt,String content,boolean isWriter) {
+
+  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isRecruitment, List<Community> participantsList, long successPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password, String content, String dateStatus, String createAt, boolean isWriter) {
     this.communityId = communityId;
     this.imgList = imgList;
     this.title = title;
     this.isRecruitment = isRecruitment;
     this.participantsList = participantsList;
-    this.participantsPer = participantsPer;
+    this.successPercent = successPercent;
     this.participantsCnt = participantsCnt;
     this.nickname = nickname;
     this.startDate = startDate;
     this.endDate = endDate;
     this.isSecret = isSecret;
     this.password = password;
-    this.createAt = createAt;
     this.content = content;
+    this.dateStatus = dateStatus;
+    this.createAt = createAt;
     this.isWriter = isWriter;
   }
 }

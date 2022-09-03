@@ -56,7 +56,7 @@ public class CommunityService {
               .title(community.getTitle())
               .isRecruitment(community.isRecruitment())
               .participantsCnt(community.getParticipantsList().size())
-              .participantsPer(community.getParticipantsList().size() / community.getLimitParticipants())
+              .successPercent(community.getParticipantsList().size() / community.getLimitParticipants())
               .isWriter(userDetails!=null && community.getMemberId().equals(userDetails.getId()))
               .build());
     }
