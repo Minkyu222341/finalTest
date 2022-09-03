@@ -22,7 +22,7 @@ public class ProofController {
   /**
    * 글에 달린 인증글 전체 조회
    */
-  @GetMapping("/api/replay/{communityId}")
+  @GetMapping("/api/community/{communityId}/proof")
 	public List<ProofResponseDto> getAllReplay(@PathVariable Long communityId,
                                              @RequestParam("page") int page,
                                              @RequestParam("size") int size,
@@ -35,15 +35,15 @@ public class ProofController {
 	/**
 	 * 글에 달린 인증글 상세 조회
 	 */
-	@GetMapping("/api/replay/detail/{replayId}")
-	public ProofResponseDto getReplay(@PathVariable Long replayId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-		return proofService.getReplay(replayId, userDetails);
+	@GetMapping("/api/proof/{proofId}")
+	public ProofResponseDto getReplay(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+		return proofService.getReplay(proofId, userDetails);
 	}
 
   /**
    * 인증글 작성
    */
-	@PostMapping(value = "/api/replay/{communityId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+	@PostMapping(value = "/api/community/{communityId}/proof", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ProofResponseDto createReplay(@PathVariable Long communityId,
 	                                     @Valid @RequestPart(value = "dto") ProofRequestDto proofRequestDto,
 	                                     @RequestPart List<MultipartFile> multipartFile,
@@ -59,15 +59,15 @@ public class ProofController {
   /**
    * 인증글 삭제
    */
-	@DeleteMapping("/api/replay/{replayId}")
-	public Boolean deleteReplay(@PathVariable Long replayId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-		return proofService.deleteReplay(replayId, userDetails);
+	@DeleteMapping("/api/proof/{proofId}")
+	public Boolean deleteReplay(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+		return proofService.deleteReplay(proofId, userDetails);
 	}
 
 	/**
 	 * 전체 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	@GetMapping("/api/replay/count/{communityId}")
+	@GetMapping("/api/community/count/{communityId}")
 	public List<ProofResponseDto> countAllReplay(@PathVariable Long communityId){
 		return proofService.countAllReplay(communityId);
 	}
@@ -75,16 +75,16 @@ public class ProofController {
 	/**
 	 * 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	@GetMapping("/api/replay/count/detail/{replayId}")
-	public ProofResponseDto countReplay(@PathVariable Long replayId){
-		return proofService.countReplay(replayId);
+	@GetMapping("/api/proof/count//{proofId}")
+	public ProofResponseDto countReplay(@PathVariable Long proofId){
+		return proofService.countReplay(proofId);
 	}
 
 	/**
 	 * 인증글 좋아요
 	 */
-	@PatchMapping("/api/replay/heart/{replayId}")
-	public ProofResponseDto heartReplay(@PathVariable Long replayId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-		return proofService.heartReplay(replayId, userDetails);
+	@PatchMapping("/api/proof/heart/{proofId}")
+	public ProofResponseDto heartReplay(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+		return proofService.heartReplay(proofId, userDetails);
 	}
 }

@@ -47,7 +47,7 @@ public class ProofService {
 		List<ProofResponseDto> proofResponseDtoList = new ArrayList<>();
 		for(Proof proof : replayList){
 			proofResponseDtoList.add(ProofResponseDto.builder()
-					.replayId(proof.getId())
+					.proofId(proof.getId())
 					.title(proof.getTitle())
 					.content(proof.getContent())
 					.img(proof.getImgList())
@@ -63,11 +63,11 @@ public class ProofService {
 	/**
 	 * 글에 달린 인증글 상세 조회
 	 */
-	public ProofResponseDto getReplay(Long replayId, UserDetailsImpl userDetails) {
-		Proof proof = proofRepository.findById(replayId)
+	public ProofResponseDto getReplay(Long proofId, UserDetailsImpl userDetails) {
+		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 		return ProofResponseDto.builder()
-				.replayId(proof.getId())
+				.proofId(proof.getId())
 				.title(proof.getTitle())
 				.content(proof.getContent())
 				.img(proof.getImgList())
@@ -111,7 +111,7 @@ public class ProofService {
 		proofRepository.save(proof);
 
 			return ProofResponseDto.builder()
-					.replayId(proof.getId())
+					.proofId(proof.getId())
 					.title(proof.getTitle())
 					.content(proof.getContent())
 					.img(proof.getImgList())
@@ -129,8 +129,8 @@ public class ProofService {
 	/**
 	 * 인증글 삭제
 	 */
-	public Boolean deleteReplay(Long replayId, UserDetailsImpl userDetails) {
-		Proof proof = proofRepository.findById(replayId)
+	public Boolean deleteReplay(Long proofId, UserDetailsImpl userDetails) {
+		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 
 		if(userDetails !=null && proof.getMemberId().equals(userDetails.getId())){
@@ -147,7 +147,7 @@ public class ProofService {
 		List<ProofResponseDto> proofResponseDtoList = new ArrayList<>();
 		for (Proof proof : proofList){
 			proofResponseDtoList.add(ProofResponseDto.builder()
-					.replayId(proof.getId())
+					.proofId(proof.getId())
 					.commentCnt(proof.getCommentList().size())
 					.heartCnt(proof.getHeartList().size())
 					.build());
@@ -158,11 +158,11 @@ public class ProofService {
 	/**
 	 * 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	public ProofResponseDto countReplay(Long replayId) {
-		Proof proof = proofRepository.findById(replayId)
+	public ProofResponseDto countReplay(Long proofId) {
+		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 		return ProofResponseDto.builder()
-				.replayId(proof.getId())
+				.proofId(proof.getId())
 				.commentCnt(proof.getCommentList().size())
 				.heartCnt(proof.getHeartList().size())
 				.build();
@@ -171,8 +171,8 @@ public class ProofService {
 	/**
 	 * 인증글 좋아요
 	 */
-	public ProofResponseDto heartReplay(Long replayId, UserDetailsImpl userDetails) {
-		Proof proof = proofRepository.findById(replayId)
+	public ProofResponseDto heartReplay(Long proofId, UserDetailsImpl userDetails) {
+		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 		Long loginUserId = userDetails.getId();
 
@@ -184,7 +184,7 @@ public class ProofService {
 			proof.addHeart(heart);
 			heartRepository.save(heart);
 			return ProofResponseDto.builder()
-					.replayId(proof.getId())
+					.proofId(proof.getId())
 					.isHeart(true)
 					.heartCnt(proof.getHeartList().size()).build();
 		}else {
@@ -192,7 +192,7 @@ public class ProofService {
 			proof.removeHeart(heart);
 			heartRepository.delete(heart);
 			return ProofResponseDto.builder()
-					.replayId(proof.getId())
+					.proofId(proof.getId())
 					.isHeart(false)
 					.heartCnt(proof.getHeartList().size()).build();
 		}

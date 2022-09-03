@@ -31,14 +31,14 @@ public class CommentService {
 	/**
 	 * 댓글 조회
 	 */
-	public List<CommentResponseDto> getAllComment(Long replayId, UserDetailsImpl userDetails) {
-		List<Comment> commentList = commentRepository.findAllByProof_Id(replayId);
+	public List<CommentResponseDto> getAllComment(Long proofId, UserDetailsImpl userDetails) {
+		List<Comment> commentList = commentRepository.findAllByProof_Id(proofId);
 		List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
 		for (Comment comment : commentList){
 			commentResponseDtoList.add(CommentResponseDto.builder()
 					.commentId(comment.getId())
-					.replayId(comment.getProof().getId())
+					.proofId(comment.getProof().getId())
 					.nickname(comment.getNickname())
 					.content(comment.getContent())
 					.isWriter(userDetails !=null && comment.getMemberId().equals(userDetails.getId()))
@@ -51,9 +51,9 @@ public class CommentService {
 	/**
 	 * 댓글작성
 	 */
-	public CommentResponseDto createComment(Long replayId, CommentRequestDto commentRequestDto,
+	public CommentResponseDto createComment(Long proofId, CommentRequestDto commentRequestDto,
 	                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
-		Proof proof = proofRepository.findById(replayId)
+		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 
 		if(multipartFile != null){
@@ -79,7 +79,7 @@ public class CommentService {
 
 			return CommentResponseDto.builder()
 					.commentId(comment.getId())
-					.replayId(comment.getProof().getId())
+					.proofId(comment.getProof().getId())
 					.nickname(comment.getNickname())
 					.content(comment.getContent())
 					.img(comment.getImg())
@@ -98,7 +98,7 @@ public class CommentService {
 
 			return CommentResponseDto.builder()
 					.commentId(comment.getId())
-					.replayId(comment.getProof().getId())
+					.proofId(comment.getProof().getId())
 					.nickname(comment.getNickname())
 					.content(comment.getContent())
 					.isWriter(true)
@@ -140,7 +140,7 @@ public class CommentService {
 		}
 		return CommentResponseDto.builder()
 				.commentId(comment.getId())
-				.replayId(comment.getProof().getId())
+				.proofId(comment.getProof().getId())
 				.nickname(comment.getNickname())
 				.content(comment.getContent())
 				.img(comment.getImg())
