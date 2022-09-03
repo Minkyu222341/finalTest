@@ -63,7 +63,7 @@ public class MemberController {
    * 유저정보 비공개 / 공개 설정
    */
   @PatchMapping("/api/mypage/status")
-  public ResponseEntity<Boolean> isSceret(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> isSecret(@AuthenticationPrincipal UserDetailsImpl userDetails) {
     return memberService.isSceret(userDetails);
   }
 }
