@@ -72,7 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/member/**").permitAll()
                 .antMatchers(HttpMethod.POST,"/api/member/login").permitAll()
-                .antMatchers("/api/article").permitAll()
+                .antMatchers("/api/Community").permitAll()
                 .antMatchers("/oauth2/**").permitAll()
                 .antMatchers("/**").permitAll()
                 //CORS관련

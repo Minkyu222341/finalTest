@@ -5,23 +5,23 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import sparta.seed.domain.Article;
+import sparta.seed.domain.Community;
 import sparta.seed.domain.Img;
 
 import java.util.List;
 
 @Getter
 @Setter
-public class ArticleResponseDto {
+public class CommunityResponseDto {
 
-  private Long articleId;
+  private Long communityId;
   private List<Img> imgList;
   private String title;
   //모집여부
   private boolean isRecruitment;
-  private List<Article> participantsList;
+  private List<Community> participantsList;
   //달성도
-  private long participantsPer;
+  private long successPercent;
   //참가인원
   private Integer participantsCnt;
   //사용자 닉네임
@@ -37,28 +37,33 @@ public class ArticleResponseDto {
   //내용
   private String content;
 
+  private String dateStatus;
+
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
   private String createAt;
+  private boolean isWriter;
 
 
 
   @QueryProjection
   @Builder
 
-  public ArticleResponseDto(Long articleId, List<Img> imgList, String title, boolean isRecruitment, List<Article> participantsList, long participantsPer, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password,String createAt,String content) {
-    this.articleId = articleId;
+  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isRecruitment, List<Community> participantsList, long successPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password, String content, String dateStatus, String createAt, boolean isWriter) {
+    this.communityId = communityId;
     this.imgList = imgList;
     this.title = title;
     this.isRecruitment = isRecruitment;
     this.participantsList = participantsList;
-    this.participantsPer = participantsPer;
+    this.successPercent = successPercent;
     this.participantsCnt = participantsCnt;
     this.nickname = nickname;
     this.startDate = startDate;
     this.endDate = endDate;
     this.isSecret = isSecret;
     this.password = password;
-    this.createAt = createAt;
     this.content = content;
+    this.dateStatus = dateStatus;
+    this.createAt = createAt;
+    this.isWriter = isWriter;
   }
 }

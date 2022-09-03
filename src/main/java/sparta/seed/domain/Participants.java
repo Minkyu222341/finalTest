@@ -17,7 +17,7 @@ public class Participants {
   private Long id;
   @ManyToOne
   @JsonBackReference
-  private Article article;
+  private Community community;
 
   private Long memberId;
   private String nickname;
@@ -26,9 +26,9 @@ public class Participants {
 
 
   @Builder
-  public Participants(Long id, Article article, Long memberId,String nickname) {
+  public Participants(Long id, Community community, Long memberId,String nickname) {
     this.id = id;
-    this.article = article;
+    this.community = community;
     this.memberId = memberId;
     this.nickname = nickname;
   }
