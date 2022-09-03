@@ -22,14 +22,14 @@ public class ReplayController {
   /**
    * 글에 달린 인증글 전체 조회
    */
-  @GetMapping("/api/replay/{CommunityId}")
-	public List<ReplayResponseDto> getAllReplay(@PathVariable Long CommunityId,
+  @GetMapping("/api/replay/{communityId}")
+	public List<ReplayResponseDto> getAllReplay(@PathVariable Long communityId,
                                               @RequestParam("page") int page,
                                               @RequestParam("size") int size,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails){
 
 	  page = page-1;
-			return replayService.getAllReplay(CommunityId, page, size, userDetails);
+			return replayService.getAllReplay(communityId, page, size, userDetails);
 	}
 
 	/**
@@ -43,13 +43,13 @@ public class ReplayController {
   /**
    * 인증글 작성
    */
-	@PostMapping(value = "/api/replay/{CommunityId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ReplayResponseDto createReplay(@PathVariable Long CommunityId,
+	@PostMapping(value = "/api/replay/{communityId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+	public ReplayResponseDto createReplay(@PathVariable Long communityId,
 	                                       @Valid @RequestPart(value = "dto") ReplayRequestDto replayRequestDto,
 	                                       @RequestPart List<MultipartFile> multipartFile,
 	                                       @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
-		return replayService.createReplay(CommunityId, replayRequestDto, multipartFile, userDetails);
+		return replayService.createReplay(communityId, replayRequestDto, multipartFile, userDetails);
 	}
 
   /**
@@ -67,9 +67,9 @@ public class ReplayController {
 	/**
 	 * 전체 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	@GetMapping("/api/replay/count/{CommunityId}")
-	public List<ReplayResponseDto> countAllReplay(@PathVariable Long CommunityId){
-		return replayService.countAllReplay(CommunityId);
+	@GetMapping("/api/replay/count/{communityId}")
+	public List<ReplayResponseDto> countAllReplay(@PathVariable Long communityId){
+		return replayService.countAllReplay(communityId);
 	}
 
 	/**

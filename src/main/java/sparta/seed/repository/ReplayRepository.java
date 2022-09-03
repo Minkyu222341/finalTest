@@ -8,6 +8,6 @@ import sparta.seed.domain.Replay;
 import java.util.List;
 
 public interface ReplayRepository extends JpaRepository<Replay,Long> {
-	Page<Replay> findAllByCommunity_Id (Long CommunityId, Pageable pageable);
-	List<Replay> findAllByCommunity_Id (Long CommunityId);
+	Page<Replay> findAllByCommunity_Id (Long communityId, Pageable pageable);
+	List<Replay> findAllByCommunity_Id (Long communityId);
 }

@@ -38,12 +38,12 @@ public class ReplayService {
 	/**
 	  글에 달린 인증글 조회
 	 */
-	public List<ReplayResponseDto> getAllReplay(Long CommunityId, int page, int size, UserDetailsImpl userDetails) {
+	public List<ReplayResponseDto> getAllReplay(Long communityId, int page, int size, UserDetailsImpl userDetails) {
 
 		Sort.Direction direction = Sort.Direction.DESC;
 		Sort sort = Sort.by(direction, "createdAt");
 		Pageable pageable = PageRequest.of(page, size, sort);
-		Page<Replay> replayList = replayRepository.findAllByCommunity_Id(CommunityId, pageable);
+		Page<Replay> replayList = replayRepository.findAllByCommunity_Id(communityId, pageable);
 		List<ReplayResponseDto> replayResponseDtoList = new ArrayList<>();
 		for(Replay replay : replayList){
 			replayResponseDtoList.add(ReplayResponseDto.builder()
@@ -81,12 +81,12 @@ public class ReplayService {
 	/**
 	 * 인증글 작성
 	 */
-	public ReplayResponseDto createReplay(Long CommunityId, ReplayRequestDto replayRequestDto,
+	public ReplayResponseDto createReplay(Long communityId, ReplayRequestDto replayRequestDto,
 	                                      List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
 
 		Long loginUserId = userDetails.getId();
 		String nickname = userDetails.getNickname();
-		Community community = communityRepository.findById(CommunityId)
+		Community community = communityRepository.findById(communityId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다."));
 
 		Replay replay = Replay.builder()
@@ -142,8 +142,8 @@ public class ReplayService {
 	/**
 	 * 전체 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	public List<ReplayResponseDto> countAllReplay(Long CommunityId) {
-		List<Replay> replayList = replayRepository.findAllByCommunity_Id(CommunityId);
+	public List<ReplayResponseDto> countAllReplay(Long communityId) {
+		List<Replay> replayList = replayRepository.findAllByCommunity_Id(communityId);
 		List<ReplayResponseDto> replayResponseDtoList = new ArrayList<>();
 		for (Replay replay : replayList){
 			replayResponseDtoList.add(ReplayResponseDto.builder()
