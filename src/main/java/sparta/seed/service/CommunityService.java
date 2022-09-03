@@ -20,8 +20,10 @@ import sparta.seed.repository.ParticipantsRepository;
 import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
+import sparta.seed.util.DateUtil;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,35 +36,17 @@ public class CommunityService {
   private final ImgRepository imgRepository;
   private final S3Uploader s3Uploader;
   private final ParticipantsRepository participantsRepository;
+  private final DateUtil dateUtil;
 
   /**
    * 게시글 전체조회 , 검색 , 스크롤
    */
-  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable,
-                                                     CommunitySearchCondition condition,
-                                                     UserDetailsImpl userDetails) {
+  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
     QueryResults<Community> allCommunity = communityRepository.getAllCommunity(pageable, condition);
-    List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity,userDetails);
+    List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity, userDetails);
     boolean hasNext = hasNextPage(pageable, allCommunityList);
     return new SliceImpl<>(allCommunityList, pageable, hasNext);
   }
-
-  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity,UserDetailsImpl userDetails) {
-    List<CommunityResponseDto> communityList = new ArrayList<>();
-    for (Community community : allCommunity.getResults()) {
-      communityList.add(CommunityResponseDto.builder()
-              .communityId(community.getId())
-              .imgList(community.getImgList())
-              .title(community.getTitle())
-              .isRecruitment(community.isRecruitment())
-              .participantsCnt(community.getParticipantsList().size())
-              .successPercent(community.getParticipantsList().size() / community.getLimitParticipants())
-              .isWriter(userDetails!=null && community.getMemberId().equals(userDetails.getId()))
-              .build());
-    }
-    return communityList;
-  }
-
   private boolean hasNextPage(Pageable pageable, List<CommunityResponseDto> CommunityList) {
     boolean hasNext = false;
     if (CommunityList.size() > pageable.getPageSize()) {
@@ -70,6 +54,26 @@ public class CommunityService {
       hasNext = true;
     }
     return hasNext;
+  }
+
+
+  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
+    List<CommunityResponseDto> communityList = new ArrayList<>();
+    for (Community community : allCommunity.getResults()) {
+      communityList.add(CommunityResponseDto.builder()
+              .communityId(community.getId())
+              .imgList(community.getImgList())
+              .title(community.getTitle())
+              .isRecruitment(getDateStatus(community).equals("before"))
+              .participantsCnt(community.getParticipantsList().size())
+              .successPercent(community.getParticipantsList().size() / community.getLimitParticipants())
+              .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+              .build());
+    }
+    return communityList;
+  }
+  private String getDateStatus(Community community) throws ParseException {
+    return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
 
   /**
@@ -126,7 +130,7 @@ public class CommunityService {
   /**
    * 게시글 상세조회
    */
-  public CommunityResponseDto getDetailCommunity(Long id,UserDetailsImpl userDetails) {
+  public CommunityResponseDto getDetailCommunity(Long id, UserDetailsImpl userDetails) {
     Optional<Community> detailCommunity = communityRepository.findById(id);
 
     return CommunityResponseDto.builder()
@@ -140,7 +144,7 @@ public class CommunityService {
             .password(detailCommunity.get().getPassword())
             .title(detailCommunity.get().getTitle())
             .content(detailCommunity.get().getContent())
-            .isWriter(userDetails!=null && detailCommunity.get().getMemberId().equals(userDetails.getId()))
+            .isWriter(userDetails != null && detailCommunity.get().getMemberId().equals(userDetails.getId()))
             .build();
   }
 

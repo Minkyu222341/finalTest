@@ -16,6 +16,7 @@ import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.CommunityService;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -30,7 +31,7 @@ public class CommunityController {
   @GetMapping("/api/community")
   public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable,
                                                      CommunitySearchCondition condition,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return communityService.getAllCommunity(pageable, condition,userDetails);
   }
 
