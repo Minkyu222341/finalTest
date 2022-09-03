@@ -41,7 +41,7 @@ public class CommunityController {
    */
   @GetMapping("/api/community/{id}")
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(@PathVariable Long id,
-                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return communityService.getDetailCommunity(id,userDetails);
   }
 

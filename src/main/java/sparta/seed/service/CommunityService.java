@@ -49,6 +49,7 @@ public class CommunityService {
     final SliceImpl<CommunityResponseDto> communityResponseDtos = new SliceImpl<>(allCommunityList, pageable, hasNext);
     return ResponseEntity.ok().body(communityResponseDtos);
   }
+
   private boolean hasNextPage(Pageable pageable, List<CommunityResponseDto> CommunityList) {
     boolean hasNext = false;
     if (CommunityList.size() > pageable.getPageSize()) {
@@ -57,24 +58,36 @@ public class CommunityService {
     }
     return hasNext;
   }
+
   private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
-      communityList.add(CommunityResponseDto.builder()
-              .communityId(community.getId())
-              .imgList(community.getImgList())
-              .title(community.getTitle())
-              .isRecruitment(getDateStatus(community).equals("before"))
-              .participantsCnt(community.getParticipantsList().size())
-              .successPercent(community.getParticipantsList().size() / community.getLimitParticipants())
-              .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
-              .build());
+      String dateStatus = dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
+      if (!dateStatus.equals("before")) {
+        communityList.add(CommunityResponseDto.builder()
+                .communityId(community.getId())
+                .imgList(community.getImgList())
+                .title(community.getTitle())
+                .isRecruitment(dateStatus.equals("before"))
+                .participantsCnt(community.getParticipantsList().size())
+                .successPercent((Double.valueOf(community.getProofList().size()) / Double.valueOf(community.getLimitScore())) * 100)
+                .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+                .build());
+      } else {
+        communityList.add(CommunityResponseDto.builder()
+                .communityId(community.getId())
+                .imgList(community.getImgList())
+                .title(community.getTitle())
+                .isRecruitment(dateStatus.equals("before"))
+                .participantsCnt(community.getParticipantsList().size())
+                .currentPercent((Double.valueOf(community.getParticipantsList().size()) / Double.valueOf(community.getLimitParticipants())) * 100)
+                .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+                .build());
+      }
     }
     return communityList;
   }
-  private String getDateStatus(Community community) throws ParseException {
-    return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
-  }
+
 
   /**
    * 게시글 작성
@@ -131,22 +144,42 @@ public class CommunityService {
   /**
    * 게시글 상세조회
    */
-  public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) {
-    Optional<Community> detailCommunity = communityRepository.findById(id);
+  public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
+    Optional<Community> community = communityRepository.findById(id);
+    String dateStatus = dateUtil.dateStatus(community.get().getStartDate(), community.get().getEndDate());
+    if (!dateStatus.equals("before")) {
+      CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
+              .communityId(community.get().getId())
+              .createAt(String.valueOf(community.get().getCreatedAt()))
+              .nickname(community.get().getNickname())
+              .imgList(community.get().getImgList())
+              .startDate(community.get().getStartDate())
+              .endDate(community.get().getEndDate())
+              .isSecret(community.get().isSecret())
+              .password(community.get().getPassword())
+              .title(community.get().getTitle())
+              .content(community.get().getContent())
+              .successPercent((Double.valueOf(community.get().getProofList().size()) / Double.valueOf(community.get().getLimitScore())) * 100)
+              .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
+              .build();
 
+      return ResponseEntity.ok().body(communityResponseDto);
+    }
     CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
-            .communityId(detailCommunity.get().getId())
-            .createAt(String.valueOf(detailCommunity.get().getCreatedAt()))
-            .nickname(detailCommunity.get().getNickname())
-            .imgList(detailCommunity.get().getImgList())
-            .startDate(detailCommunity.get().getStartDate())
-            .endDate(detailCommunity.get().getEndDate())
-            .isSecret(detailCommunity.get().isSecret())
-            .password(detailCommunity.get().getPassword())
-            .title(detailCommunity.get().getTitle())
-            .content(detailCommunity.get().getContent())
-            .isWriter(userDetails != null && detailCommunity.get().getMemberId().equals(userDetails.getId()))
+            .communityId(community.get().getId())
+            .createAt(String.valueOf(community.get().getCreatedAt()))
+            .nickname(community.get().getNickname())
+            .imgList(community.get().getImgList())
+            .startDate(community.get().getStartDate())
+            .endDate(community.get().getEndDate())
+            .isSecret(community.get().isSecret())
+            .password(community.get().getPassword())
+            .title(community.get().getTitle())
+            .content(community.get().getContent())
+            .currentPercent((Double.valueOf(community.get().getParticipantsList().size()) / Double.valueOf(community.get().getLimitParticipants())) * 100)
+            .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
             .build();
+    System.out.println(community.get().getParticipantsList().size() / community.get().getLimitParticipants() * 100 + "계산");
     return ResponseEntity.ok().body(communityResponseDto);
   }
 
