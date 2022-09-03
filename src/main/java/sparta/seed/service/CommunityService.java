@@ -38,14 +38,16 @@ public class CommunityService {
   /**
    * 게시글 전체조회 , 검색 , 스크롤
    */
-  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable, CommunitySearchCondition condition) {
+  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable,
+                                                     CommunitySearchCondition condition,
+                                                     UserDetailsImpl userDetails) {
     QueryResults<Community> allCommunity = communityRepository.getAllCommunity(pageable, condition);
-    List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity);
+    List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity,userDetails);
     boolean hasNext = hasNextPage(pageable, allCommunityList);
     return new SliceImpl<>(allCommunityList, pageable, hasNext);
   }
 
-  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity) {
+  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity,UserDetailsImpl userDetails) {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
       communityList.add(CommunityResponseDto.builder()
@@ -55,6 +57,7 @@ public class CommunityService {
               .isRecruitment(community.isRecruitment())
               .participantsCnt(community.getParticipantsList().size())
               .participantsPer(community.getParticipantsList().size() / community.getLimitParticipants())
+              .isWriter(userDetails!=null && community.getMemberId().equals(userDetails.getId()))
               .build());
     }
     return communityList;
@@ -123,7 +126,7 @@ public class CommunityService {
   /**
    * 게시글 상세조회
    */
-  public CommunityResponseDto getDetailCommunity(Long id) {
+  public CommunityResponseDto getDetailCommunity(Long id,UserDetailsImpl userDetails) {
     Optional<Community> detailCommunity = communityRepository.findById(id);
 
     return CommunityResponseDto.builder()
@@ -137,6 +140,7 @@ public class CommunityService {
             .password(detailCommunity.get().getPassword())
             .title(detailCommunity.get().getTitle())
             .content(detailCommunity.get().getContent())
+            .isWriter(userDetails!=null && detailCommunity.get().getMemberId().equals(userDetails.getId()))
             .build();
   }
 

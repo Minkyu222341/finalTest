@@ -41,7 +41,7 @@ public class MemberService {
    * 닉네임 변경
    */
   @Transactional
-  public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails,SocialMemberRequestDto requestDto) {
+  public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails, SocialMemberRequestDto requestDto) {
     Optional<Member> member = memberRepository.findById(userDetails.getId());
     if (member.get().getNickname().equals(requestDto.getNickname())) {
       return ResponseEntity.badRequest().body(false);

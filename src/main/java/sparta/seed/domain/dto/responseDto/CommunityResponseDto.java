@@ -39,12 +39,13 @@ public class CommunityResponseDto {
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
   private String createAt;
+  private boolean isWriter;
 
 
 
   @QueryProjection
   @Builder
-  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isRecruitment, List<Community> participantsList, long participantsPer, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password,String createAt,String content) {
+  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isRecruitment, List<Community> participantsList, long participantsPer, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password,String createAt,String content,boolean isWriter) {
     this.communityId = communityId;
     this.imgList = imgList;
     this.title = title;
@@ -59,5 +60,6 @@ public class CommunityResponseDto {
     this.password = password;
     this.createAt = createAt;
     this.content = content;
+    this.isWriter = isWriter;
   }
 }

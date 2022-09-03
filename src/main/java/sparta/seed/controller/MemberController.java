@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
+import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.MemberService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,10 +44,10 @@ public class MemberController {
   /**
    * 그룹미션 확인
    */
-//  @GetMapping("/api/mypage/groupmission")
-//  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-//    return memberService.showGroupMissionList(userDetails);
-//  }
+  @GetMapping("/api/mypage/groupmission")
+  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return memberService.showGroupMissionList(userDetails);
+  }
 
 
   /**

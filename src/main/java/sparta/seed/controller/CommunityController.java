@@ -28,16 +28,19 @@ public class CommunityController {
    * 그룹미션 전체조회
    */
   @GetMapping("/api/community")
-  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable, CommunitySearchCondition condition) {
-    return communityService.getAllCommunity(pageable, condition);
+  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable,
+                                                     CommunitySearchCondition condition,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return communityService.getAllCommunity(pageable, condition,userDetails);
   }
 
   /**
    * 그룹미션 상세조회
    */
   @GetMapping("/api/community/{id}")
-  public CommunityResponseDto getDetailCommunity(@PathVariable Long id) {
-    return communityService.getDetailCommunity(id);
+  public CommunityResponseDto getDetailCommunity(@PathVariable Long id,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return communityService.getDetailCommunity(id,userDetails);
   }
 
 
@@ -55,7 +58,8 @@ public class CommunityController {
    * 그룹미션 수정
    */
   @PatchMapping("/api/community/{id}")
-  public Boolean updateCommunity(@PathVariable Long id, @RequestBody CommunityRequestDto communityRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public Boolean updateCommunity(@PathVariable Long id, @RequestBody CommunityRequestDto communityRequestDto,
+                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return communityService.updateCommunity(id, communityRequestDto, userDetails);
   }
 

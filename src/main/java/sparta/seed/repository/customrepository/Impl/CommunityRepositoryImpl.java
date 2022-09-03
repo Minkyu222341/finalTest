@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import sparta.seed.domain.Community;
 import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
 import sparta.seed.repository.customrepository.CommunityRepositoryCustom;
+import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
