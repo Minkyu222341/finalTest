@@ -81,6 +81,20 @@ public class MemberService {
   }
 
   /**
+   * 유저정보 공개 / 비공개 설정
+   */
+  @Transactional
+  public ResponseEntity<Boolean> isSceret(UserDetailsImpl userDetails) {
+    Optional<Member> member = memberRepository.findById(userDetails.getId());
+    if (!member.get().isSecret()) {
+      member.get().updateIsSecret(true);
+      return ResponseEntity.ok().body(true);
+    }
+    member.get().updateIsSecret(false);
+    return ResponseEntity.ok().body(false);
+  }
+
+  /**
    * 다른유저 정보 확인
    */
 //  public ResponseEntity<MemberResponseDto> getMemberInfo(Long memberId, UserDetailsImpl userDetails) {
