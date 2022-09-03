@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,11 +42,12 @@ public class CommunityService {
   /**
    * 게시글 전체조회 , 검색 , 스크롤
    */
-  public Slice<CommunityResponseDto> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<Slice<CommunityResponseDto>> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
     QueryResults<Community> allCommunity = communityRepository.getAllCommunity(pageable, condition);
     List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity, userDetails);
     boolean hasNext = hasNextPage(pageable, allCommunityList);
-    return new SliceImpl<>(allCommunityList, pageable, hasNext);
+    final SliceImpl<CommunityResponseDto> communityResponseDtos = new SliceImpl<>(allCommunityList, pageable, hasNext);
+    return ResponseEntity.ok().body(communityResponseDtos);
   }
   private boolean hasNextPage(Pageable pageable, List<CommunityResponseDto> CommunityList) {
     boolean hasNext = false;
@@ -55,8 +57,6 @@ public class CommunityService {
     }
     return hasNext;
   }
-
-
   private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
@@ -79,7 +79,7 @@ public class CommunityService {
   /**
    * 게시글 작성
    */
-  public Community createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
+  public ResponseEntity<Community> createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
     List<Img> imgList = new ArrayList<>();
@@ -108,7 +108,7 @@ public class CommunityService {
         imgRepository.save(findImage);
       }
       communityRepository.save(community);
-      return community;
+      return ResponseEntity.ok().body(community);
     }
     Community community = Community.builder()
             .title(requestDto.getTitle())
@@ -123,17 +123,18 @@ public class CommunityService {
             .limitScore(requestDto.getLimitScore())
             .build();
     communityRepository.save(community);
-    return community;
+    return ResponseEntity.ok().body(community);
+
   }
 
 
   /**
    * 게시글 상세조회
    */
-  public CommunityResponseDto getDetailCommunity(Long id, UserDetailsImpl userDetails) {
+  public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) {
     Optional<Community> detailCommunity = communityRepository.findById(id);
 
-    return CommunityResponseDto.builder()
+    CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
             .communityId(detailCommunity.get().getId())
             .createAt(String.valueOf(detailCommunity.get().getCreatedAt()))
             .nickname(detailCommunity.get().getNickname())
@@ -146,6 +147,7 @@ public class CommunityService {
             .content(detailCommunity.get().getContent())
             .isWriter(userDetails != null && detailCommunity.get().getMemberId().equals(userDetails.getId()))
             .build();
+    return ResponseEntity.ok().body(communityResponseDto);
   }
 
 
@@ -153,32 +155,32 @@ public class CommunityService {
    * 게시글 수정
    */
   @Transactional
-  public Boolean updateCommunity(Long id, CommunityRequestDto communityRequestDto, UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> updateCommunity(Long id, CommunityRequestDto communityRequestDto, UserDetailsImpl userDetails) {
     Optional<Community> Community = communityRepository.findById(id);
     if (Community.get().getMemberId().equals(userDetails.getId())) {
       Community.get().update(communityRequestDto);
-      return true;
+      return ResponseEntity.ok().body(true);
     }
-    return false;
+    return ResponseEntity.badRequest().body(false);
   }
 
   /**
    * 게시글 삭제
    */
-  public Boolean deleteCommunity(Long id, UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> deleteCommunity(Long id, UserDetailsImpl userDetails) {
     Optional<Community> Community = communityRepository.findById(id);
     if (Community.get().getMemberId().equals(userDetails.getId())) {
       communityRepository.deleteById(id);
-      return true;
+      return ResponseEntity.ok().body(true);
     }
-    return false;
+    return ResponseEntity.badRequest().body(false);
   }
 
   /**
    * 그룹미션 참여 , 취소 하기
    */
   @Transactional
-  public Boolean joinMission(Long id, UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> joinMission(Long id, UserDetailsImpl userDetails) {
     Optional<Community> community = communityRepository.findById(id);
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
@@ -186,7 +188,7 @@ public class CommunityService {
     int participantSize = community.get().getParticipantsList().size();
     if (participantsRepository.existsByCommunityAndMemberId(community.get(), loginUserId) || participantSize >= limitParticipantCount) {
       participantsRepository.deleteByMemberId(loginUserId);
-      return false;
+      return ResponseEntity.ok().body(false);
     }
     Participants participants = Participants.builder()
             .community(community.get())
@@ -195,14 +197,15 @@ public class CommunityService {
             .build();
     community.get().addParticipant(participants);
     participantsRepository.save(participants);
-    return true;
+    return ResponseEntity.ok().body(true);
   }
 
   /**
    * 참여현황
    */
-  public List<Participants> getParticipantsList(Long id) {
+  public ResponseEntity<List<Participants>> getParticipantsList(Long id) {
     Optional<Community> community = communityRepository.findById(id);
-    return community.get().getParticipantsList();
+    List<Participants> participantsList = community.get().getParticipantsList();
+    return ResponseEntity.ok().body(participantsList);
   }
 }

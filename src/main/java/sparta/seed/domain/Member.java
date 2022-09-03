@@ -33,6 +33,8 @@ public class Member extends Timestamped {
   private Integer level;
   private Integer exp;
 
+  private boolean isSecret;
+
   @Builder
   public Member(Long id, String username, String password, String nickname, String socialId, Authority authority, String profileImage, Integer level, Integer exp) {
     this.id = id;
@@ -48,5 +50,9 @@ public class Member extends Timestamped {
 
   public void updateNickname(SocialMemberRequestDto requestDto) {
     nickname = requestDto.getNickname();
+  }
+
+  public void updateIsSecret(boolean isSecret) {
+    this.isSecret = isSecret;
   }
 }
