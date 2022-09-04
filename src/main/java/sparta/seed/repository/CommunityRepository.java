@@ -5,7 +5,9 @@ import sparta.seed.domain.Community;
 import sparta.seed.repository.customrepository.CommunityRepositoryCustom;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommunityRepository extends JpaRepository<Community, Long>, CommunityRepositoryCustom {
   List<Community> findByMemberId(Long id);
+
 }

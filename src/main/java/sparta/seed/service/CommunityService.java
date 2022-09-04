@@ -64,14 +64,15 @@ public class CommunityService {
   private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
+      Long certifiedProof = getCertifiedProof(community);
       communityList.add(CommunityResponseDto.builder()
               .communityId(community.getId())
               .imgList(community.getImgList())
               .title(community.getTitle())
               .isRecruitment(getDateStatus(community).equals("before"))
               .participantsCnt(community.getParticipantsList().size())
-              .currentPercent((Double.valueOf(community.getParticipantsList().size()) / Double.valueOf(community.getLimitParticipants())) * 100) // 참여인원 퍼센트
-              .successPercent((Double.valueOf(community.getProofList().size()) / Double.valueOf(community.getLimitScore())) * 100) // 아직 미적용
+              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100) // 참여인원 퍼센트
+              .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100) // 아직 미적용
               .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
               .dateStatus(getDateStatus(community))
               .build());
@@ -136,7 +137,7 @@ public class CommunityService {
    */
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
     Optional<Community> community = communityRepository.findById(id);
-    Long certifiedProof = proofRepository.getCertifiedProof(community.get());
+    Long certifiedProof = getCertifiedProof(community.get());
     CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
             .communityId(community.get().getId())
             .createAt(String.valueOf(community.get().getCreatedAt()))
@@ -148,12 +149,17 @@ public class CommunityService {
             .password(community.get().getPassword())
             .title(community.get().getTitle())
             .content(community.get().getContent())
-            .currentPercent((Double.valueOf(community.get().getParticipantsList().size()) / Double.valueOf(community.get().getLimitParticipants())) * 100)
-            .successPercent((Double.valueOf(certifiedProof) / Double.valueOf(community.get().getLimitScore())) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
+            .currentPercent(((double) community.get().getParticipantsList().size() / (double) community.get().getLimitParticipants()) * 100)
+            .successPercent((Double.valueOf(certifiedProof) / (double) community.get().getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
             .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
             .dateStatus(getDateStatus(community.get()))
             .build();
     return ResponseEntity.ok().body(communityResponseDto);
+  }
+
+  private Long getCertifiedProof(Community community) {
+    Long certifiedProof = proofRepository.getCertifiedProof(community);
+    return certifiedProof;
   }
 
   /**
