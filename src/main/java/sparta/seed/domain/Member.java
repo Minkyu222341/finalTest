@@ -32,8 +32,6 @@ public class Member extends Timestamped {
 
   private String profileImage;
 
-  private Integer level;
-  private Integer exp;
 
   @ElementCollection
   private Map<String,Boolean> dailyMission = new HashMap<>(6,1);
@@ -41,7 +39,7 @@ public class Member extends Timestamped {
   private boolean isSecret;
 
   @Builder
-  public Member(Long id, String username, String password, String nickname, String socialId, Authority authority, String profileImage, Integer level, Integer exp) {
+  public Member(Long id, String username, String password, String nickname, String socialId, Authority authority, String profileImage) {
     this.id = id;
     this.username = username;
     this.password = password;
@@ -49,8 +47,6 @@ public class Member extends Timestamped {
     this.socialId = socialId;
     this.authority = authority;
     this.profileImage = profileImage;
-    this.level = level;
-    this.exp = exp;
   }
 
   public void updateNickname(SocialMemberRequestDto requestDto) {

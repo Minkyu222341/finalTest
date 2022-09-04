@@ -48,8 +48,11 @@ public class MissionService {
 	public MissionResponseDto injectMission(UserDetailsImpl userDetails) {
 		Member loginMember = memberRepository.findById(userDetails.getId()).get();
 
-		loginMember.getDailyMission().put(missionRepository.findById(1L).get().getContent(), false);
-		loginMember.getDailyMission().put(missionRepository.findById(2L).get().getContent(), false);
+		while (loginMember.getDailyMission().size() < 5){ // 맴버가 가진 미션해시맵의 길이가 5이 될 때까지 반복
+			loginMember.getDailyMission()
+					.put(missionRepository.findById((long) (Math.random() * missionRepository.count()))
+							.get().getContent(), false); // 미션의 내용을 맴버가 가진 미션해시맵에 넣어줌
+		}
 
 		return MissionResponseDto.builder()
 				.memberId(userDetails.getId())
@@ -69,8 +72,10 @@ public class MissionService {
 				.content(missionRequestDto.getContent())
 				.build();
 
+		if(!loginMember.getDailyMission().get(missionRequestDto.getContent())){
 			loginMember.getDailyMission().put(missionRequestDto.getContent(), true);
 			clearMissionRepository.save(clearMission);
+		}
 			return true;
 		}
 
