@@ -16,12 +16,12 @@ public class MemberResponseDto {
     private String profileImage;
     private int level;
     private int totalClear;
-    private double nextLevelExp;
+    private int nextLevelExp;
     private boolean isFriend;
     private boolean isSecret;
 
     @Builder
-    public MemberResponseDto(Long id, String grantType, String accessToken, String refreshToken, Long accessTokenExpiresIn, String nickname, String username, String socialId, String profileImage, int level, int totalClear, double nextLevelExp, boolean isFriend, boolean isSecret) {
+    public MemberResponseDto(Long id, String grantType, String accessToken, String refreshToken, Long accessTokenExpiresIn, String nickname, String username, String socialId, String profileImage, int level, int totalClear, int nextLevelExp, boolean isFriend, boolean isSecret) {
         this.id = id;
         this.grantType = grantType;
         this.accessToken = accessToken;
