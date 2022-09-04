@@ -18,6 +18,7 @@ import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
 import sparta.seed.repository.CommunityRepository;
 import sparta.seed.repository.ImgRepository;
 import sparta.seed.repository.ParticipantsRepository;
+import sparta.seed.repository.ProofRepository;
 import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -38,6 +39,7 @@ public class CommunityService {
   private final S3Uploader s3Uploader;
   private final ParticipantsRepository participantsRepository;
   private final DateUtil dateUtil;
+  private final ProofRepository proofRepository;
 
   /**
    * 게시글 전체조회 , 검색 , 스크롤
@@ -49,6 +51,7 @@ public class CommunityService {
     final SliceImpl<CommunityResponseDto> communityResponseDtos = new SliceImpl<>(allCommunityList, pageable, hasNext);
     return ResponseEntity.ok().body(communityResponseDtos);
   }
+
   private boolean hasNextPage(Pageable pageable, List<CommunityResponseDto> CommunityList) {
     boolean hasNext = false;
     if (CommunityList.size() > pageable.getPageSize()) {
@@ -57,6 +60,7 @@ public class CommunityService {
     }
     return hasNext;
   }
+
   private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
@@ -66,14 +70,13 @@ public class CommunityService {
               .title(community.getTitle())
               .isRecruitment(getDateStatus(community).equals("before"))
               .participantsCnt(community.getParticipantsList().size())
-              .successPercent(community.getParticipantsList().size() / community.getLimitParticipants())
+              .currentPercent((Double.valueOf(community.getParticipantsList().size()) / Double.valueOf(community.getLimitParticipants())) * 100) // 참여인원 퍼센트
+              .successPercent((Double.valueOf(community.getProofList().size()) / Double.valueOf(community.getLimitScore())) * 100) // 아직 미적용
               .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+              .dateStatus(getDateStatus(community))
               .build());
     }
     return communityList;
-  }
-  private String getDateStatus(Community community) throws ParseException {
-    return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
 
   /**
@@ -131,25 +134,27 @@ public class CommunityService {
   /**
    * 게시글 상세조회
    */
-  public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) {
-    Optional<Community> detailCommunity = communityRepository.findById(id);
-
+  public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
+    Optional<Community> community = communityRepository.findById(id);
+    Long certifiedProof = proofRepository.getCertifiedProof(community.get());
     CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
-            .communityId(detailCommunity.get().getId())
-            .createAt(String.valueOf(detailCommunity.get().getCreatedAt()))
-            .nickname(detailCommunity.get().getNickname())
-            .imgList(detailCommunity.get().getImgList())
-            .startDate(detailCommunity.get().getStartDate())
-            .endDate(detailCommunity.get().getEndDate())
-            .isSecret(detailCommunity.get().isSecret())
-            .password(detailCommunity.get().getPassword())
-            .title(detailCommunity.get().getTitle())
-            .content(detailCommunity.get().getContent())
-            .isWriter(userDetails != null && detailCommunity.get().getMemberId().equals(userDetails.getId()))
+            .communityId(community.get().getId())
+            .createAt(String.valueOf(community.get().getCreatedAt()))
+            .nickname(community.get().getNickname())
+            .imgList(community.get().getImgList())
+            .startDate(community.get().getStartDate())
+            .endDate(community.get().getEndDate())
+            .isSecret(community.get().isSecret())
+            .password(community.get().getPassword())
+            .title(community.get().getTitle())
+            .content(community.get().getContent())
+            .currentPercent((Double.valueOf(community.get().getParticipantsList().size()) / Double.valueOf(community.get().getLimitParticipants())) * 100)
+            .successPercent((Double.valueOf(certifiedProof) / Double.valueOf(community.get().getLimitScore())) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
+            .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
+            .dateStatus(getDateStatus(community.get()))
             .build();
     return ResponseEntity.ok().body(communityResponseDto);
   }
-
 
   /**
    * 게시글 수정
@@ -207,5 +212,10 @@ public class CommunityService {
     Optional<Community> community = communityRepository.findById(id);
     List<Participants> participantsList = community.get().getParticipantsList();
     return ResponseEntity.ok().body(participantsList);
+  }
+
+
+  private String  getDateStatus(Community community) throws ParseException {
+    return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
 }

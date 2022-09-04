@@ -9,6 +9,7 @@ import sparta.seed.domain.Member;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
+import sparta.seed.repository.ClearMissionRepository;
 import sparta.seed.repository.CommunityRepository;
 import sparta.seed.repository.MemberRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class MemberService {
   private final MemberRepository memberRepository;
   private final CommunityRepository communityRepository;
+  private final ClearMissionRepository clearMissionRepository;
   private final DateUtil dateUtil;
 
   /**
@@ -31,14 +33,19 @@ public class MemberService {
    */
   public ResponseEntity<MemberResponseDto> getMyPage(UserDetailsImpl userDetails) {
     Optional<Member> member = memberRepository.findById(userDetails.getId());
+
+    double clearMission = clearMissionRepository.countAllByMemberId(member.get().getId());
+    double missionDiv = clearMission / 5;
+    String stringDiv = missionDiv +""; // split 해서 소수부만 뽑아주기 위해서 스트링으로 형변환 
+    String[] split = stringDiv.split("\\."); // 소수점을 기준으로 스플릿
+
     MemberResponseDto memberResponseDto = MemberResponseDto.builder()
             .id(member.get().getId())
             .nickname(member.get().getNickname())
             .profileImage(member.get().getProfileImage())
-            .totalClear(52) // 미션 DB에서 멤버의 PK를 전부 카운팅해서 갯수를 리턴
-            .level(member.get().getLevel())
-            .exp(member.get().getExp())
-            .nextLevelExp(20) //로직 아직 고민중
+            .totalClear((int) clearMission) // 미션 DB에서 멤버의 PK를 전부 카운팅해서 갯수를 리턴
+            .level((int) (missionDiv + 1)) // 5개를 완료하면 레벨이 1오름 ... 1부터 시작한다고 할 때 만렙은 11이 될것
+            .nextLevelExp(5 - (Integer.parseInt(split[1]) / 2)) //소수부를 2로 나눈 후 5에서 뺀 값이 남은 경험치
             .build();
     return ResponseEntity.ok().body(memberResponseDto);
   }

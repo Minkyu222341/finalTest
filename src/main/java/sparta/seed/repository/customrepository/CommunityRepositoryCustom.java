@@ -7,4 +7,5 @@ import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
 
 public interface CommunityRepositoryCustom {
   QueryResults<Community> getAllCommunity(Pageable pageable, CommunitySearchCondition condition);
+
 }
