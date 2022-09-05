@@ -13,6 +13,7 @@ import sparta.seed.repository.MissionRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +69,7 @@ public class MissionService {
 		Member loginMember = memberRepository.findById(userDetails.getId()).get();
 
 		ClearMission clearMission = ClearMission.builder()
+				.createdAt(LocalDate.now())
 				.memberId(userDetails.getId())
 				.content(missionRequestDto.getContent())
 				.build();

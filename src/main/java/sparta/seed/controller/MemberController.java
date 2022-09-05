@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
+import sparta.seed.domain.dto.responseDto.ClearMissionResponseDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -22,6 +23,11 @@ public class MemberController {
   /**
    * 유저 정보보기
    */
+  @GetMapping("/api/userinfo/{memberId}")
+  public ResponseEntity<MemberResponseDto> getUserinfo(@PathVariable Long memberId) {
+
+    return memberService.getUserinfo(memberId);
+  }
 
   /**
    * 마이페이지
@@ -55,6 +61,10 @@ public class MemberController {
   /**
    * 일일 미션 달성 현황 확인
    */
+  @GetMapping("/api/mypage/statistics")
+  public ResponseEntity<ClearMissionResponseDto> targetDayMission(@RequestParam String targetDay, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    return memberService.targetDayMission(targetDay, userDetails);
+  }
 
   /**
    * 유저정보 비공개 / 공개 설정
