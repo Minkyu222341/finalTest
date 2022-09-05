@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sparta.seed.domain.dto.requestDto.ProofRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -55,6 +56,11 @@ public class Proof extends Timestamped {
     this.title = title;
     this.content = content;
     this.community = community;
+  }
+
+  public void updateProof(ProofRequestDto proofRequestDto) {
+    this.title = proofRequestDto.getTitle();
+    this.content = proofRequestDto.getContent();
   }
 
   public void addImg(Img img){
