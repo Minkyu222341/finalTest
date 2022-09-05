@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.Community;
@@ -13,10 +15,7 @@ import sparta.seed.domain.Img;
 import sparta.seed.domain.Proof;
 import sparta.seed.domain.dto.requestDto.ProofRequestDto;
 import sparta.seed.domain.dto.responseDto.ProofResponseDto;
-import sparta.seed.repository.CommunityRepository;
-import sparta.seed.repository.HeartRepository;
-import sparta.seed.repository.ImgRepository;
-import sparta.seed.repository.ProofRepository;
+import sparta.seed.repository.*;
 import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -31,6 +30,8 @@ public class ProofService {
 
 	private final ProofRepository proofRepository;
 	private final CommunityRepository communityRepository;
+
+	private final ParticipantsRepository participantsRepository;
 	private final HeartRepository heartRepository;
 	private final ImgRepository imgRepository;
 	private final S3Uploader s3Uploader;
@@ -81,8 +82,8 @@ public class ProofService {
 	/**
 	 * 인증글 작성
 	 */
-	public ProofResponseDto createReplay(Long communityId, ProofRequestDto proofRequestDto,
-	                                     List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
+	public ResponseEntity<ProofResponseDto> createReplay(Long communityId, ProofRequestDto proofRequestDto,
+	                                                     List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
 
 		Long loginUserId = userDetails.getId();
 		String nickname = userDetails.getNickname();
@@ -97,20 +98,21 @@ public class ProofService {
 				.community(community)
 				.build();
 
-		for (MultipartFile file : multipartFile) {
-			S3Dto upload = s3Uploader.upload(file);
-			Img findImage = Img.builder()
-					.imgUrl(upload.getUploadImageUrl())
-					.fileName(upload.getFileName())
-					.proof(proof)
-					.build();
-			proof.addImg(findImage);
-			imgRepository.save(findImage);
-		}
+		if(participantsRepository.existsByCommunityAndMemberId(community, loginUserId)) {
+			for (MultipartFile file : multipartFile) {
+				S3Dto upload = s3Uploader.upload(file);
+				Img findImage = Img.builder()
+						.imgUrl(upload.getUploadImageUrl())
+						.fileName(upload.getFileName())
+						.proof(proof)
+						.build();
+				proof.addImg(findImage);
+				imgRepository.save(findImage);
+			}
 
-		proofRepository.save(proof);
+			proofRepository.save(proof);
 
-			return ProofResponseDto.builder()
+			ProofResponseDto proofResponseDto = ProofResponseDto.builder()
 					.proofId(proof.getId())
 					.title(proof.getTitle())
 					.content(proof.getContent())
@@ -120,6 +122,10 @@ public class ProofService {
 					.isWriter(true)
 					.isHeart(false)
 					.build();
+			return ResponseEntity.ok().body(proofResponseDto);
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
 	}
 
 	/**

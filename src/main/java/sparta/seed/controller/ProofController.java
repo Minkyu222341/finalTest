@@ -2,10 +2,12 @@ package sparta.seed.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.domain.dto.requestDto.ProofRequestDto;
+import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.ProofResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.ProofService;
@@ -43,10 +45,10 @@ public class ProofController {
    * 인증글 작성
    */
 	@PostMapping(value = "/api/community/{communityId}/proof", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ProofResponseDto createReplay(@PathVariable Long communityId,
-	                                     @Valid @RequestPart(value = "dto") ProofRequestDto proofRequestDto,
-	                                     @RequestPart List<MultipartFile> multipartFile,
-	                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+	public ResponseEntity<ProofResponseDto>  createReplay(@PathVariable Long communityId,
+	                                                                          @Valid @RequestPart(value = "dto") ProofRequestDto proofRequestDto,
+	                                                                          @RequestPart List<MultipartFile> multipartFile,
+	                                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
 		return proofService.createReplay(communityId, proofRequestDto, multipartFile, userDetails);
 	}

@@ -35,7 +35,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
     return result;
   }
   private BooleanExpression titleEq(CommunitySearchCondition condition) {
-    return StringUtils.hasText(condition.getTitle()) ? community.title.eq(condition.getTitle()) : null;
+    return StringUtils.hasText(condition.getTitle()) ? community.title.contains(condition.getTitle()) : null;
   }
 
 }
