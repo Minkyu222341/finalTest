@@ -23,6 +23,7 @@ repositories {
 dependencies {
     // lombok 에서 mapstruct binding 해주는 기능이 추가되었습니다.!
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     //쿼리dsl
@@ -56,6 +57,12 @@ dependencies {
     //	이미지업로드 aws관련 의존성
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    //크롤링
+    implementation 'org.jsoup:jsoup:1.14.3'
+//    implementation'org.seleniumhq.selenium:selenium-java:4.0.0'
+    implementation'org.seleniumhq.selenium:selenium-java:3.141.59'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
 }
 
 tasks.named('test') {
