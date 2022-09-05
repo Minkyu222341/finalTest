@@ -19,10 +19,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import sparta.seed.domain.Authority;
 import sparta.seed.domain.Member;
+import sparta.seed.domain.RefreshToken;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
 import sparta.seed.jwt.TokenProvider;
 import sparta.seed.repository.MemberRepository;
+import sparta.seed.repository.RefreshTokenRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +38,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
   private final PasswordEncoder passwordEncoder;
   private final TokenProvider tokenProvider;
   private final MemberRepository memberRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
 
 
 
@@ -169,6 +172,15 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
     response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());
     response.setHeader("Access-Token-Expire-Time", String.valueOf(memberResponseDto.getAccessTokenExpiresIn()));
+
+    RefreshToken refreshToken = RefreshToken.builder()
+            .refreshKey(authentication.getName())
+            .refreshValue(memberResponseDto.getRefreshToken())
+            .build();
+
+    refreshTokenRepository.save(refreshToken);
+
+
     return MemberResponseDto.builder()
             .id(member.getId())
             .username(member.getUsername())
