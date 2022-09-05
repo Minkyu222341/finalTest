@@ -79,7 +79,7 @@ public class CommunityController {
    * 그룹미션 참여하기
    */
   @PatchMapping("/api/join/{id}")
-  public ResponseEntity<Boolean> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
     return communityService.joinMission(id, userDetails);
   }
 

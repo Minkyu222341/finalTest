@@ -41,4 +41,13 @@ public class CampaignController {
 	                                          @RequestPart List<MultipartFile> multipartFile) throws IOException {
 		return campaignService.createCampaign(campaignRequestDto, multipartFile);
 	}
+
+	/**
+	 * 캠페인 작성
+	 */
+
+	@GetMapping("/campaigns")
+	public Boolean insertCampaign() throws InterruptedException {
+		return campaignService.insertCampaign();
+	}
 }
