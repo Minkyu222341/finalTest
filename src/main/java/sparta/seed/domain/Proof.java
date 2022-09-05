@@ -28,6 +28,7 @@ public class Proof extends Timestamped {
 
   private String content;
 
+
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "community_id")
@@ -73,4 +74,6 @@ public class Proof extends Timestamped {
   public void removeHeart(Heart heart){
     this.heartList.remove(heart);
   }
+
+
 }
