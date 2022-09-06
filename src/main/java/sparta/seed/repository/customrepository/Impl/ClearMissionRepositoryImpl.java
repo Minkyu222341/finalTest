@@ -38,7 +38,7 @@ public class ClearMissionRepositoryImpl implements ClearMissionRepositoryCustom 
       LocalDate clearDate = tuple.get(clearMission.createdAt);
       int clearCount = tuple.get(clearMission.count()).intValue();
       result.add(ClearMissionResponseDto.builder()
-              .date(clearDate)
+              .selcetedDate(String.valueOf(clearDate))
               .clearMissionCnt(clearCount)
               .build());
     }
@@ -47,6 +47,7 @@ public class ClearMissionRepositoryImpl implements ClearMissionRepositoryCustom 
 
   @Override
   public List<Long> WeekMissionStats(MissionSearchCondition condition, Long memberId) {
+    JPAQueryFactory queryFactory = new JPAQueryFactory(em);
     return null;
   }
 }

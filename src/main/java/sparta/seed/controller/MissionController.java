@@ -9,6 +9,8 @@ import sparta.seed.domain.dto.responseDto.MissionResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.MissionService;
 
+import java.text.ParseException;
+
 @RestController
 @RequiredArgsConstructor
 public class MissionController {
@@ -43,7 +45,7 @@ public class MissionController {
 	 */
 	@PatchMapping("/api/complete")
 	public Boolean completeMission(@AuthenticationPrincipal UserDetailsImpl userDetails,
-	                               @RequestBody MissionRequestDto missionRequestDto){
+	                               @RequestBody MissionRequestDto missionRequestDto) throws ParseException {
 		return missionService.completeMission(userDetails, missionRequestDto);
 	}
 }

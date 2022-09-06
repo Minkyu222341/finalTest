@@ -5,24 +5,23 @@ import lombok.Builder;
 import lombok.Getter;
 import sparta.seed.domain.ClearMission;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
 public class ClearMissionResponseDto {
-	private LocalDate date;
+	private String selcetedDate;
 	private List<ClearMission> clearMissionList;
 	private int clearMissionCnt;
 
 	@Builder
-	public ClearMissionResponseDto(LocalDate date, List<ClearMission> clearMissionList, int clearMissionCnt) {
-		this.date = date;
+	public ClearMissionResponseDto(String selcetedDate, List<ClearMission> clearMissionList, int clearMissionCnt) {
+		this.selcetedDate = selcetedDate;
 		this.clearMissionList = clearMissionList;
 		this.clearMissionCnt = clearMissionCnt;
 	}
 	@QueryProjection
-	public ClearMissionResponseDto(LocalDate date,int clearMissionCnt) {
-		this.date = date;
+	public ClearMissionResponseDto(String date,int clearMissionCnt) {
+		this.selcetedDate = date;
 		this.clearMissionCnt = clearMissionCnt;
 	}
 }

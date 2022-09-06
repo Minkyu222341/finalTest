@@ -23,12 +23,13 @@ public class DateUtil {
     public static final int MONTH = 12;
   }
 
-  public long weekOfMonth(String createdTime) throws ParseException {
+  public String weekOfMonth() throws ParseException {
+    LocalDate now = LocalDate.now();
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    Date date = formatter.parse(createdTime);
+    Date date = formatter.parse(String.valueOf(now));
     Calendar cal = Calendar.getInstance();
     cal.setTime(date);
-    return cal.get(Calendar.WEEK_OF_MONTH);
+    return String.valueOf(cal.get(Calendar.WEEK_OF_MONTH));
   }
 
   public List<LocalDate> scopeOfStats(MissionSearchCondition condition) {
