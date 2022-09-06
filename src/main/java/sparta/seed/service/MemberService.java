@@ -201,7 +201,7 @@ public class MemberService {
     return ResponseEntity.ok().body(responseDto);
   }
 
-  public List<Long> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {
+  public List<ClearMissionResponseDto> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {
     Long memberId = userDetails.getId();
 
     return clearMissionRepository.dailyMissionStats(condition,memberId);
