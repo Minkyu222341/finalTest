@@ -100,10 +100,10 @@ public class MemberService {
   /**
    * 일일 미션 달성 현황 확인
    */
-  public ResponseEntity<ClearMissionResponseDto> targetDayMission(String selcetedDate, UserDetailsImpl userDetails) {
-    List<ClearMission> clearMissionList = clearMissionRepository.findAllByMemberIdAndCreatedAt(userDetails.getId(), LocalDate.parse(selcetedDate));
+  public ResponseEntity<ClearMissionResponseDto> targetDayMission(String selectedDate, UserDetailsImpl userDetails) {
+    List<ClearMission> clearMissionList = clearMissionRepository.findAllByMemberIdAndCreatedAt(userDetails.getId(), LocalDate.parse(selectedDate));
     return ResponseEntity.ok(ClearMissionResponseDto.builder()
-        .selcetedDate(selcetedDate)
+        .selectedDate(selectedDate)
         .clearMissionList(clearMissionList)
         .clearMissionCnt(clearMissionList.size())
         .build());

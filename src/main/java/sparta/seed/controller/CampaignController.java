@@ -45,7 +45,6 @@ public class CampaignController {
 	/**
 	 * 캠페인 작성
 	 */
-
 	@GetMapping("/campaigns")
 	public Boolean insertCampaign() throws InterruptedException {
 		return campaignService.insertCampaign();

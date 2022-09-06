@@ -42,6 +42,7 @@ public class CommunityController {
   @GetMapping("/api/community/{id}")
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(@PathVariable Long id,
                                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+    System.out.println(userDetails.getId() + " 디테일 컨트롤러");
     return communityService.getDetailCommunity(id,userDetails);
   }
 
