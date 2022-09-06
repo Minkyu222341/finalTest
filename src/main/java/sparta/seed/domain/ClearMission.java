@@ -21,9 +21,13 @@ public class ClearMission extends Timestamped {
   //완료한 미션
   private String content;
 
+  private String weekOfMonth;
+
   @Builder
-  public ClearMission(Long memberId, String content) {
+  public ClearMission(Long memberId, String content,String weekOfMonth) {
     this.memberId = memberId;
     this.content = content;
+    this.weekOfMonth = weekOfMonth;
   }
+
 }
