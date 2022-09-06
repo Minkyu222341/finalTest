@@ -22,14 +22,17 @@ public class Campaign extends Timestamped {
   //제목
   private String title;
   //이미지
-  @OneToMany(mappedBy = "campaign", cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "campaign", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
 
+
   @Builder
-  public Campaign(String title) {
+  public Campaign(String thumbnail, String title) {
+    this.thumbnail = thumbnail;
     this.title = title;
   }
+
 
   public void setThumbnail(String thumbnail) {
     this.thumbnail = thumbnail;

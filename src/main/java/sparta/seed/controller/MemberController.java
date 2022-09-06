@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import sparta.seed.domain.dto.requestDto.MissionSearchCondition;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.ClearMissionResponseDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.MemberService;
+import sparta.seed.service.MissionService;
 
 import java.text.ParseException;
 import java.util.List;
@@ -57,6 +59,10 @@ public class MemberController {
   /**
    * 미션 통계 - 주간 , 월간
    */
+  @GetMapping("/api/mypage/stats")
+  public List<Long> getDailyMissionStats(MissionSearchCondition condition,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return memberService.getDailyMissionStats(condition,userDetails);
+  }
 
   /**
    * 일일 미션 달성 현황 확인

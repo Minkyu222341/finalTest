@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+
+        window.addEventListener('load',function (){window.scrollTo(0,1),false})
+    </script>
+</head>
+<body>
+
+<button onclick=popup()>popup naver</button>
+
+<a href="javascript:void(0)" onclick="location.href='http://www.google.com'">Hide Link</a>
+
+</body>
+
+<script>
+    function popup(){
+        let options = "toolbar=no,scrollbars=no,resizable=yes,status=no,menubar=no,width=1200, height=800, top=0,left=0,location=no";
+
+        window.open("http://www.naver.com","_blank", options);
+    }
+</script>
+
+
+</html>

@@ -22,11 +22,13 @@ public class ClearMission{
   private Long memberId;
   //완료한 미션
   private String content;
+  private String weekOfMonth;
 
   @Builder
-  public ClearMission(LocalDate createdAt, Long memberId, String content) {
+  public ClearMission(LocalDate createdAt, Long memberId, String content,String weekOfMonth) {
     this.createdAt = createdAt;
     this.memberId = memberId;
     this.content = content;
+    this.weekOfMonth = weekOfMonth;
   }
 }

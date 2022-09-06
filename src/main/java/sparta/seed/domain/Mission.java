@@ -21,8 +21,12 @@ public class Mission extends Timestamped {
   //미션내용
   private String content;
 
+
+
   @Builder
   public Mission(String content) {
     this.content = content;
   }
+
+
 }

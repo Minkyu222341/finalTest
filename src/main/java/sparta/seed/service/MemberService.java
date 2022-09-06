@@ -10,6 +10,7 @@ import sparta.seed.domain.ClearMission;
 import sparta.seed.domain.Community;
 import sparta.seed.domain.Member;
 import sparta.seed.domain.RefreshToken;
+import sparta.seed.domain.dto.requestDto.MissionSearchCondition;
 import sparta.seed.domain.dto.requestDto.RefreshTokenRequestDto;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
 import sparta.seed.domain.dto.responseDto.ClearMissionResponseDto;
@@ -201,4 +202,9 @@ public class MemberService {
     return ResponseEntity.ok().body(responseDto);
   }
 
+  public List<Long> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {
+    Long memberId = userDetails.getId();
+
+    return clearMissionRepository.dailyMissionStats(condition,memberId);
+  }
 }
