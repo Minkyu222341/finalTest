@@ -18,7 +18,7 @@ public class CommunityResponseDto {
   private List<Img> imgList;
   private String title;
   //모집여부
-  private boolean isRecruitment;
+  private boolean isParticipant;
   private List<Community> participantsList;
   //달성퍼센트
   private double successPercent;
@@ -47,13 +47,15 @@ public class CommunityResponseDto {
 
 
 
+
+
   @QueryProjection
   @Builder
-  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isRecruitment, List<Community> participantsList, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password, String content, String dateStatus, String createAt, boolean isWriter) {
+  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isParticipant, List<Community> participantsList, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password, String content, String dateStatus, String createAt, boolean isWriter) {
     this.communityId = communityId;
     this.imgList = imgList;
     this.title = title;
-    this.isRecruitment = isRecruitment;
+    this.isParticipant = isParticipant;
     this.participantsList = participantsList;
     this.successPercent = successPercent;
     this.currentPercent = currentPercent;

@@ -17,7 +17,6 @@ public class ClearMissionRepositoryImpl implements ClearMissionRepositoryCustom 
   @PersistenceContext
   EntityManager em;
 
-
   @Override
   public List<Long> dailyMissionStats(MissionSearchCondition condition,Long memberId) {
     JPAQueryFactory queryFactory = new JPAQueryFactory(em);
@@ -27,14 +26,16 @@ public class ClearMissionRepositoryImpl implements ClearMissionRepositoryCustom 
     LocalDate start = LocalDate.parse(startDate, formatter);
     LocalDate end = LocalDate.parse(endDate, formatter);
 
-
     List<Long> result = queryFactory.select(clearMission.count())
             .from(clearMission)
             .where(clearMission.createdAt.between(start, end),clearMission.memberId.eq(memberId))
             .groupBy(clearMission.createdAt)
             .fetch();
-
-
     return result;
+  }
+
+  @Override
+  public List<Long> WeekMissionStats(MissionSearchCondition condition, Long memberId) {
+    return null;
   }
 }

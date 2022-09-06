@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ClearMissionRepositoryCustom {
   List<Long> dailyMissionStats(MissionSearchCondition condition,Long memberId);
+
+  List<Long> WeekMissionStats(MissionSearchCondition condition, Long memberId);
 }
