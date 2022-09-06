@@ -89,7 +89,6 @@ public class MemberService {
               .successPercent(community.getProofList().size() / community.getLimitScore() * 100) // 인증글 갯수에 비례한 달성도
               .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId())) // 내가 이 모임글의 작성자인지
               .dateStatus(getDateStatus(community)) // 모임이 시작전인지 시작했는지 종료되었는지
-              .isRecruitment(getDateStatus(community).equals("before"))
               .build());
     }
     return ResponseEntity.ok().body(responseDtoList);

@@ -69,7 +69,7 @@ public class CommunityService {
               .communityId(community.getId())
               .imgList(community.getImgList())
               .title(community.getTitle())
-              .isParticipant(isParticipant(userDetails, community))
+              .isParticipant(userDetails != null && isParticipant(userDetails, community))
               .participantsCnt(community.getParticipantsList().size())
               .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
               .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
@@ -163,7 +163,7 @@ public class CommunityService {
             .successPercent((Double.valueOf(certifiedProof) / (double) community.get().getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
             .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
             .dateStatus(getDateStatus(community.get()))
-            .isParticipant(isParticipant(userDetails, community.get()))
+            .isParticipant(userDetails!=null && isParticipant(userDetails, community.get()))
             .build();
     return ResponseEntity.ok().body(communityResponseDto);
   }
