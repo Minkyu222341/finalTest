@@ -1,11 +1,16 @@
 package sparta.seed.util;
 
 import org.springframework.stereotype.Component;
+import sparta.seed.domain.dto.requestDto.MissionSearchCondition;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class DateUtil {
@@ -26,6 +31,17 @@ public class DateUtil {
     return cal.get(Calendar.WEEK_OF_MONTH);
   }
 
+  public List<LocalDate> scopeOfStats(MissionSearchCondition condition) {
+    String startDate = condition.getStartDate();
+    String endDate = condition.getEndDate();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate start = LocalDate.parse(startDate, formatter);
+    LocalDate end = LocalDate.parse(endDate, formatter);
+    List<LocalDate> result = new ArrayList<>();
+    result.add(start);
+    result.add(end);
+    return result;
+  }
 
   public String dateStatus(String startDate, String endDate) throws ParseException {
     String todayfm = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
