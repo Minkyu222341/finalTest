@@ -14,7 +14,7 @@ import sparta.seed.domain.Img;
 import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.CommunityRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
-import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
+import sparta.seed.domain.dto.requestDto.CommunitySearchCondition;
 import sparta.seed.repository.CommunityRepository;
 import sparta.seed.repository.ImgRepository;
 import sparta.seed.repository.ParticipantsRepository;

@@ -12,7 +12,7 @@ import sparta.seed.domain.Community;
 import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.CommunityRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
-import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
+import sparta.seed.domain.dto.requestDto.CommunitySearchCondition;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.CommunityService;
 

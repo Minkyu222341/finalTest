@@ -46,5 +46,4 @@ public class MissionController {
 	                               @RequestBody MissionRequestDto missionRequestDto){
 		return missionService.completeMission(userDetails, missionRequestDto);
 	}
-
 }

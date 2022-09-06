@@ -26,4 +26,5 @@ public class ClearMission extends Timestamped {
     this.memberId = memberId;
     this.content = content;
   }
+
 }
