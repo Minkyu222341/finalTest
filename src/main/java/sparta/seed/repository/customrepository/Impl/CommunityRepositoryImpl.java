@@ -19,7 +19,6 @@ import static sparta.seed.domain.QCommunity.community;
 public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
   @PersistenceContext
   EntityManager em;
-//  JPAQueryFactory queryFactory = new JPAQueryFactory(em);
   @Override
   public QueryResults<Community> getAllCommunity(Pageable pageable, CommunitySearchCondition condition) {
     JPAQueryFactory queryFactory = new JPAQueryFactory(em);

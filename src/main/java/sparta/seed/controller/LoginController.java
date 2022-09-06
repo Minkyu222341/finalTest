@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "*")
 public class LoginController {
   private final GoogleUserService googleUserService;
   private final KakaoUserService kakaoUserService;

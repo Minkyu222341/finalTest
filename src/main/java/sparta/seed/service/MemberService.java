@@ -26,7 +26,6 @@ import sparta.seed.util.DateUtil;
 
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +47,7 @@ public class MemberService {
 
     double clearMission = clearMissionRepository.countAllByMemberId(member.get().getId());
     double missionDiv = clearMission / 5;
-    String stringDiv = missionDiv +""; // split 해서 소수부만 뽑아주기 위해서 스트링으로 형변환 
+    String stringDiv = missionDiv +""; // split 해서 소수부만 뽑아주기 위해서 스트링으로 형변환
     String[] split = stringDiv.split("\\."); // 소수점을 기준으로 스플릿
 
     MemberResponseDto memberResponseDto = MemberResponseDto.builder()
@@ -101,14 +100,10 @@ public class MemberService {
   /**
    * 일일 미션 달성 현황 확인
    */
-  public ResponseEntity<ClearMissionResponseDto> targetDayMission(String targetDay, UserDetailsImpl userDetails) {
-
-    LocalDate parseDay = LocalDate.parse(targetDay, DateTimeFormatter.ISO_DATE);
-    System.out.println(parseDay);
-
-    List<ClearMission> clearMissionList = clearMissionRepository.findAllByMemberIdAndCreatedAt(userDetails.getId(), parseDay);
+  public ResponseEntity<ClearMissionResponseDto> targetDayMission(String selcetedDate, UserDetailsImpl userDetails) {
+    List<ClearMission> clearMissionList = clearMissionRepository.findAllByMemberIdAndCreatedAt(userDetails.getId(), LocalDate.parse(selcetedDate));
     return ResponseEntity.ok(ClearMissionResponseDto.builder()
-        .date(parseDay)
+        .selcetedDate(selcetedDate)
         .clearMissionList(clearMissionList)
         .clearMissionCnt(clearMissionList.size())
         .build());
@@ -201,7 +196,7 @@ public class MemberService {
     return ResponseEntity.ok().body(responseDto);
   }
 
-  public List<Long> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {
+  public List<ClearMissionResponseDto> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {
     Long memberId = userDetails.getId();
 
     return clearMissionRepository.dailyMissionStats(condition,memberId);
