@@ -1,15 +1,19 @@
 package sparta.seed.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sparta.seed.domain.ClearMission;
 import sparta.seed.domain.Community;
 import sparta.seed.domain.Member;
 import sparta.seed.domain.RefreshToken;
+import sparta.seed.domain.dto.requestDto.MissionSearchCondition;
 import sparta.seed.domain.dto.requestDto.RefreshTokenRequestDto;
 import sparta.seed.domain.dto.requestDto.SocialMemberRequestDto;
+import sparta.seed.domain.dto.responseDto.ClearMissionResponseDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
 import sparta.seed.domain.dto.responseDto.MemberResponseDto;
 import sparta.seed.jwt.TokenProvider;
@@ -21,6 +25,8 @@ import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.util.DateUtil;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -83,10 +89,29 @@ public class MemberService {
               .successPercent(community.getProofList().size() / community.getLimitScore() * 100) // 인증글 갯수에 비례한 달성도
               .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId())) // 내가 이 모임글의 작성자인지
               .dateStatus(getDateStatus(community)) // 모임이 시작전인지 시작했는지 종료되었는지
-              .isRecruitment(getDateStatus(community).equals("before"))
               .build());
     }
     return ResponseEntity.ok().body(responseDtoList);
+  }
+
+  /**
+   * 미션 통계 - 주간 , 월간
+   */
+
+  /**
+   * 일일 미션 달성 현황 확인
+   */
+  public ResponseEntity<ClearMissionResponseDto> targetDayMission(String targetDay, UserDetailsImpl userDetails) {
+
+    LocalDate parseDay = LocalDate.parse(targetDay, DateTimeFormatter.ISO_DATE);
+    System.out.println(parseDay);
+
+    List<ClearMission> clearMissionList = clearMissionRepository.findAllByMemberIdAndCreatedAt(userDetails.getId(), parseDay);
+    return ResponseEntity.ok(ClearMissionResponseDto.builder()
+        .date(parseDay)
+        .clearMissionList(clearMissionList)
+        .clearMissionCnt(clearMissionList.size())
+        .build());
   }
 
   private String getDateStatus(Community community) throws ParseException {
@@ -110,6 +135,27 @@ public class MemberService {
   /**
    * 다른유저 정보 확인
    */
+  public ResponseEntity<MemberResponseDto> getUserinfo(Long memberId) {
+    Optional<Member> member = memberRepository.findById(memberId);
+    if(!member.get().isSecret()){
+      double clearMission = clearMissionRepository.countAllByMemberId(member.get().getId());
+      double missionDiv = clearMission / 5;
+      String stringDiv = missionDiv +"";
+      String[] split = stringDiv.split("\\.");
+
+      MemberResponseDto memberResponseDto = MemberResponseDto.builder()
+          .id(member.get().getId())
+          .nickname(member.get().getNickname())
+          .profileImage(member.get().getProfileImage())
+          .totalClear((int) clearMission)
+          .level((int) (missionDiv + 1))
+          .nextLevelExp(5 - (Integer.parseInt(split[1]) / 2))
+//          .isFriend()
+          .build();
+      return ResponseEntity.ok().body(memberResponseDto);
+
+    }else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+  }
 
 
   /**
@@ -155,4 +201,9 @@ public class MemberService {
     return ResponseEntity.ok().body(responseDto);
   }
 
+  public List<Long> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {
+    Long memberId = userDetails.getId();
+
+    return clearMissionRepository.dailyMissionStats(condition,memberId);
+  }
 }

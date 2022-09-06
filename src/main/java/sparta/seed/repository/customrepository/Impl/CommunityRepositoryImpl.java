@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import sparta.seed.domain.Community;
-import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
+import sparta.seed.domain.dto.requestDto.CommunitySearchCondition;
 import sparta.seed.repository.customrepository.CommunityRepositoryCustom;
 
 import javax.persistence.EntityManager;

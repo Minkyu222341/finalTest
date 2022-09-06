@@ -14,7 +14,7 @@ import sparta.seed.domain.Img;
 import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.CommunityRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
-import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
+import sparta.seed.domain.dto.requestDto.CommunitySearchCondition;
 import sparta.seed.repository.CommunityRepository;
 import sparta.seed.repository.ImgRepository;
 import sparta.seed.repository.ParticipantsRepository;
@@ -69,15 +69,20 @@ public class CommunityService {
               .communityId(community.getId())
               .imgList(community.getImgList())
               .title(community.getTitle())
-              .isRecruitment(getDateStatus(community).equals("before"))
+              .isParticipant(userDetails != null && isParticipant(userDetails, community))
               .participantsCnt(community.getParticipantsList().size())
-              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100) // 참여인원 퍼센트
-              .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100) // 아직 미적용
+              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+              .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
               .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
               .dateStatus(getDateStatus(community))
               .build());
     }
     return communityList;
+  }
+
+  private Boolean isParticipant(UserDetailsImpl userDetails, Community community) {
+    Boolean isParticipant = participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
+    return isParticipant;
   }
 
   /**
@@ -86,21 +91,10 @@ public class CommunityService {
   public ResponseEntity<Community> createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
-    List<Img> imgList = new ArrayList<>();
     if (multipartFile != null) {
-      Community community = Community.builder()
-              .title(requestDto.getTitle())
-              .content(requestDto.getContent())
-              .isSecret(requestDto.isSecret())
-              .password(requestDto.getPassword())
-              .memberId(loginUserId)
-              .nickname(nickname)
-              .startDate(requestDto.getStartDate())
-              .endDate(requestDto.getEndDate())
-              .limitParticipants(requestDto.getLimitParticipants())
-              .limitScore(requestDto.getLimitScore())
-              .build();
-
+      Community community = getCommunity(requestDto, loginUserId, nickname);
+      Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+      List<Img> imgList = new ArrayList<>();
       for (MultipartFile file : multipartFile) {
         S3Dto upload = s3Uploader.upload(file);
         Img findImage = Img.builder()
@@ -110,11 +104,22 @@ public class CommunityService {
                 .build();
         imgList.add(findImage);
         imgRepository.save(findImage);
+
       }
       communityRepository.save(community);
+      participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(community);
     }
-    Community community = Community.builder()
+    Community community = getCommunity(requestDto, loginUserId, nickname);
+    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+    communityRepository.save(community);
+    participantsRepository.save(groupLeader);
+    return ResponseEntity.ok().body(community);
+
+  }
+
+  private Community getCommunity(CommunityRequestDto requestDto, Long loginUserId, String nickname) {
+    return Community.builder()
             .title(requestDto.getTitle())
             .content(requestDto.getContent())
             .isSecret(requestDto.isSecret())
@@ -126,9 +131,14 @@ public class CommunityService {
             .limitParticipants(requestDto.getLimitParticipants())
             .limitScore(requestDto.getLimitScore())
             .build();
-    communityRepository.save(community);
-    return ResponseEntity.ok().body(community);
+  }
 
+  private Participants getGroupLeader(Long loginUserId, String nickname, Community community) {
+    return Participants.builder()
+            .nickname(nickname)
+            .memberId(loginUserId)
+            .community(community)
+            .build();
   }
 
 
@@ -153,6 +163,7 @@ public class CommunityService {
             .successPercent((Double.valueOf(certifiedProof) / (double) community.get().getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
             .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
             .dateStatus(getDateStatus(community.get()))
+            .isParticipant(userDetails!=null && isParticipant(userDetails, community.get()))
             .build();
     return ResponseEntity.ok().body(communityResponseDto);
   }
@@ -191,12 +202,16 @@ public class CommunityService {
    * 그룹미션 참여 , 취소 하기
    */
   @Transactional
-  public ResponseEntity<Boolean> joinMission(Long id, UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> joinMission(Long id, UserDetailsImpl userDetails) throws Exception {
     Optional<Community> community = communityRepository.findById(id);
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
     long limitParticipantCount = community.get().getLimitParticipants();
     int participantSize = community.get().getParticipantsList().size();
+    if (community.get().getMemberId().equals(userDetails.getId())) {
+      throw new Exception("작성자는 누를수 없습니다");
+    }
+
     if (participantsRepository.existsByCommunityAndMemberId(community.get(), loginUserId) || participantSize >= limitParticipantCount) {
       participantsRepository.deleteByMemberId(loginUserId);
       return ResponseEntity.ok().body(false);
@@ -221,7 +236,7 @@ public class CommunityService {
   }
 
 
-  private String  getDateStatus(Community community) throws ParseException {
+  private String getDateStatus(Community community) throws ParseException {
     return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
 }

@@ -12,7 +12,7 @@ import sparta.seed.domain.Community;
 import sparta.seed.domain.Participants;
 import sparta.seed.domain.dto.requestDto.CommunityRequestDto;
 import sparta.seed.domain.dto.responseDto.CommunityResponseDto;
-import sparta.seed.domain.dto.responseDto.CommunitySearchCondition;
+import sparta.seed.domain.dto.requestDto.CommunitySearchCondition;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.service.CommunityService;
 
@@ -79,7 +79,7 @@ public class CommunityController {
    * 그룹미션 참여하기
    */
   @PatchMapping("/api/join/{id}")
-  public ResponseEntity<Boolean> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<Boolean> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
     return communityService.joinMission(id, userDetails);
   }
 

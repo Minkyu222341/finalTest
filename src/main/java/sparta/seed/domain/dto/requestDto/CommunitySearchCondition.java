@@ -1,4 +1,4 @@
-package sparta.seed.domain.dto.responseDto;
+package sparta.seed.domain.dto.requestDto;
 
 
 import lombok.Data;

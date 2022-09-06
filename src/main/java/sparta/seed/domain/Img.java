@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sparta.seed.s3.S3Dto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -49,5 +50,10 @@ public class Img extends Timestamped {
     this.proof = proof;
     this.campaign = campaign;
     this.comment = comment;
+  }
+
+  public void updateImg(S3Dto s3Dto) {
+    this.imgUrl = s3Dto.getUploadImageUrl();
+    this.fileName = s3Dto.getFileName();
   }
 }

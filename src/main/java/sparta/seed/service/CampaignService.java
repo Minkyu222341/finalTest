@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import sparta.seed.crawling.CrawlingV1;
 import sparta.seed.domain.Campaign;
 import sparta.seed.domain.Img;
 import sparta.seed.domain.dto.requestDto.CampaignRequestDto;
@@ -26,6 +27,7 @@ public class CampaignService {
   private final CampaignRepository campaignRepository;
 	private final ImgRepository imgRepository;
 	private final S3Uploader s3Uploader;
+	private final CrawlingV1 crawlingV1;
 
 	/**
 	 * 캠페인 리스트
@@ -95,5 +97,15 @@ public class CampaignService {
 				.imgList(campaign.getImgList())
 				.build();
 	}
+
+	/**
+	 * 캠페인작성
+	 */
+
+	public Boolean insertCampaign() throws InterruptedException {
+			crawlingV1.process();
+			return true;
+	}
+
 
 }
