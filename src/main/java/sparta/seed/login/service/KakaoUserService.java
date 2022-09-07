@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;
@@ -44,36 +45,26 @@ public class KakaoUserService extends DefaultOAuth2UserService {
 
 
   public MemberResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
-    // 1. "인가 코드"로 "액세스 토큰" 요청
-    System.out.println("카카오 로그인 1번 접근");
+
     String accessToken = getAccessToken(code);
-    // 2. 토큰으로 카카오 API 호출
-    System.out.println("카카오 로그인 2번 접근");
+
     SocialMemberRequestDto kakaoUserInfo = getKakaoUserInfo(accessToken);
-    // 3. 필요시에 회원가입
-    System.out.println("카카오 로그인 3번 접근");
+
     Member kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
-    // 4. 강제 로그인 처리
-    System.out.println("카카오 로그인 4번 접근");
+
     return forceLogin(kakaoUser,response);
   }
 
   private String getAccessToken(String code) throws JsonProcessingException {
-    // HTTP Header 생성
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-    // HTTP Body 생성
-    //받은 코드를 헤더랑 바디에 세팅해서 http메세지로 만들어서 카카오로 보낸다음에 ㅔ우리가 그 토큰을 받아서 어떻게 핸들링한다 ㅣㅇ거여
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", "f072c106f2f26c3921bee727b2df0ccd");
     body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
 //    body.add("redirect_uri", "http://localhost:3000/user/kakao/callback");
     body.add("code", code);
-    /**
-     * 받은 인가코드로 카카오에 엑세스토큰 요청
-     */
-    // HTTP 요청 보내기
+
     HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
     RestTemplate rt = new RestTemplate();
     ResponseEntity<String> response = rt.exchange(
@@ -83,10 +74,6 @@ public class KakaoUserService extends DefaultOAuth2UserService {
             String.class
     );
 
-    /**
-     * 토큰 파싱해서 리턴
-     */
-    // HTTP 응답 (JSON) -> 액세스 토큰 파싱
     String responseBody = response.getBody();
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode jsonNode = objectMapper.readTree(responseBody);
@@ -94,14 +81,9 @@ public class KakaoUserService extends DefaultOAuth2UserService {
   }
 
   private SocialMemberRequestDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
-    // HTTP Header 생성
     HttpHeaders headers = new HttpHeaders();
     headers.add("Authorization", "Bearer " + accessToken);
     headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-    /**
-     * 리턴받은 토큰으로 카카오에 유저정보 요청
-     */
-    // HTTP 요청 보내기
     HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
     RestTemplate rt = new RestTemplate();
     ResponseEntity<String> response = rt.exchange(
@@ -110,9 +92,6 @@ public class KakaoUserService extends DefaultOAuth2UserService {
             kakaoUserInfoRequest,
             String.class
     );
-    /**
-     * 유저정보 파싱해서 리턴
-     */
     String responseBody = response.getBody();
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode jsonNode = objectMapper.readTree(responseBody);
@@ -139,14 +118,9 @@ public class KakaoUserService extends DefaultOAuth2UserService {
   }
 
   private Member registerKakaoUserIfNeeded(SocialMemberRequestDto kakaoUserInfo) {
-    /**
-     *  응답받은 유저정보를 토대로 나의 DB에 같은 유저가 가입되어 있는지 확인 후 없다면 DB에 정보 저장 아니면 그대로 리턴
-     */
-    // DB 에 중복된 Kakao Id 가 있는지 확인
     String socialId = kakaoUserInfo.getSocialId();
     Member member = memberRepository.findBySocialId(socialId).orElse(null);
     if (member==null) {
-      // 회원가입
       String username = kakaoUserInfo.getUsername();
       String nickname = kakaoUserInfo.getNickname();
       String password = passwordEncoder.encode(UUID.randomUUID().toString());
@@ -167,28 +141,21 @@ public class KakaoUserService extends DefaultOAuth2UserService {
 
   private MemberResponseDto forceLogin(Member kakaoUser,HttpServletResponse response) {
     UserDetailsImpl member = new UserDetailsImpl(kakaoUser);
+    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()));
+    String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
     Authentication authentication = new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());
-    //토큰생성
-    MemberResponseDto memberResponseDto = tokenProvider.generateTokenDto(authentication, member);
-    response.setHeader("Authorization", "Bearer " + memberResponseDto.getAccessToken());
-    response.setHeader("Access-Token-Expire-Time", String.valueOf(memberResponseDto.getAccessTokenExpiresIn()));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    response.setHeader("Authorization", "Bearer " + accessToken);
 
-    RefreshToken refreshToken = RefreshToken.builder()
-            .refreshKey(authentication.getName())
-            .refreshValue(memberResponseDto.getRefreshToken())
+    RefreshToken saveRefreshToken = RefreshToken.builder()
+            .refreshKey(String.valueOf(member.getId()))
+            .refreshValue(refreshToken)
             .build();
-
-    refreshTokenRepository.save(refreshToken);
-
+    refreshTokenRepository.save(saveRefreshToken);
 
     return MemberResponseDto.builder()
-            .id(member.getId())
-            .username(member.getUsername())
-            .nickname(member.getNickname())
-            .accessToken(memberResponseDto.getAccessToken())
-            .accessTokenExpiresIn(memberResponseDto.getAccessTokenExpiresIn())
-            .grantType(memberResponseDto.getGrantType())
-            .refreshToken(memberResponseDto.getRefreshToken())
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
             .build();
   }
 }

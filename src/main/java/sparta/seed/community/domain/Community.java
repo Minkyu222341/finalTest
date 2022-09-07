@@ -39,7 +39,7 @@ public class Community extends Timestamped {
   private long limitParticipants;
   //비밀글여부
 
-  private boolean secret;
+  private boolean isSecret;
   //글비밀번호
   private String password;
   //모집여부
@@ -68,7 +68,7 @@ public class Community extends Timestamped {
     this.endDate = endDate;
     this.limitScore = limitScore;
     this.limitParticipants = limitParticipants;
-    this.secret = secret;
+    this.isSecret = secret;
     this.password = password;
     this.recruitment = recruitment;
     this.proofList = proofList;
@@ -81,7 +81,7 @@ public class Community extends Timestamped {
     this.endDate = requestDto.getEndDate();
     this.limitScore = requestDto.getLimitScore();
     this.limitParticipants = requestDto.getLimitParticipants();
-    this.secret = requestDto.isSecret();
+    this.isSecret = requestDto.isSecret();
     this.password = requestDto.getPassword();
     this.title = requestDto.getTitle();
     this.content = requestDto.getContent();
