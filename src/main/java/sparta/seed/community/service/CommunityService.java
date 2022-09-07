@@ -69,7 +69,7 @@ public class CommunityService {
               .communityId(community.getId())
               .imgList(community.getImgList())
               .title(community.getTitle())
-              .isParticipant(userDetails != null && isParticipant(userDetails, community))
+              .participant(userDetails != null && participant(userDetails, community))
               .participantsCnt(community.getParticipantsList().size())
               .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
               .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
@@ -80,9 +80,9 @@ public class CommunityService {
     return communityList;
   }
 
-  private Boolean isParticipant(UserDetailsImpl userDetails, Community community) {
-    Boolean isParticipant = participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
-    return isParticipant;
+  private Boolean participant(UserDetailsImpl userDetails, Community community) {
+    Boolean participant = participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
+    return participant;
   }
 
   /**
@@ -122,7 +122,7 @@ public class CommunityService {
     return Community.builder()
             .title(requestDto.getTitle())
             .content(requestDto.getContent())
-            .isSecret(requestDto.isSecret())
+            .secret(requestDto.isSecret())
             .password(requestDto.getPassword())
             .memberId(loginUserId)
             .nickname(nickname)
@@ -164,7 +164,7 @@ public class CommunityService {
             .successPercent((Double.valueOf(certifiedProof) / (double) community.get().getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
             .writer(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
             .dateStatus(getDateStatus(community.get()))
-            .isParticipant(userDetails!=null && isParticipant(userDetails, community.get()))
+            .participant(userDetails!=null && participant(userDetails, community.get()))
             .build();
     return ResponseEntity.ok().body(communityResponseDto);
   }
