@@ -146,7 +146,6 @@ public class CommunityService {
    * 게시글 상세조회
    */
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
-    System.out.println(userDetails.getId() + "  디테일 서비스" );
     Optional<Community> community = communityRepository.findById(id);
     Long certifiedProof = getCertifiedProof(community.get());
     CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
