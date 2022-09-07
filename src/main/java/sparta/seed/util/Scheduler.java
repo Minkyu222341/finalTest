@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import sparta.seed.domain.Member;
-import sparta.seed.repository.MemberRepository;
-import sparta.seed.service.CommunityService;
+import sparta.seed.community.service.CommunityService;
+import sparta.seed.member.domain.Member;
+import sparta.seed.member.repository.MemberRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;

@@ -1,7 +1,7 @@
 package sparta.seed.util;
 
 import org.springframework.stereotype.Component;
-import sparta.seed.domain.dto.requestDto.MissionSearchCondition;
+import sparta.seed.mission.domain.dto.requestdto.MissionSearchCondition;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

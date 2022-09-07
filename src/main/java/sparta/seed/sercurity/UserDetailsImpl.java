@@ -4,7 +4,7 @@ package sparta.seed.sercurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import sparta.seed.domain.Member;
+import sparta.seed.member.domain.Member;
 
 import java.util.ArrayList;
 import java.util.Collection;
