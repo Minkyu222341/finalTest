@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Participants;
 import sparta.seed.community.domain.dto.requestdto.CommunityRequestDto;
 import sparta.seed.community.domain.dto.requestdto.CommunitySearchCondition;
@@ -50,7 +49,7 @@ public class CommunityController {
    * 그룹미션 작성
    */
   @PostMapping(value = "/api/community", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-  public ResponseEntity<Community> creatMemo(@RequestPart(value = "dto") CommunityRequestDto requestDto,
+  public ResponseEntity<String> creatMemo(@RequestPart(value = "dto") CommunityRequestDto requestDto,
                                              @RequestPart(required = false) List<MultipartFile> multipartFile,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {   //메모를 생성하려면 데이터를 물고다닐 Dto가 필요하다.  // 날아오는 녀석을 그대로 requestDto에 넣어주기 위해서 해당 어노테이션을 씀
     return communityService.createCommunity(requestDto, multipartFile, userDetails);
@@ -60,7 +59,7 @@ public class CommunityController {
    * 그룹미션 수정
    */
   @PatchMapping("/api/community/{id}")
-  public ResponseEntity<Boolean> updateCommunity(@PathVariable Long id, @RequestBody CommunityRequestDto communityRequestDto,
+  public ResponseEntity<String> updateCommunity(@PathVariable Long id, @RequestBody CommunityRequestDto communityRequestDto,
                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return communityService.updateCommunity(id, communityRequestDto, userDetails);
   }
@@ -70,7 +69,7 @@ public class CommunityController {
    * 그룹미션 삭제하기
    */
   @DeleteMapping("/api/community/{id}")
-  public ResponseEntity<Boolean> deleteCommunity(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<String> deleteCommunity(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return communityService.deleteCommunity(id, userDetails);
   }
 
@@ -79,7 +78,7 @@ public class CommunityController {
    * 그룹미션 참여하기
    */
   @PatchMapping("/api/join/{id}")
-  public ResponseEntity<Boolean> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+  public ResponseEntity<String> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
     return communityService.joinMission(id, userDetails);
   }
 
