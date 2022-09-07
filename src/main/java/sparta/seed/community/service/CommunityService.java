@@ -65,10 +65,15 @@ public class CommunityService {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
       Long certifiedProof = getCertifiedProof(community);
-      communityList.add(CommunityResponseDto.builder()
+      communityList.add(
+          CommunityResponseDto.builder()
               .communityId(community.getId())
-              .imgList(community.getImgList())
+              .img(community.getImg())
               .title(community.getTitle())
+              .startDate(community.getStartDate())
+              .endDate(community.getEndDate())
+              .limitScore(community.getLimitScore())
+              .limitParticipants(community.getLimitParticipants())
               .participant(userDetails != null && participant(userDetails, community))
               .participantsCnt(community.getParticipantsList().size())
               .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
@@ -88,28 +93,27 @@ public class CommunityService {
   /**
    * 게시글 작성
    */
-  public ResponseEntity<Community> createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
+  public ResponseEntity<Community> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
     if (multipartFile != null) {
       Community community = createCommunity(requestDto, loginUserId, nickname);
       Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-      List<Img> imgList = new ArrayList<>();
-      for (MultipartFile file : multipartFile) {
-        S3Dto upload = s3Uploader.upload(file);
+
+        S3Dto upload = s3Uploader.upload(multipartFile);
         Img findImage = Img.builder()
                 .imgUrl(upload.getUploadImageUrl())
                 .fileName(upload.getFileName())
                 .community(community)
                 .build();
-        imgList.add(findImage);
-        imgRepository.save(findImage);
+      community.setImg(findImage);
+      imgRepository.save(findImage);
 
-      }
       communityRepository.save(community);
       participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(community);
     }
+
     Community community = createCommunity(requestDto, loginUserId, nickname);
     Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
     communityRepository.save(community);
@@ -152,10 +156,12 @@ public class CommunityService {
             .communityId(community.get().getId())
             .createAt(String.valueOf(community.get().getCreatedAt()))
             .nickname(community.get().getNickname())
-            .imgList(community.get().getImgList())
+            .img(community.get().getImg())
             .startDate(community.get().getStartDate())
             .endDate(community.get().getEndDate())
-            .secret(community.get().isSecret())
+            .limitScore(community.get().getLimitScore())
+            .limitParticipants(community.get().getLimitParticipants())
+            .secret(community.get().isPasswordFlag())
             .password(community.get().getPassword())
             .title(community.get().getTitle())
             .content(community.get().getContent())
