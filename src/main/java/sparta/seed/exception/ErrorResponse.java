@@ -1,17 +1,28 @@
 package sparta.seed.exception;
 
+import lombok.Builder;
 import lombok.Getter;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 //
 @Getter
-public class ErrorResponse extends Throwable {
+@Builder
+public class ErrorResponse {
 
-//    private final LocalDateTime timestamp = LocalDateTime.now();
-    private final String message;
-//    private final String errorCode;
+    private String msg;
+    private String errorCode;
+    private HttpStatus httpStatus;
 
-    public ErrorResponse(ErrorCode errorCode) {
-
-        this.message = errorCode.getErrorMessage();
+    public static ResponseEntity<ErrorResponse> of(ErrorCode code) {
+        return ResponseEntity
+                .status(code.getHttpStatus())
+                .body(
+                        ErrorResponse.builder()
+                                .msg(code.getMsg())
+                                .errorCode(code.getErrorCode())
+                                .httpStatus(code.getHttpStatus())
+                                .build()
+                );
     }
+
 }

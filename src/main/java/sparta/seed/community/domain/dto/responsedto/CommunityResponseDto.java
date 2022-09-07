@@ -33,7 +33,7 @@ public class CommunityResponseDto {
   //모임 종료날짜
   private String endDate;
   //비밀글 여부
-  private boolean isSecret;
+  private boolean secret;
   //패스워드
   private String password;
   //내용
@@ -43,7 +43,7 @@ public class CommunityResponseDto {
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
   private String createAt;
-  private boolean isWriter;
+  private boolean writer;
 
 
 
@@ -51,7 +51,7 @@ public class CommunityResponseDto {
 
   @QueryProjection
   @Builder
-  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isParticipant, List<Community> participantsList, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean isSecret, String password, String content, String dateStatus, String createAt, boolean isWriter) {
+  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean isParticipant, List<Community> participantsList, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean secret, String password, String content, String dateStatus, String createAt, boolean writer) {
     this.communityId = communityId;
     this.imgList = imgList;
     this.title = title;
@@ -63,11 +63,11 @@ public class CommunityResponseDto {
     this.nickname = nickname;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.isSecret = isSecret;
+    this.secret = secret;
     this.password = password;
     this.content = content;
     this.dateStatus = dateStatus;
     this.createAt = createAt;
-    this.isWriter = isWriter;
+    this.writer = writer;
   }
 }

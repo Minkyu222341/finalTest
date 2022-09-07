@@ -11,16 +11,16 @@ public class CommentResponseDto {
 	private String nickname;
 	private String content;
 	private Img img;
-	private boolean isWriter;
+	private boolean writer;
 
 
 	@Builder
-	public CommentResponseDto(Long commentId, Long proofId, String nickname, String content, Img img, Boolean isWriter) {
+	public CommentResponseDto(Long commentId, Long proofId, String nickname, String content, Img img, Boolean writer) {
 		this.commentId = commentId;
 		this.proofId = proofId;
 		this.nickname = nickname;
 		this.content = content;
 		this.img = img;
-		this.isWriter = isWriter;
+		this.writer = writer;
 	}
 }

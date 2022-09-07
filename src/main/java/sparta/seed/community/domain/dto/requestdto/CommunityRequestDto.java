@@ -10,7 +10,7 @@ public class CommunityRequestDto {
   private String endDate;
   private Integer limitScore;
   private Integer limitParticipants;
-  private boolean isSecret;
+  private boolean secret;
   private String password;
   private String title;
   private String content;

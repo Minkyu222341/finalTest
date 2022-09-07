@@ -41,7 +41,7 @@ public class CommentService {
 					.proofId(comment.getProof().getId())
 					.nickname(comment.getNickname())
 					.content(comment.getContent())
-					.isWriter(userDetails !=null && comment.getMemberId().equals(userDetails.getId()))
+					.writer(userDetails !=null && comment.getMemberId().equals(userDetails.getId()))
 					.build());
 		}
 
@@ -83,7 +83,7 @@ public class CommentService {
 					.nickname(comment.getNickname())
 					.content(comment.getContent())
 					.img(comment.getImg())
-					.isWriter(true)
+					.writer(true)
 					.build();
 
 		}else {
@@ -101,7 +101,7 @@ public class CommentService {
 					.proofId(comment.getProof().getId())
 					.nickname(comment.getNickname())
 					.content(comment.getContent())
-					.isWriter(true)
+					.writer(true)
 					.build();
 		}
 	}
@@ -144,7 +144,7 @@ public class CommentService {
 				.nickname(comment.getNickname())
 				.content(comment.getContent())
 				.img(comment.getImg())
-				.isWriter(true)
+				.writer(true)
 				.build();
 	}
 

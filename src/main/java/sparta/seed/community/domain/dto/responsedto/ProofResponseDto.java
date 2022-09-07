@@ -15,18 +15,18 @@ public class ProofResponseDto {
 	private List<Img> img;
 	private int commentCnt;
 	private int heartCnt;
-	private boolean isWriter;
-	private boolean isHeart;
+	private boolean writer;
+	private boolean heart;
 
 	@Builder
-	public ProofResponseDto(Long proofId, String title, String content, List<Img> img, int commentCnt, int heartCnt, boolean isWriter, boolean isHeart) {
+	public ProofResponseDto(Long proofId, String title, String content, List<Img> img, int commentCnt, int heartCnt, boolean writer, boolean heart) {
 		this.proofId = proofId;
 		this.title = title;
 		this.content = content;
 		this.img = img;
 		this.commentCnt = commentCnt;
 		this.heartCnt = heartCnt;
-		this.isWriter = isWriter;
-		this.isHeart = isHeart;
+		this.writer = writer;
+		this.heart = heart;
 	}
 }

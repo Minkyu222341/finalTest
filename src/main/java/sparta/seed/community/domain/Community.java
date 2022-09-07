@@ -39,7 +39,6 @@ public class Community extends Timestamped {
   private long limitParticipants;
   //비밀글여부
 
-  @ColumnDefault("false")
   private boolean isSecret;
   //글비밀번호
   private String password;

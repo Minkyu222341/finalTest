@@ -73,7 +73,7 @@ public class CommunityService {
               .participantsCnt(community.getParticipantsList().size())
               .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
               .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
-              .isWriter(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+              .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
               .dateStatus(getDateStatus(community))
               .build());
     }
@@ -92,7 +92,7 @@ public class CommunityService {
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
     if (multipartFile != null) {
-      Community community = getCommunity(requestDto, loginUserId, nickname);
+      Community community = createCommunity(requestDto, loginUserId, nickname);
       Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
       List<Img> imgList = new ArrayList<>();
       for (MultipartFile file : multipartFile) {
@@ -110,7 +110,7 @@ public class CommunityService {
       participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(community);
     }
-    Community community = getCommunity(requestDto, loginUserId, nickname);
+    Community community = createCommunity(requestDto, loginUserId, nickname);
     Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
     communityRepository.save(community);
     participantsRepository.save(groupLeader);
@@ -118,7 +118,7 @@ public class CommunityService {
 
   }
 
-  private Community getCommunity(CommunityRequestDto requestDto, Long loginUserId, String nickname) {
+  private Community createCommunity(CommunityRequestDto requestDto, Long loginUserId, String nickname) {
     return Community.builder()
             .title(requestDto.getTitle())
             .content(requestDto.getContent())
@@ -156,13 +156,13 @@ public class CommunityService {
             .imgList(community.get().getImgList())
             .startDate(community.get().getStartDate())
             .endDate(community.get().getEndDate())
-            .isSecret(community.get().isSecret())
+            .secret(community.get().isSecret())
             .password(community.get().getPassword())
             .title(community.get().getTitle())
             .content(community.get().getContent())
             .currentPercent(((double) community.get().getParticipantsList().size() / (double) community.get().getLimitParticipants()) * 100)
             .successPercent((Double.valueOf(certifiedProof) / (double) community.get().getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
-            .isWriter(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
+            .writer(userDetails != null && community.get().getMemberId().equals(userDetails.getId()))
             .dateStatus(getDateStatus(community.get()))
             .isParticipant(userDetails!=null && isParticipant(userDetails, community.get()))
             .build();

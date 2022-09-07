@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import sparta.seed.exception.Code;
+import sparta.seed.exception.ErrorCode;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,31 +32,28 @@ public class JwtFilter extends OncePerRequestFilter {
    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
       // 1. Request Header 에서 토큰을 꺼냄
       String jwt = resolveToken(request);
-      System.out.println("JWT필터");
-      System.out.println("토큰 : "+ jwt);
       if(jwt == null){
-         request.setAttribute("exception", Code.UNKNOWN_ERROR.getCode());
+         request.setAttribute("exception", ErrorCode.UNKNOWN_ERROR.getErrorCode());
       }
 
       // 2. validateToken 으로 토큰 유효성 검사
       // 정상 토큰이면 해당 토큰으로 Authentication 을 가져와서 SecurityContext 에 저장
       try {
-         System.out.println("토큰 유효성 검사");
          if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
             Authentication authentication = tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
          }
       } catch (ExpiredJwtException e){
          //만료 에러
-         request.setAttribute("exception", Code.EXPIRED_TOKEN.getCode());
+         request.setAttribute("exception", ErrorCode.EXPIRED_TOKEN.getErrorCode());
       } catch (MalformedJwtException e){
          //변조 에러
-         request.setAttribute("exception", Code.WRONG_TYPE_TOKEN.getCode());
+         request.setAttribute("exception", ErrorCode.WRONG_TYPE_TOKEN.getErrorCode());
       } catch (SignatureException e){
          //형식, 길이 에러
-         request.setAttribute("exception", Code.WRONG_TYPE_TOKEN.getCode());
+         request.setAttribute("exception", ErrorCode.WRONG_TYPE_TOKEN.getErrorCode());
       } catch(JwtException e){
-         request.setAttribute("exception", Code.UNKNOWN_ERROR);
+         request.setAttribute("exception", ErrorCode.UNKNOWN_ERROR);
       }
 
       filterChain.doFilter(request, response);

@@ -60,8 +60,8 @@ public class ProofService {
 					.img(proof.getImgList())
 					.commentCnt(proof.getCommentList().size())
 					.heartCnt(proof.getHeartList().size())
-					.isWriter(userDetails !=null && proof.getMemberId().equals(userDetails.getId()))
-					.isHeart(userDetails !=null && heartRepository.existsByProofAndMemberId(proof, userDetails.getId()))
+					.writer(userDetails !=null && proof.getMemberId().equals(userDetails.getId()))
+					.heart(userDetails !=null && heartRepository.existsByProofAndMemberId(proof, userDetails.getId()))
 					.build());
 		}
 		return proofResponseDtoList;
@@ -80,8 +80,8 @@ public class ProofService {
 				.img(proof.getImgList())
 				.commentCnt(proof.getCommentList().size())
 				.heartCnt(proof.getHeartList().size())
-				.isWriter(userDetails !=null && proof.getMemberId().equals(userDetails.getId()))
-				.isHeart(userDetails !=null && heartRepository.existsByProofAndMemberId(proof, userDetails.getId()))
+				.writer(userDetails !=null && proof.getMemberId().equals(userDetails.getId()))
+				.heart(userDetails !=null && heartRepository.existsByProofAndMemberId(proof, userDetails.getId()))
 				.build();
 	}
 
@@ -125,8 +125,8 @@ public class ProofService {
 					.img(proof.getImgList())
 					.commentCnt(proof.getCommentList().size())
 					.heartCnt(proof.getHeartList().size())
-					.isWriter(true)
-					.isHeart(false)
+					.writer(true)
+					.heart(false)
 					.build();
 			return ResponseEntity.ok().body(proofResponseDto);
 		}else {
@@ -162,8 +162,8 @@ public class ProofService {
 					.img(proof.getImgList())
 					.commentCnt(proof.getCommentList().size())
 					.heartCnt(proof.getHeartList().size())
-					.isWriter(true)
-					.isHeart(false)
+					.writer(true)
+					.heart(false)
 					.build();
 			return ResponseEntity.ok().body(proofResponseDto);
 
@@ -229,7 +229,7 @@ public class ProofService {
 			heartRepository.save(heart);
 			return ProofResponseDto.builder()
 					.proofId(proof.getId())
-					.isHeart(true)
+					.heart(true)
 					.heartCnt(proof.getHeartList().size()).build();
 		}else {
 			Heart heart = heartRepository.findByProofAndMemberId(proof, loginUserId);
@@ -237,7 +237,7 @@ public class ProofService {
 			heartRepository.delete(heart);
 			return ProofResponseDto.builder()
 					.proofId(proof.getId())
-					.isHeart(false)
+					.heart(false)
 					.heartCnt(proof.getHeartList().size()).build();
 		}
 	}
