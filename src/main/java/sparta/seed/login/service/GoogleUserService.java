@@ -159,7 +159,7 @@ public class GoogleUserService {
 
   private MemberResponseDto jwtToken(Authentication authentication, HttpServletResponse response) {
     UserDetailsImpl member = ((UserDetailsImpl) authentication.getPrincipal());
-    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()));
+    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
     String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
     SecurityContextHolder.getContext().setAuthentication(authentication);
     response.addHeader("Authorization", "Bearer " + accessToken);

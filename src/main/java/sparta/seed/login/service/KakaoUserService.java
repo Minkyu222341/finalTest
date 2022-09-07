@@ -121,6 +121,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     String socialId = kakaoUserInfo.getSocialId();
     Member member = memberRepository.findBySocialId(socialId).orElse(null);
     if (member==null) {
+      // 회원가입
       String username = kakaoUserInfo.getUsername();
       String nickname = kakaoUserInfo.getNickname();
       String password = passwordEncoder.encode(UUID.randomUUID().toString());
@@ -141,7 +142,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
 
   private MemberResponseDto forceLogin(Member kakaoUser,HttpServletResponse response) {
     UserDetailsImpl member = new UserDetailsImpl(kakaoUser);
-    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()));
+    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
     String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
     Authentication authentication = new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authentication);

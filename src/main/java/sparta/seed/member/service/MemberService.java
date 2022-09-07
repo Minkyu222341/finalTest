@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.community.repository.CommunityRepository;
+import sparta.seed.exception.CustomException;
+import sparta.seed.exception.ErrorCode;
 import sparta.seed.jwt.TokenProvider;
 import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
@@ -158,13 +160,17 @@ public class MemberService {
   @Transactional
   public ResponseEntity<String> reissue(RefreshTokenRequestDto tokenRequestDto) {
     if (!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
-      throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
+      throw new CustomException(ErrorCode.BE_NOT_VALID_TOKEN);
     }
 
     RefreshToken refreshToken = refreshTokenRepository.findByRefreshValue(tokenRequestDto.getRefreshToken())
-            .orElseThrow(() -> new RuntimeException("토큰의 유저 정보가 일치하지 않습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
 
-    String accessToken = tokenProvider.generateAccessToken(refreshToken.getRefreshKey());
+    Member member = memberRepository.findById(Long.valueOf(refreshToken.getRefreshKey()))
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
+
+
+    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
 
     return ResponseEntity.ok().body(accessToken);
   }

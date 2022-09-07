@@ -31,6 +31,7 @@ public class TokenProvider {
   private static final String MEMBER_USERNAME = "memberUsername";
   private static final String MEMBER_NICKNAME = "memberNickname";
   private static final String MEMBER_ID = "memberId";
+  private static final String MEMBER = "member";
   private Authority authority;
 
 
@@ -73,11 +74,12 @@ public class TokenProvider {
             .build();
   }
 
-  public String generateAccessToken(String memberId) {
+  public String generateAccessToken(String memberId,String memberNickname) {
     long now = (new Date()).getTime();
     Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
     String accessToken = Jwts.builder()
-            .setSubject(memberId)
+            .setSubject(String.valueOf(memberId))
+            .claim(MEMBER_NICKNAME,memberNickname)
             .setExpiration(accessTokenExpiresIn)
             .signWith(key, SignatureAlgorithm.HS512)
             .compact();
