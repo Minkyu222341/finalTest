@@ -39,12 +39,12 @@ public class Community extends Timestamped {
   private long limitParticipants;
   //비밀글여부
 
-  private boolean isSecret;
+  private boolean secret;
   //글비밀번호
   private String password;
   //모집여부
   @ColumnDefault("true")
-  private boolean isRecruitment;
+  private boolean recruitment;
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Proof> proofList = new ArrayList<>();
@@ -58,7 +58,7 @@ public class Community extends Timestamped {
 
 
   @Builder
-  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean isSecret, String password, boolean isRecruitment, List<Proof> proofList, List<Img> imgList, List<Participants> participantsList) {
+  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean secret, String password, boolean recruitment, List<Proof> proofList, List<Img> imgList, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
     this.nickname = nickname;
@@ -68,9 +68,9 @@ public class Community extends Timestamped {
     this.endDate = endDate;
     this.limitScore = limitScore;
     this.limitParticipants = limitParticipants;
-    this.isSecret = isSecret;
+    this.secret = secret;
     this.password = password;
-    this.isRecruitment = isRecruitment;
+    this.recruitment = recruitment;
     this.proofList = proofList;
     this.imgList = imgList;
     this.participantsList = participantsList;
@@ -81,7 +81,7 @@ public class Community extends Timestamped {
     this.endDate = requestDto.getEndDate();
     this.limitScore = requestDto.getLimitScore();
     this.limitParticipants = requestDto.getLimitParticipants();
-    this.isSecret = requestDto.isSecret();
+    this.secret = requestDto.isSecret();
     this.password = requestDto.getPassword();
     this.title = requestDto.getTitle();
     this.content = requestDto.getContent();

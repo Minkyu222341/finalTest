@@ -116,7 +116,7 @@ public class CommentService {
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
-		if(comment.getMemberId().equals(userDetails.getId())){
+		if(userDetails != null && comment.getMemberId().equals(userDetails.getId())){
 			comment.update(commentRequestDto.getContent());
 
 			if(multipartFile != null){
