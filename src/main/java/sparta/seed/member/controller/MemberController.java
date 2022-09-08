@@ -8,6 +8,7 @@ import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
+import sparta.seed.member.domain.requestdto.NicknameRequestDto;
 import sparta.seed.member.service.MemberService;
 import sparta.seed.mission.domain.dto.requestdto.MissionSearchCondition;
 import sparta.seed.mission.domain.dto.responsedto.ClearMissionResponseDto;
@@ -41,10 +42,18 @@ public class MemberController {
   }
 
   /**
+   * 닉네임 중복체크
+   */
+  @PostMapping("/api/mypage/nickname")
+  public ResponseEntity<Boolean> checkNickname(@RequestBody NicknameRequestDto requestDto) {
+    return memberService.checkNickname(requestDto);
+  }
+
+  /**
    * 닉네임 변경
    */
   @PatchMapping("/api/mypage/nickname")
-  public ResponseEntity<Boolean> updateNickname(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody SocialMemberRequestDto requestDto) {
+  public ResponseEntity<Boolean> updateNickname(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody NicknameRequestDto requestDto) {
     return memberService.updateNickname(userDetails,requestDto);
   }
 

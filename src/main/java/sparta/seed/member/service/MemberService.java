@@ -16,6 +16,7 @@ import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Member;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
+import sparta.seed.member.domain.requestdto.NicknameRequestDto;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.member.repository.RefreshTokenRepository;
 import sparta.seed.mission.domain.ClearMission;
@@ -51,10 +52,19 @@ public class MemberService {
   }
 
   /**
+   * 닉네임 중복체크
+   */
+  public ResponseEntity<Boolean> checkNickname(NicknameRequestDto requestDto) {
+    if(memberRepository.existsByNickname(requestDto.getNickname())){
+      return ResponseEntity.ok().body(false);
+    }else return ResponseEntity.ok().body(true);
+  }
+
+  /**
    * 닉네임 변경
    */
   @Transactional
-  public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails, SocialMemberRequestDto requestDto) {
+  public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails, NicknameRequestDto requestDto) {
     Member member = memberRepository.findById(userDetails.getId())
         .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
     if (member.getNickname().equals(requestDto.getNickname())) {

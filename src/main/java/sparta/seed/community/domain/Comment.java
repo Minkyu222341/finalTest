@@ -30,7 +30,7 @@ public class Comment extends Timestamped {
   @JoinColumn(name = "proof_id")
   private Proof proof;
 
-  @OneToOne(mappedBy = "comment", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "comment", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   @JsonManagedReference
   private Img img;
 
