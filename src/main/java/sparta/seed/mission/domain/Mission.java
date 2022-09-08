@@ -3,7 +3,6 @@ package sparta.seed.mission.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.seed.util.Timestamped;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

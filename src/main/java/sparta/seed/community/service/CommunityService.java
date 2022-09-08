@@ -52,12 +52,12 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDtos);
   }
 
- public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
-  Long loginUserId = userDetails.getId();
-  String nickname = userDetails.getNickname();
-  if (multipartFile != null) {
-    Community community = createCommunity(requestDto, loginUserId, nickname);
-    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
+    Long loginUserId = userDetails.getId();
+    String nickname = userDetails.getNickname();
+    if (multipartFile != null) {
+      Community community = createCommunity(requestDto, loginUserId, nickname);
+      Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
 
       S3Dto upload = s3Uploader.upload(multipartFile);
       Img findImage = Img.builder()
@@ -65,21 +65,21 @@ public class CommunityService {
               .fileName(upload.getFileName())
               .community(community)
               .build();
-    community.setImg(findImage);
-    imgRepository.save(findImage);
+      community.setImg(findImage);
+      imgRepository.save(findImage);
 
+      communityRepository.save(community);
+      participantsRepository.save(groupLeader);
+      return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+    }
+
+    Community community = createCommunity(requestDto, loginUserId, nickname);
+    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
     communityRepository.save(community);
     participantsRepository.save(groupLeader);
     return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+
   }
-
-  Community community = createCommunity(requestDto, loginUserId, nickname);
-  Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-  communityRepository.save(community);
-  participantsRepository.save(groupLeader);
-  return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-
-}
 
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
     Community community = findTheCommunityByMemberId(id);
@@ -176,7 +176,8 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return hasNext;
   }
 
-  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
+  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl
+          userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
       Long certifiedProof = getCertifiedProof(community);
