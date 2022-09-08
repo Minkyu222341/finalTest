@@ -25,7 +25,7 @@ public class Img extends Timestamped {
   private String imgUrl;
   private String fileName;
 
-  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
   @JsonBackReference
   @JoinColumn(name = "CommunityId")
   private Community community;

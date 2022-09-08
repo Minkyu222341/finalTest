@@ -52,32 +52,34 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDtos);
   }
 
-  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
-    if (multipartFile != null) {
-      Community community = createCommunity(requestDto, userDetails.getId(), userDetails.getNickname());
-      Participants groupLeader = getGroupLeader(userDetails.getId(), userDetails.getNickname(), community);
-      List<Img> imgList = new ArrayList<>();
-      for (MultipartFile file : multipartFile) {
-        S3Dto upload = s3Uploader.upload(file);
-        Img findImage = Img.builder()
-                .imgUrl(upload.getUploadImageUrl())
-                .fileName(upload.getFileName())
-                .community(community)
-                .build();
-        imgList.add(findImage);
-      }
-      imgRepository.saveAll(imgList);
-      communityRepository.save(community);
-      participantsRepository.save(groupLeader);
-      return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-    }
-    Community community = createCommunity(requestDto, userDetails.getId(), userDetails.getNickname());
-    Participants groupLeader = getGroupLeader(userDetails.getId(), userDetails.getNickname(), community);
+ public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
+  Long loginUserId = userDetails.getId();
+  String nickname = userDetails.getNickname();
+  if (multipartFile != null) {
+    Community community = createCommunity(requestDto, loginUserId, nickname);
+    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+
+      S3Dto upload = s3Uploader.upload(multipartFile);
+      Img findImage = Img.builder()
+              .imgUrl(upload.getUploadImageUrl())
+              .fileName(upload.getFileName())
+              .community(community)
+              .build();
+    community.setImg(findImage);
+    imgRepository.save(findImage);
+
     communityRepository.save(community);
     participantsRepository.save(groupLeader);
     return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-
   }
+
+  Community community = createCommunity(requestDto, loginUserId, nickname);
+  Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+  communityRepository.save(community);
+  participantsRepository.save(groupLeader);
+  return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+
+}
 
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
     Community community = findTheCommunityByMemberId(id);
@@ -102,11 +104,35 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDto);
   }
 
-  @Transactional
-  public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto, UserDetailsImpl userDetails) {
-    Community community = findTheCommunityByMemberId(id);
-    validateWriter(userDetails, community);
+ @Transactional
+public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
+                                               MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
+
+  Community community = communityRepository.findById(id)
+      .orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+  Long certifiedProof = getCertifiedProof(community);
+
+  if(userDetails != null && community.getMemberId().equals(userDetails.getId())){
     community.update(communityRequestDto);
+
+    if(multipartFile != null){
+
+      if(imgRepository.findByCommunity(community) != null){
+        imgRepository.delete(community.getImg());
+      }
+
+      S3Dto upload = s3Uploader.upload(multipartFile);
+
+      Img findImage = Img.builder()
+          .imgUrl(upload.getUploadImageUrl())
+          .fileName(upload.getFileName())
+          .community(community)
+          .build();
+
+      community.setImg(findImage);
+
+      imgRepository.save(findImage);
+    }
     return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
   }
 
