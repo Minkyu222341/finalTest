@@ -52,12 +52,12 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDtos);
   }
 
- public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
-  Long loginUserId = userDetails.getId();
-  String nickname = userDetails.getNickname();
-  if (multipartFile != null) {
-    Community community = createCommunity(requestDto, loginUserId, nickname);
-    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
+    Long loginUserId = userDetails.getId();
+    String nickname = userDetails.getNickname();
+    if (multipartFile != null) {
+      Community community = createCommunity(requestDto, loginUserId, nickname);
+      Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
 
       S3Dto upload = s3Uploader.upload(multipartFile);
       Img findImage = Img.builder()
@@ -65,21 +65,21 @@ public class CommunityService {
               .fileName(upload.getFileName())
               .community(community)
               .build();
-    community.setImg(findImage);
-    imgRepository.save(findImage);
+      community.setImg(findImage);
+      imgRepository.save(findImage);
 
+      communityRepository.save(community);
+      participantsRepository.save(groupLeader);
+      return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+    }
+
+    Community community = createCommunity(requestDto, loginUserId, nickname);
+    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
     communityRepository.save(community);
     participantsRepository.save(groupLeader);
     return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+
   }
-
-  Community community = createCommunity(requestDto, loginUserId, nickname);
-  Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-  communityRepository.save(community);
-  participantsRepository.save(groupLeader);
-  return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-
-}
 
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
     Community community = findTheCommunityByMemberId(id);
@@ -88,10 +88,10 @@ public class CommunityService {
             .communityId(community.getId())
             .createAt(String.valueOf(community.getCreatedAt()))
             .nickname(community.getNickname())
-            .imgList(community.getImgList())
+            .img(community.getImg())
             .startDate(community.getStartDate())
             .endDate(community.getEndDate())
-            .secret(community.isSecret())
+            .secret(community.isPasswordFlag())
             .password(community.getPassword())
             .title(community.getTitle())
             .content(community.getContent())
@@ -104,34 +104,33 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDto);
   }
 
- @Transactional
-public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
-                                               MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
+  @Transactional
+  public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
+                                                MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
 
-  Community community = communityRepository.findById(id)
-      .orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
-  Long certifiedProof = getCertifiedProof(community);
+    Community community = findTheCommunityByMemberId(id);
 
-  if(userDetails != null && community.getMemberId().equals(userDetails.getId())){
-    community.update(communityRequestDto);
+    if (userDetails != null && community.getMemberId().equals(userDetails.getId())) {
+      community.update(communityRequestDto);
 
-    if(multipartFile != null){
+      if (multipartFile != null) {
 
-      if(imgRepository.findByCommunity(community) != null){
-        imgRepository.delete(community.getImg());
+        if (imgRepository.findByCommunity(community) != null) {
+          imgRepository.delete(community.getImg());
+        }
+
+        S3Dto upload = s3Uploader.upload(multipartFile);
+
+        Img findImage = Img.builder()
+                .imgUrl(upload.getUploadImageUrl())
+                .fileName(upload.getFileName())
+                .community(community)
+                .build();
+
+        community.setImg(findImage);
+
+        imgRepository.save(findImage);
       }
-
-      S3Dto upload = s3Uploader.upload(multipartFile);
-
-      Img findImage = Img.builder()
-          .imgUrl(upload.getUploadImageUrl())
-          .fileName(upload.getFileName())
-          .community(community)
-          .build();
-
-      community.setImg(findImage);
-
-      imgRepository.save(findImage);
     }
     return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
   }
@@ -177,13 +176,14 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return hasNext;
   }
 
-  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
+  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl
+          userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
       Long certifiedProof = getCertifiedProof(community);
       communityList.add(CommunityResponseDto.builder()
               .communityId(community.getId())
-              .imgList(community.getImgList())
+              .img(community.getImg())
               .title(community.getTitle())
               .participant(userDetails != null && participant(userDetails, community))
               .participantsCnt(community.getParticipantsList().size())
