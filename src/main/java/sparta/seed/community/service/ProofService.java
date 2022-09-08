@@ -106,30 +106,31 @@ public class ProofService {
 				.community(community)
 				.build();
 
-		if(participantsRepository.existsByCommunityAndMemberId(community, loginUserId)) {
+		if (participantsRepository.existsByCommunityAndMemberId(community, loginUserId)) {
+			List<Img> imgList = new ArrayList<>();
 			for (MultipartFile file : multipartFile) {
 				S3Dto upload = s3Uploader.upload(file);
 				Img findImage = Img.builder()
-						.imgUrl(upload.getUploadImageUrl())
-						.fileName(upload.getFileName())
-						.proof(proof)
-						.build();
+								.imgUrl(upload.getUploadImageUrl())
+								.fileName(upload.getFileName())
+								.proof(proof)
+								.build();
 				proof.addImg(findImage);
-				imgRepository.save(findImage);
+				imgList.add(findImage);
 			}
-
+			imgRepository.saveAll(imgList);
 			proofRepository.save(proof);
 
 			ProofResponseDto proofResponseDto = ProofResponseDto.builder()
-					.proofId(proof.getId())
-					.title(proof.getTitle())
-					.content(proof.getContent())
-					.img(proof.getImgList())
-					.commentCnt(proof.getCommentList().size())
-					.heartCnt(proof.getHeartList().size())
-					.writer(true)
-					.heart(false)
-					.build();
+							.proofId(proof.getId())
+							.title(proof.getTitle())
+							.content(proof.getContent())
+							.img(proof.getImgList())
+							.commentCnt(proof.getCommentList().size())
+							.heartCnt(proof.getHeartList().size())
+							.writer(true)
+							.heart(false)
+							.build();
 			return ResponseEntity.ok().body(proofResponseDto);
 		}throw new IllegalArgumentException("캠페인 참가자만 인증글을 작성할 수 있습니다.");
 	}

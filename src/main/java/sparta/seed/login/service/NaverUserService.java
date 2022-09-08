@@ -20,11 +20,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import sparta.seed.jwt.TokenProvider;
+import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Authority;
 import sparta.seed.member.domain.Member;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.member.repository.MemberRepository;
+import sparta.seed.member.repository.RefreshTokenRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.servlet.http.HttpServletResponse;
@@ -44,37 +46,26 @@ public class NaverUserService {
   private final BCryptPasswordEncoder passwordEncoder;
   private final TokenProvider tokenProvider;
   private final MemberRepository memberRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
 
   // 네이버 로그인
   public MemberResponseDto naverLogin(String code, String state, HttpServletResponse response) throws JsonProcessingException {
-    // 1. 인가코드로 엑세스토큰 가져오기
-    System.out.println("네이버 로그인 1번 접근");
+
     String accessToken = getAccessToken(code, state);
 
-    // 2. 엑세스토큰으로 유저정보 가져오기
-    System.out.println("네이버 로그인 2번 접근");
     SocialMemberRequestDto naverUserInfo = getNaverUserInfo(accessToken);
 
-    // 3. 유저확인 & 회원가입
-    System.out.println("네이버 로그인 3번 접근");
     Member naverUser = getUser(naverUserInfo);
 
-    // 4. 시큐리티 강제 로그인
-    System.out.println("네이버 로그인 4번 접근");
     Authentication authentication = securityLogin(naverUser);
 
-    // 5. jwt 토큰 발급
-    System.out.println("네이버 로그인 5번 접근");
     return jwtToken(authentication, response);
   }
 
-  // 1. 인가코드로 엑세스토큰 가져오기
   private String getAccessToken(String code, String state) throws JsonProcessingException {
-    // 헤더에 Content-type 지정
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-    // 바디에 필요한 정보 담기
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", naverClientId);
@@ -82,7 +73,6 @@ public class NaverUserService {
     body.add("code", code);
     body.add("state", state);
 
-    // POST 요청 보내기
     HttpEntity<MultiValueMap<String, String>> naverToken = new HttpEntity<>(body, headers);
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<String> response = restTemplate.exchange(
@@ -92,21 +82,17 @@ public class NaverUserService {
             String.class
     );
 
-    // response에서 엑세스토큰 가져오기
     String responseBody = response.getBody();
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode responseToken = objectMapper.readTree(responseBody);
     return responseToken.get("access_token").asText();
   }
 
-  // 2. 엑세스토큰으로 유저정보 가져오기
   private SocialMemberRequestDto getNaverUserInfo(String accessToken) throws JsonProcessingException {
-    // 헤더에 엑세스토큰 담기, Content-type 지정
     HttpHeaders headers = new HttpHeaders();
     headers.add("Authorization", "Bearer " + accessToken);
     headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-    // POST 요청 보내기
     HttpEntity<MultiValueMap<String, String>> naverUser = new HttpEntity<>(headers);
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<String> response = restTemplate.exchange(
@@ -115,14 +101,13 @@ public class NaverUserService {
             String.class
     );
 
-    // response에서 유저정보 가져오기
     String responseBody = response.getBody();
     ObjectMapper objectMapper = new ObjectMapper();
 
     JsonNode jsonNode = objectMapper.readTree(responseBody);
 
     Random rnd = new Random();
-    String rdNick="";
+    String rdNick = "";
     for (int i = 0; i < 8; i++) {
       rdNick += String.valueOf(rnd.nextInt(10));
     }
@@ -134,8 +119,8 @@ public class NaverUserService {
 
     String profileImage = jsonNode.get("response").get("profile_image").asText();
     String defaultImage = "https://mytest-coffick.s3.ap-northeast-2.amazonaws.com/coffindBasicImage.png";
-    if (profileImage==null)
-      profileImage = defaultImage; // 우리 사이트 기본 이미지
+    if (profileImage == null)
+      profileImage = defaultImage;
 
     return SocialMemberRequestDto.builder()
             .socialId(socialId)
@@ -145,7 +130,6 @@ public class NaverUserService {
             .build();
   }
 
-  // 3. 유저확인 & 회원가입
   private Member getUser(SocialMemberRequestDto naverUserInfo) {
     // 다른 소셜로그인이랑 이메일이 겹쳐서 잘못 로그인 될까봐. 다른 사용자인줄 알고 로그인이 된다. 그래서 소셜아이디로 구분해보자
     String naverSocialID = naverUserInfo.getSocialId();
@@ -174,29 +158,29 @@ public class NaverUserService {
     return naverUser;
   }
 
-  // 4. 시큐리티 강제 로그인
   private Authentication securityLogin(Member foundUser) {
     UserDetails userDetails = new UserDetailsImpl(foundUser);
     Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authentication);
-    //여기까진 평범한 로그인과 같음, 네이버 강제로그인 시도까지 함
     return authentication;
   }
 
-  // 5. jwt 토큰 발급
-  private MemberResponseDto jwtToken(Authentication authentication,HttpServletResponse response) {
+  private MemberResponseDto jwtToken(Authentication authentication, HttpServletResponse response) {
     UserDetailsImpl member = ((UserDetailsImpl) authentication.getPrincipal());
-    MemberResponseDto responseDto = tokenProvider.generateTokenDto(authentication, member);
-    String token = responseDto.getAccessToken();
-    response.addHeader("Authorization", "Bearer " + token);
+    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
+    String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    response.addHeader("Authorization", "Bearer " + accessToken);
+    RefreshToken saveRefreshToken = RefreshToken.builder()
+            .refreshKey(String.valueOf(member.getId()))
+            .refreshValue(refreshToken)
+            .build();
+    refreshTokenRepository.save(saveRefreshToken);
+
     return MemberResponseDto.builder()
-        .id(member.getId())
-        .username(member.getUsername())
-        .nickname(member.getNickname())
-        .accessToken(responseDto.getAccessToken())
-        .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
-        .grantType(responseDto.getGrantType())
-        .refreshToken(responseDto.getRefreshToken())
-        .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .build();
   }
 }

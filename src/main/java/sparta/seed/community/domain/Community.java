@@ -38,7 +38,6 @@ public class Community extends Timestamped {
   //참가인원 제한
   private long limitParticipants;
   //비밀글여부
-
   private boolean passwordFlag;
   //글비밀번호
   private String password;

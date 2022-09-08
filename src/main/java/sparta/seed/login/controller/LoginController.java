@@ -3,15 +3,13 @@ package sparta.seed.login.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
-import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.login.service.GoogleUserService;
 import sparta.seed.login.service.KakaoUserService;
-import sparta.seed.member.service.MemberService;
 import sparta.seed.login.service.NaverUserService;
+import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.member.service.MemberService;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,8 +49,8 @@ public class LoginController {
    */
 
   @PostMapping("/reissue")  //재발급을 위한 로직
-  public ResponseEntity<MemberResponseDto> reissue(@RequestBody RefreshTokenRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    return memberService.reissue(requestDto,userDetails);
+  public ResponseEntity<String> reissue(@RequestBody RefreshTokenRequestDto requestDto) {
+    return memberService.reissue(requestDto);
   }
 
 }

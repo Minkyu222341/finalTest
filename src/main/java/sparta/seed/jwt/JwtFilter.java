@@ -32,8 +32,10 @@ public class JwtFilter extends OncePerRequestFilter {
    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
       // 1. Request Header 에서 토큰을 꺼냄
       String jwt = resolveToken(request);
+
       if(jwt == null){
          request.setAttribute("exception", ErrorCode.UNKNOWN_ERROR.getErrorCode());
+//         throw new IllegalArgumentException(ErrorCode.UNKNOWN_ERROR.getErrorCode());
       }
 
       // 2. validateToken 으로 토큰 유효성 검사

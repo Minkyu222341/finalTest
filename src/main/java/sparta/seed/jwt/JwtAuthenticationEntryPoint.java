@@ -18,7 +18,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
    @Override
    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
       String exception = request.getAttribute("exception").toString();
-      System.out.println("JWT엔트리포인트");
+
       if(exception.equals("null") ) {
          setResponse(response, Code.UNKNOWN_ERROR);
       }

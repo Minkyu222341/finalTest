@@ -9,4 +9,5 @@ import java.util.List;
 public interface CommunityRepository extends JpaRepository<Community, Long>, CommunityRepositoryCustom {
   List<Community> findByMemberId(Long id);
 
+
 }
