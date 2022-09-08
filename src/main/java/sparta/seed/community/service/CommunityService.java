@@ -43,9 +43,7 @@ public class CommunityService {
   private final DateUtil dateUtil;
   private final ProofRepository proofRepository;
 
-  /**
-   * 게시글 전체조회 , 검색 , 스크롤
-   */
+
   public ResponseEntity<Slice<CommunityResponseDto>> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
     QueryResults<Community> allCommunity = communityRepository.getAllCommunity(pageable, condition);
     List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity, userDetails);
@@ -53,15 +51,11 @@ public class CommunityService {
     SliceImpl<CommunityResponseDto> communityResponseDtos = new SliceImpl<>(allCommunityList, pageable, hasNext);
     return ResponseEntity.ok().body(communityResponseDtos);
   }
-  /**
-   * 게시글 작성
-   */
+
   public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
-    Long loginUserId = userDetails.getId();
-    String nickname = userDetails.getNickname();
     if (multipartFile != null) {
-      Community community = createCommunity(requestDto, loginUserId, nickname);
-      Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+      Community community = createCommunity(requestDto, userDetails.getId(), userDetails.getNickname());
+      Participants groupLeader = getGroupLeader(userDetails.getId(), userDetails.getNickname(), community);
       List<Img> imgList = new ArrayList<>();
       for (MultipartFile file : multipartFile) {
         S3Dto upload = s3Uploader.upload(file);
@@ -78,16 +72,14 @@ public class CommunityService {
       participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
     }
-    Community community = createCommunity(requestDto, loginUserId, nickname);
-    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+    Community community = createCommunity(requestDto, userDetails.getId(), userDetails.getNickname());
+    Participants groupLeader = getGroupLeader(userDetails.getId(), userDetails.getNickname(), community);
     communityRepository.save(community);
     participantsRepository.save(groupLeader);
     return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
 
   }
-  /**
-   * 게시글 상세조회
-   */
+
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
     Community community = findTheCommunityByMemberId(id);
     Long certifiedProof = getCertifiedProof(community);
@@ -110,9 +102,7 @@ public class CommunityService {
             .build();
     return ResponseEntity.ok().body(communityResponseDto);
   }
-  /**
-   * 게시글 수정
-   */
+
   @Transactional
   public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
@@ -120,27 +110,21 @@ public class CommunityService {
     community.update(communityRequestDto);
     return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
   }
-  /**
-   * 게시글 삭제
-   */
+
   public ResponseEntity<String> deleteCommunity(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
     validateWriter(userDetails, community);
     communityRepository.deleteById(id);
     return ResponseEntity.ok().body(ResponseMsg.DELETED_SUCCESS.getMsg());
   }
-  /**
-   * 그룹미션 참여 , 취소 하기
-   */
+
   @Transactional
   public ResponseEntity<String> joinMission(Long id, UserDetailsImpl userDetails){
     Community community = findTheCommunityByMemberId(id);
-    long limitParticipantCount = community.getLimitParticipants();
-    int participantSize = community.getParticipantsList().size();
     if (community.getMemberId().equals(userDetails.getId()) || participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId())) {
       throw new CustomException(ErrorCode.ALREADY_PARTICIPATED);
     }
-    if (participantSize >= limitParticipantCount) {
+    if (community.getParticipantsList().size() >= community.getLimitParticipants()) {
       throw new CustomException(ErrorCode.EXCESS_PARTICIPANT);
     }
     Participants participants = Participants.builder()
@@ -152,9 +136,7 @@ public class CommunityService {
     participantsRepository.save(participants);
     return ResponseEntity.ok().body(ResponseMsg.JOIN_SUCCESS.getMsg());
   }
-  /**
-   * 참여현황
-   */
+
   public ResponseEntity<List<Participants>> getParticipantsList(Long id) {
     Community community = findTheCommunityByMemberId(id);
     List<Participants> participantsList = community.getParticipantsList();
