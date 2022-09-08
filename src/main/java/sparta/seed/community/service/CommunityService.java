@@ -183,13 +183,56 @@ public class CommunityService {
    * 게시글 수정
    */
   @Transactional
-  public ResponseEntity<Boolean> updateCommunity(Long id, CommunityRequestDto communityRequestDto, UserDetailsImpl userDetails) {
-    Optional<Community> Community = communityRepository.findById(id);
-    if (Community.get().getMemberId().equals(userDetails.getId())) {
-      Community.get().update(communityRequestDto);
-      return ResponseEntity.ok().body(true);
-    }
-    return ResponseEntity.badRequest().body(false);
+  public ResponseEntity<CommunityResponseDto> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
+                                                 MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
+
+    Community community = communityRepository.findById(id)
+    				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+    Long certifiedProof = getCertifiedProof(community);
+
+    if(userDetails != null && community.getMemberId().equals(userDetails.getId())){
+      community.update(communityRequestDto);
+
+      if(multipartFile != null){
+
+        if(imgRepository.findByCommunity(community) != null){
+          imgRepository.delete(community.getImg());
+        }
+
+        S3Dto upload = s3Uploader.upload(multipartFile);
+
+        Img findImage = Img.builder()
+            .imgUrl(upload.getUploadImageUrl())
+            .fileName(upload.getFileName())
+            .community(community)
+            .build();
+
+        community.setImg(findImage);
+
+        imgRepository.save(findImage);
+      }
+      return ResponseEntity.ok().body(
+          CommunityResponseDto.builder()
+              .communityId(community.getId())
+              .createAt(String.valueOf(community.getCreatedAt()))
+              .nickname(community.getNickname())
+              .img(community.getImg())
+              .startDate(community.getStartDate())
+              .endDate(community.getEndDate())
+              .limitScore(community.getLimitScore())
+              .limitParticipants(community.getLimitParticipants())
+              .secret(community.isPasswordFlag())
+              .password(community.getPassword())
+              .title(community.getTitle())
+              .content(community.getContent())
+              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+              .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
+              .writer(community.getMemberId().equals(userDetails.getId()))
+              .dateStatus(getDateStatus(community))
+              .participant(participant(userDetails, community))
+              .build());
+
+    }throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
   }
 
   /**

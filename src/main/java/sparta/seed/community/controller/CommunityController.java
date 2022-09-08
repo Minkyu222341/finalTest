@@ -16,6 +16,7 @@ import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.community.service.CommunityService;
 import sparta.seed.sercurity.UserDetailsImpl;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -59,10 +60,12 @@ public class CommunityController {
   /**
    * 그룹미션 수정
    */
-  @PatchMapping("/api/community/{id}")
-  public ResponseEntity<Boolean> updateCommunity(@PathVariable Long id, @RequestBody CommunityRequestDto communityRequestDto,
-                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    return communityService.updateCommunity(id, communityRequestDto, userDetails);
+  @PatchMapping(value = "/api/community/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+  public ResponseEntity<CommunityResponseDto> updateCommunity(@PathVariable Long id,
+                                                 @Valid @RequestPart(value = "dto") CommunityRequestDto communityRequestDto,
+                                                 @RequestPart(required = false) MultipartFile multipartFile,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException, ParseException {
+    return communityService.updateCommunity(id, communityRequestDto, multipartFile, userDetails);
   }
 
 
