@@ -104,36 +104,36 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDto);
   }
 
-  @Transactional
-  public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
-                                                MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
+ @Transactional
+public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
+                                               MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
 
-    Community community = findTheCommunityByMemberId(id);
+   Community community = findTheCommunityByMemberId(id);
 
-    if (userDetails != null && community.getMemberId().equals(userDetails.getId())) {
-      community.update(communityRequestDto);
+   if (userDetails != null && community.getMemberId().equals(userDetails.getId())) {
+     community.update(communityRequestDto);
 
-      if (multipartFile != null) {
+     if (multipartFile != null) {
 
-        if (imgRepository.findByCommunity(community) != null) {
-          imgRepository.delete(community.getImg());
-        }
+       if (imgRepository.findByCommunity(community) != null) {
+         imgRepository.delete(community.getImg());
+       }
 
-        S3Dto upload = s3Uploader.upload(multipartFile);
+       S3Dto upload = s3Uploader.upload(multipartFile);
 
-        Img findImage = Img.builder()
-                .imgUrl(upload.getUploadImageUrl())
-                .fileName(upload.getFileName())
-                .community(community)
-                .build();
+       Img findImage = Img.builder()
+           .imgUrl(upload.getUploadImageUrl())
+           .fileName(upload.getFileName())
+           .community(community)
+           .build();
 
-        community.setImg(findImage);
+       community.setImg(findImage);
 
-        imgRepository.save(findImage);
-      }
-    }
-    return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
-  }
+       imgRepository.save(findImage);
+     }
+   }
+   return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
+ }
 
   public ResponseEntity<String> deleteCommunity(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);

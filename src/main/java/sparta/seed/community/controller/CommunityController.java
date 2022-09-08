@@ -65,7 +65,7 @@ public class CommunityController {
   public ResponseEntity<String> updateCommunity(@PathVariable Long id,
                                                  @Valid @RequestPart(value = "dto") CommunityRequestDto communityRequestDto,
                                                  @RequestPart(required = false) MultipartFile multipartFile,
-                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException, ParseException {
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
     return communityService.updateCommunity(id, communityRequestDto, multipartFile, userDetails);
   }
 
