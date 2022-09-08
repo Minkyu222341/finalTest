@@ -65,9 +65,8 @@ public class CommunityService {
                 .community(community)
                 .build();
         imgList.add(findImage);
-        imgRepository.save(findImage);
-
       }
+      imgRepository.saveAll(imgList);
       communityRepository.save(community);
       participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
@@ -95,7 +94,7 @@ public class CommunityService {
             .title(community.getTitle())
             .content(community.getContent())
             .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
-            .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
+            .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
             .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
             .dateStatus(getDateStatus(community))
             .participant(userDetails != null && participant(userDetails, community))
@@ -119,7 +118,7 @@ public class CommunityService {
   }
 
   @Transactional
-  public ResponseEntity<String> joinMission(Long id, UserDetailsImpl userDetails){
+  public ResponseEntity<String> joinMission(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
     if (community.getMemberId().equals(userDetails.getId()) || participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId())) {
       throw new CustomException(ErrorCode.ALREADY_PARTICIPATED);
@@ -151,6 +150,7 @@ public class CommunityService {
     }
     return hasNext;
   }
+
   private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl userDetails) throws ParseException {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
@@ -169,10 +169,12 @@ public class CommunityService {
     }
     return communityList;
   }
+
   private Boolean participant(UserDetailsImpl userDetails, Community community) {
     Boolean participant = participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
     return participant;
   }
+
   private Community createCommunity(CommunityRequestDto requestDto, Long loginUserId, String nickname) {
     return Community.builder()
             .title(requestDto.getTitle())
@@ -187,6 +189,7 @@ public class CommunityService {
             .limitScore(requestDto.getLimitScore())
             .build();
   }
+
   private Participants getGroupLeader(Long loginUserId, String nickname, Community community) {
     return Participants.builder()
             .nickname(nickname)
@@ -194,18 +197,22 @@ public class CommunityService {
             .community(community)
             .build();
   }
+
   private Community findTheCommunityByMemberId(Long id) {
     return communityRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMUNITY));
   }
+
   private Long getCertifiedProof(Community community) {
     Long certifiedProof = proofRepository.getCertifiedProof(community);
     return certifiedProof;
   }
+
   private void validateWriter(UserDetailsImpl userDetails, Community community) {
     if (community.getMemberId().equals(userDetails.getId())) {
       throw new CustomException(ErrorCode.INCORRECT_USERID);
     }
   }
+
   private String getDateStatus(Community community) throws ParseException {
     return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
   }
