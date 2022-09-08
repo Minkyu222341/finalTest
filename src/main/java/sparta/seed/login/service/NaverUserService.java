@@ -190,15 +190,13 @@ public class NaverUserService {
     String token = responseDto.getAccessToken();
     response.addHeader("Authorization", "Bearer " + token);
     return MemberResponseDto.builder()
-            .id(member.getId())
-            .username(member.getUsername())
-            .nickname(member.getNickname())
-            .socialId(member.getSocialId())
-            .profileImage(member.getProfileImage())
-            .accessToken(responseDto.getAccessToken())
-            .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
-            .grantType(responseDto.getGrantType())
-            .refreshToken(responseDto.getRefreshToken())
-            .build();
+        .id(member.getId())
+        .username(member.getUsername())
+        .nickname(member.getNickname())
+        .accessToken(responseDto.getAccessToken())
+        .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
+        .grantType(responseDto.getGrantType())
+        .refreshToken(responseDto.getRefreshToken())
+        .build();
   }
 }

@@ -28,7 +28,8 @@ public class MissionService {
    * 데일리미션 확인
    */
   public MissionResponseDto getMissionAll(UserDetailsImpl userDetails) {
-    Member loginMember = memberRepository.findById(userDetails.getId()).get();
+    Member loginMember = memberRepository.findById(userDetails.getId())
+        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
     return MissionResponseDto.builder()
             .memberId(userDetails.getId())
             .dailyMission(loginMember.getDailyMission())
@@ -49,7 +50,8 @@ public class MissionService {
    */
   @Transactional
   public MissionResponseDto injectMission(UserDetailsImpl userDetails) {
-    Member loginMember = memberRepository.findById(userDetails.getId()).get();
+    Member loginMember = memberRepository.findById(userDetails.getId())
+        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
 
     while (loginMember.getDailyMission().size() < 5) { // 맴버가 가진 미션해시맵의 길이가 5이 될 때까지 반복
       loginMember.getDailyMission()
@@ -68,7 +70,8 @@ public class MissionService {
    */
   @Transactional
   public Boolean completeMission(UserDetailsImpl userDetails, MissionRequestDto missionRequestDto) throws ParseException {
-    Member loginMember = memberRepository.findById(userDetails.getId()).get();
+    Member loginMember = memberRepository.findById(userDetails.getId())
+        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
     String weekOfMonth = dateUtil.weekOfMonth();
     ClearMission clearMission = ClearMission.builder()
             .memberId(userDetails.getId())

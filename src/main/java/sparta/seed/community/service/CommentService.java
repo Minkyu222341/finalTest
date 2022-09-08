@@ -1,6 +1,7 @@
 package sparta.seed.community.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.community.domain.Comment;
@@ -32,20 +33,21 @@ public class CommentService {
 	 * 댓글 조회
 	 */
 	public List<CommentResponseDto> getAllComment(Long proofId, UserDetailsImpl userDetails) {
-		List<Comment> commentList = commentRepository.findAllByProof_Id(proofId);
-		List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+		try {
+			List<Comment> commentList = commentRepository.findAllByProof_Id(proofId);
+			List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
-		for (Comment comment : commentList){
-			commentResponseDtoList.add(CommentResponseDto.builder()
-					.commentId(comment.getId())
-					.proofId(comment.getProof().getId())
-					.nickname(comment.getNickname())
-					.content(comment.getContent())
-					.writer(userDetails !=null && comment.getMemberId().equals(userDetails.getId()))
-					.build());
-		}
-
-		return commentResponseDtoList;
+			for (Comment comment : commentList) {
+				commentResponseDtoList.add(CommentResponseDto.builder()
+						.commentId(comment.getId())
+						.proofId(comment.getProof().getId())
+						.nickname(comment.getNickname())
+						.content(comment.getContent())
+						.writer(userDetails != null && comment.getMemberId().equals(userDetails.getId()))
+						.build());
+			}
+			return commentResponseDtoList;
+		}catch (Exception e) {throw new IllegalArgumentException("해당 댓글이 존재하지 않습니다.");}
 	}
 
 	/**
@@ -110,8 +112,8 @@ public class CommentService {
 	 * 댓글 수정
 	 */
 	@Transactional
-	public CommentResponseDto updateComment(Long commentId, CommentRequestDto commentRequestDto,
-	                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
+	public ResponseEntity<CommentResponseDto> updateComment(Long commentId, CommentRequestDto commentRequestDto,
+	                                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
 
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
@@ -137,15 +139,16 @@ public class CommentService {
 
 				imgRepository.save(findImage);
 			}
-		}
-		return CommentResponseDto.builder()
-				.commentId(comment.getId())
-				.proofId(comment.getProof().getId())
-				.nickname(comment.getNickname())
-				.content(comment.getContent())
-				.img(comment.getImg())
-				.writer(true)
-				.build();
+			return ResponseEntity.ok().body(
+					CommentResponseDto.builder()
+					.commentId(comment.getId())
+					.proofId(comment.getProof().getId())
+					.nickname(comment.getNickname())
+					.content(comment.getContent())
+					.img(comment.getImg())
+					.writer(true)
+					.build());
+		}throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
 	}
 
 	/**

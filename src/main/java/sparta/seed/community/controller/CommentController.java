@@ -2,6 +2,7 @@ package sparta.seed.community.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,10 +43,10 @@ public class CommentController {
 	 * 댓글 수정
 	 */
 	@PatchMapping(value = "/api/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public CommentResponseDto updateComment(@PathVariable Long commentId,
-	                                        @Valid @RequestPart(value = "dto") CommentRequestDto commentRequestDto,
-	                                        @RequestPart(required = false) MultipartFile multipartFile,
-	                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+	public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
+	                                                        @Valid @RequestPart(value = "dto") CommentRequestDto commentRequestDto,
+	                                                        @RequestPart(required = false) MultipartFile multipartFile,
+	                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 		return commentService.updateComment(commentId, commentRequestDto, multipartFile, userDetails);
 	}
 

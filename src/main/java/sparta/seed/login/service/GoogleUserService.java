@@ -190,16 +190,14 @@ public class GoogleUserService {
     String token = responseDto.getAccessToken();
     response.addHeader("Authorization", "Bearer " + token);
     return MemberResponseDto.builder()
-            .id(member.getId())
-            .username(member.getUsername())
-            .nickname(member.getNickname())
-            .profileImage(member.getProfileImage())
-            .socialId(member.getSocialId())
-            .accessToken(responseDto.getAccessToken())
-            .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
-            .grantType(responseDto.getGrantType())
-            .refreshToken(responseDto.getRefreshToken())
-            .build();
+        .id(member.getId())
+        .username(member.getUsername())
+        .nickname(member.getNickname())
+        .accessToken(responseDto.getAccessToken())
+        .accessTokenExpiresIn(responseDto.getAccessTokenExpiresIn())
+        .grantType(responseDto.getGrantType())
+        .refreshToken(responseDto.getRefreshToken())
+        .build();
   }
 
 }

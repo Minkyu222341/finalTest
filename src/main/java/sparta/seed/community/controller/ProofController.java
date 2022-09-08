@@ -7,6 +7,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.community.domain.dto.requestdto.ProofRequestDto;
+import sparta.seed.community.domain.dto.responsedto.ProofCountResponseDto;
+import sparta.seed.community.domain.dto.responsedto.ProofHeartResponseDto;
 import sparta.seed.community.domain.dto.responsedto.ProofResponseDto;
 import sparta.seed.community.service.ProofService;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -76,7 +78,7 @@ public class ProofController {
 	 * 전체 인증글 댓글 , 좋아요 갯수 조회
 	 */
 	@GetMapping("/api/community/count/{communityId}")
-	public List<ProofResponseDto> countAllProof(@PathVariable Long communityId){
+	public List<ProofCountResponseDto> countAllProof(@PathVariable Long communityId){
 		return proofService.countAllProof(communityId);
 	}
 
@@ -84,7 +86,7 @@ public class ProofController {
 	 * 인증글 댓글 , 좋아요 갯수 조회
 	 */
 	@GetMapping("/api/proof/count//{proofId}")
-	public ProofResponseDto countProof(@PathVariable Long proofId){
+	public ProofCountResponseDto countProof(@PathVariable Long proofId){
 		return proofService.countProof(proofId);
 	}
 
@@ -92,7 +94,7 @@ public class ProofController {
 	 * 인증글 좋아요
 	 */
 	@PatchMapping("/api/proof/heart/{proofId}")
-	public ProofResponseDto heartProof(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+	public ProofHeartResponseDto heartProof(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
 		return proofService.heartProof(proofId, userDetails);
 	}
 }

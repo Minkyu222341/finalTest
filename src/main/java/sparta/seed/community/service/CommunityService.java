@@ -65,10 +65,15 @@ public class CommunityService {
     List<CommunityResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
       Long certifiedProof = getCertifiedProof(community);
-      communityList.add(CommunityResponseDto.builder()
+      communityList.add(
+          CommunityResponseDto.builder()
               .communityId(community.getId())
-              .imgList(community.getImgList())
+              .img(community.getImg())
               .title(community.getTitle())
+              .startDate(community.getStartDate())
+              .endDate(community.getEndDate())
+              .limitScore(community.getLimitScore())
+              .limitParticipants(community.getLimitParticipants())
               .participant(userDetails != null && participant(userDetails, community))
               .participantsCnt(community.getParticipantsList().size())
               .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
@@ -88,28 +93,27 @@ public class CommunityService {
   /**
    * 게시글 작성
    */
-  public ResponseEntity<Community> createCommunity(CommunityRequestDto requestDto, List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
+  public ResponseEntity<Community> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
     Long loginUserId = userDetails.getId();
     String nickname = userDetails.getNickname();
     if (multipartFile != null) {
       Community community = createCommunity(requestDto, loginUserId, nickname);
       Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-      List<Img> imgList = new ArrayList<>();
-      for (MultipartFile file : multipartFile) {
-        S3Dto upload = s3Uploader.upload(file);
+
+        S3Dto upload = s3Uploader.upload(multipartFile);
         Img findImage = Img.builder()
                 .imgUrl(upload.getUploadImageUrl())
                 .fileName(upload.getFileName())
                 .community(community)
                 .build();
-        imgList.add(findImage);
-        imgRepository.save(findImage);
+      community.setImg(findImage);
+      imgRepository.save(findImage);
 
-      }
       communityRepository.save(community);
       participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(community);
     }
+
     Community community = createCommunity(requestDto, loginUserId, nickname);
     Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
     communityRepository.save(community);
@@ -152,10 +156,12 @@ public class CommunityService {
             .communityId(community.get().getId())
             .createAt(String.valueOf(community.get().getCreatedAt()))
             .nickname(community.get().getNickname())
-            .imgList(community.get().getImgList())
+            .img(community.get().getImg())
             .startDate(community.get().getStartDate())
             .endDate(community.get().getEndDate())
-            .secret(community.get().isSecret())
+            .limitScore(community.get().getLimitScore())
+            .limitParticipants(community.get().getLimitParticipants())
+            .secret(community.get().isPasswordFlag())
             .password(community.get().getPassword())
             .title(community.get().getTitle())
             .content(community.get().getContent())
@@ -177,13 +183,56 @@ public class CommunityService {
    * 게시글 수정
    */
   @Transactional
-  public ResponseEntity<Boolean> updateCommunity(Long id, CommunityRequestDto communityRequestDto, UserDetailsImpl userDetails) {
-    Optional<Community> Community = communityRepository.findById(id);
-    if (Community.get().getMemberId().equals(userDetails.getId())) {
-      Community.get().update(communityRequestDto);
-      return ResponseEntity.ok().body(true);
-    }
-    return ResponseEntity.badRequest().body(false);
+  public ResponseEntity<CommunityResponseDto> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
+                                                 MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
+
+    Community community = communityRepository.findById(id)
+    				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+    Long certifiedProof = getCertifiedProof(community);
+
+    if(userDetails != null && community.getMemberId().equals(userDetails.getId())){
+      community.update(communityRequestDto);
+
+      if(multipartFile != null){
+
+        if(imgRepository.findByCommunity(community) != null){
+          imgRepository.delete(community.getImg());
+        }
+
+        S3Dto upload = s3Uploader.upload(multipartFile);
+
+        Img findImage = Img.builder()
+            .imgUrl(upload.getUploadImageUrl())
+            .fileName(upload.getFileName())
+            .community(community)
+            .build();
+
+        community.setImg(findImage);
+
+        imgRepository.save(findImage);
+      }
+      return ResponseEntity.ok().body(
+          CommunityResponseDto.builder()
+              .communityId(community.getId())
+              .createAt(String.valueOf(community.getCreatedAt()))
+              .nickname(community.getNickname())
+              .img(community.getImg())
+              .startDate(community.getStartDate())
+              .endDate(community.getEndDate())
+              .limitScore(community.getLimitScore())
+              .limitParticipants(community.getLimitParticipants())
+              .secret(community.isPasswordFlag())
+              .password(community.getPassword())
+              .title(community.getTitle())
+              .content(community.getContent())
+              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+              .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100) // 인증글좋아요 갯수가 참가인원 절반이상인 글만 적용
+              .writer(community.getMemberId().equals(userDetails.getId()))
+              .dateStatus(getDateStatus(community))
+              .participant(participant(userDetails, community))
+              .build());
+
+    }throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
   }
 
   /**
