@@ -8,7 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sparta.seed.community.controller.HeartRepository;
+import sparta.seed.community.repository.HeartRepository;
 import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Heart;
 import sparta.seed.community.domain.Proof;
@@ -136,7 +136,7 @@ public class ProofService {
 							.heart(false)
 							.build();
 			return ResponseEntity.ok().body(proofResponseDto);
-		}throw new IllegalArgumentException("캠페인 참가자만 인증글을 작성할 수 있습니다.");
+		}else throw new IllegalArgumentException("캠페인 참가자만 인증글을 작성할 수 있습니다.");
 	}
 
 	/**
@@ -149,14 +149,26 @@ public class ProofService {
 		if(userDetails !=null && proof.getMemberId().equals(userDetails.getId())){
 			proof.updateProof(proofRequestDto);
 
-			if(multipartFile != null){
-				int cnt = 0;
+			if(proofRequestDto.getImgIdList().length > 0){
+				for (int i=0; i<proofRequestDto.getImgIdList().length; i++){
+					imgRepository.deleteById(proofRequestDto.getImgIdList()[i]);
+				}
+			}
+
+			List<Img> imgList = new ArrayList<>();
+
+			if(multipartFile!=null) {
 				for (MultipartFile file : multipartFile) {
 					S3Dto upload = s3Uploader.upload(file);
-					Optional<Img> targetImg = imgRepository.findById(proofRequestDto.getImgIdList()[cnt]);
-					targetImg.get().updateImg(upload);
-					cnt++;
+					Img findImage = Img.builder()
+							.imgUrl(upload.getUploadImageUrl())
+							.fileName(upload.getFileName())
+							.proof(proof)
+							.build();
+					proof.addImg(findImage);
+					imgList.add(findImage);
 				}
+				imgRepository.saveAll(imgList);
 			}
 
 			ProofResponseDto proofResponseDto = ProofResponseDto.builder()
@@ -247,5 +259,4 @@ public class ProofService {
 		return proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 	}
-
 }

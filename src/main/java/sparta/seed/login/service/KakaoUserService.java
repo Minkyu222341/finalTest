@@ -24,6 +24,7 @@ import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Authority;
 import sparta.seed.member.domain.Member;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.member.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.member.repository.RefreshTokenRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -44,7 +45,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
 
 
 
-  public MemberResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+  public TokenResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
     String accessToken = getAccessToken(code);
 
@@ -140,7 +141,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     return member;
   }
 
-  private MemberResponseDto forceLogin(Member kakaoUser,HttpServletResponse response) {
+  private TokenResponseDto forceLogin(Member kakaoUser,HttpServletResponse response) {
     UserDetailsImpl member = new UserDetailsImpl(kakaoUser);
     String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
     String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
@@ -154,7 +155,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
             .build();
     refreshTokenRepository.save(saveRefreshToken);
 
-    return MemberResponseDto.builder()
+    return TokenResponseDto.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();

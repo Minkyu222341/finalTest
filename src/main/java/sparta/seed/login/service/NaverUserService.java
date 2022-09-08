@@ -25,6 +25,7 @@ import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Authority;
 import sparta.seed.member.domain.Member;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.member.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.member.repository.RefreshTokenRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -49,7 +50,7 @@ public class NaverUserService {
   private final RefreshTokenRepository refreshTokenRepository;
 
   // 네이버 로그인
-  public MemberResponseDto naverLogin(String code, String state, HttpServletResponse response) throws JsonProcessingException {
+  public TokenResponseDto naverLogin(String code, String state, HttpServletResponse response) throws JsonProcessingException {
 
     String accessToken = getAccessToken(code, state);
 
@@ -165,7 +166,7 @@ public class NaverUserService {
     return authentication;
   }
 
-  private MemberResponseDto jwtToken(Authentication authentication, HttpServletResponse response) {
+  private TokenResponseDto jwtToken(Authentication authentication, HttpServletResponse response) {
     UserDetailsImpl member = ((UserDetailsImpl) authentication.getPrincipal());
     String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
     String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
@@ -178,7 +179,7 @@ public class NaverUserService {
             .build();
     refreshTokenRepository.save(saveRefreshToken);
 
-    return MemberResponseDto.builder()
+    return TokenResponseDto.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();

@@ -25,22 +25,22 @@ public class Img extends Timestamped {
   private String imgUrl;
   private String fileName;
 
-  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "CommunityId")
   private Community community;
 
-  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "proofId")
   private Proof proof;
 
-  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "campaignId")
   private Campaign campaign;
 
-  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "commentId")
   private Comment comment;
@@ -54,10 +54,5 @@ public class Img extends Timestamped {
     this.proof = proof;
     this.campaign = campaign;
     this.comment = comment;
-  }
-
-  public void updateImg(S3Dto s3Dto) {
-    this.imgUrl = s3Dto.getUploadImageUrl();
-    this.fileName = s3Dto.getFileName();
   }
 }
