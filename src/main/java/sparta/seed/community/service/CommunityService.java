@@ -234,7 +234,7 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
   }
 
   private void validateWriter(UserDetailsImpl userDetails, Community community) {
-    if (community.getMemberId().equals(userDetails.getId())) {
+    if (!community.getMemberId().equals(userDetails.getId())) {
       throw new CustomException(ErrorCode.INCORRECT_USERID);
     }
   }

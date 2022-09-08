@@ -37,7 +37,7 @@ public class Proof extends Timestamped {
   private Community community;
 
   //이미지리스트
-  @OneToMany(mappedBy = "proof", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "proof",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
 
@@ -66,6 +66,9 @@ public class Proof extends Timestamped {
 
   public void addImg(Img img){
     this.imgList.add(img);
+  }
+  public void removeImg(Img img){
+    this.imgList.remove(img);
   }
 
   public void addComment(Comment comment){
