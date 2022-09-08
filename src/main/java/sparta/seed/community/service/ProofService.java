@@ -57,6 +57,8 @@ public class ProofService {
 		for(Proof proof : replayList){
 			proofResponseDtoList.add(ProofResponseDto.builder()
 					.proofId(proof.getId())
+					.creatAt(proof.getCreatedAt())
+					.nickname(proof.getNickname())
 					.title(proof.getTitle())
 					.content(proof.getContent())
 					.img(proof.getImgList())
@@ -77,6 +79,8 @@ public class ProofService {
 		Proof proof = findTheProofById(proofId);
 		return ProofResponseDto.builder()
 				.proofId(proof.getId())
+				.creatAt(proof.getCreatedAt())
+				.nickname(proof.getNickname())
 				.title(proof.getTitle())
 				.content(proof.getContent())
 				.img(proof.getImgList())

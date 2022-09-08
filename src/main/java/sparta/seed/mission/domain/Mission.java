@@ -13,7 +13,7 @@ import javax.persistence.Id;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Mission extends Timestamped {
+public class Mission{
   //PK
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,12 +21,8 @@ public class Mission extends Timestamped {
   //미션내용
   private String content;
 
-
-
   @Builder
   public Mission(String content) {
     this.content = content;
   }
-
-
 }

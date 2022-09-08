@@ -41,6 +41,7 @@ public class CommentService {
 				commentResponseDtoList.add(CommentResponseDto.builder()
 						.commentId(comment.getId())
 						.proofId(comment.getProof().getId())
+						.creatAt(comment.getCreatedAt())
 						.nickname(comment.getNickname())
 						.content(comment.getContent())
 						.writer(userDetails != null && comment.getMemberId().equals(userDetails.getId()))
