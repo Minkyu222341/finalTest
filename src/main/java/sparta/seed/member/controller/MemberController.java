@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
 import sparta.seed.member.service.MemberService;
 import sparta.seed.mission.domain.dto.requestdto.MissionSearchCondition;
 import sparta.seed.mission.domain.dto.responsedto.ClearMissionResponseDto;
@@ -25,7 +26,7 @@ public class MemberController {
    * 유저 정보보기
    */
   @GetMapping("/api/userinfo/{memberId}")
-  public ResponseEntity<MemberResponseDto> getUserinfo(@PathVariable Long memberId) {
+  public ResponseEntity<UserInfoResponseDto> getUserinfo(@PathVariable Long memberId) {
 
     return memberService.getUserinfo(memberId);
   }
@@ -34,7 +35,7 @@ public class MemberController {
    * 마이페이지
    */
   @GetMapping("/api/mypage")
-  public ResponseEntity<MemberResponseDto> getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<UserInfoResponseDto> getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
     return memberService.getMyPage(userDetails);
   }

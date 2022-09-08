@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import sparta.seed.member.domain.Authority;
@@ -17,10 +16,7 @@ import sparta.seed.member.domain.Member;
 import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 
-import javax.servlet.http.HttpServletResponse;
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -34,14 +30,14 @@ public class TokenProvider {
   private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
   private static final String MEMBER_USERNAME = "memberUsername";
   private static final String MEMBER_NICKNAME = "memberNickname";
-  public final HttpServletResponse response;
+  private static final String MEMBER_ID = "memberId";
+  private static final String MEMBER = "member";
   private Authority authority;
 
 
   private final Key key;
 
-  public TokenProvider(@Value("${jwt.secret}") String secretKey, HttpServletResponse response) {
-    this.response = response;
+  public TokenProvider(@Value("${jwt.secret}") String secretKey) {
     byte[] keyBytes = Decoders.BASE64.decode(secretKey);
     this.key = Keys.hmacShaKeyFor(keyBytes);
   }
@@ -78,28 +74,32 @@ public class TokenProvider {
             .build();
   }
 
-  public String generateRefreshToken() {
+  public String generateAccessToken(String memberId,String memberNickname) {
+    long now = (new Date()).getTime();
+    Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+    String accessToken = Jwts.builder()
+            .setSubject(String.valueOf(memberId))
+            .claim(MEMBER_NICKNAME,memberNickname)
+            .setExpiration(accessTokenExpiresIn)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact();
+    return accessToken;
+  }
+
+  public String generateRefreshToken(String memberId) {
     long now = (new Date()).getTime();
     String refreshToken = Jwts.builder()
             .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
+            .claim(MEMBER_ID,memberId)
             .signWith(key, SignatureAlgorithm.HS512)
             .setHeaderParam("JWT_HEADER_PARAM_TYPE", "headerType")
             .compact();
-    response.addHeader("RefreshToken",refreshToken);
     return refreshToken;
   }
 
   public Authentication getAuthentication(String accessToken) {
 
     Claims claims = parseClaims(accessToken);
-    if (claims.get(AUTHORITIES_KEY) == null) {
-      throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-    }
-
-    Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
-
     if (Authority.ROLE_USER.toString().equals(claims.get(AUTHORITIES_KEY))) {
       authority = Authority.ROLE_USER;
     } else {
@@ -114,7 +114,7 @@ public class TokenProvider {
             .build();
 
     UserDetails principal = new UserDetailsImpl(member);
-    return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
   }
 
 

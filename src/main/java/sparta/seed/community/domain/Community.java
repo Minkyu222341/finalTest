@@ -38,8 +38,7 @@ public class Community extends Timestamped {
   //참가인원 제한
   private long limitParticipants;
   //비밀글여부
-
-  private boolean secret;
+  private boolean passwordFlag;
   //글비밀번호
   private String password;
   //모집여부
@@ -48,9 +47,9 @@ public class Community extends Timestamped {
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Proof> proofList = new ArrayList<>();
-  @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
-  private List<Img> imgList = new ArrayList<>();
+  private Img img;
 
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
@@ -58,7 +57,7 @@ public class Community extends Timestamped {
 
 
   @Builder
-  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean secret, String password, boolean recruitment, List<Proof> proofList, List<Img> imgList, List<Participants> participantsList) {
+  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean secret, String password, boolean recruitment, List<Proof> proofList, Img img, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
     this.nickname = nickname;
@@ -68,11 +67,11 @@ public class Community extends Timestamped {
     this.endDate = endDate;
     this.limitScore = limitScore;
     this.limitParticipants = limitParticipants;
-    this.secret = secret;
+    this.passwordFlag = secret;
     this.password = password;
     this.recruitment = recruitment;
     this.proofList = proofList;
-    this.imgList = imgList;
+    this.img = img;
     this.participantsList = participantsList;
   }
 
@@ -81,7 +80,7 @@ public class Community extends Timestamped {
     this.endDate = requestDto.getEndDate();
     this.limitScore = requestDto.getLimitScore();
     this.limitParticipants = requestDto.getLimitParticipants();
-    this.secret = requestDto.isSecret();
+    this.passwordFlag = requestDto.isSecret();
     this.password = requestDto.getPassword();
     this.title = requestDto.getTitle();
     this.content = requestDto.getContent();
@@ -91,8 +90,8 @@ public class Community extends Timestamped {
     participantsList.add(participants);
   }
 
-  public void addImage(Img img) {
-    imgList.add(img);
+  public void setImg(Img img) {
+    this.img = img;
   }
 
 

@@ -15,11 +15,15 @@ import java.util.List;
 public class CommunityResponseDto {
 
   private Long communityId;
-  private List<Img> imgList;
+  private Img img;
   private String title;
   //모집여부
   private boolean participant;
   private List<Community> participantsList;
+  //목표 달성 횟수
+  private long limitScore;
+  //참가인원 제한
+  private long limitParticipants;
   //달성퍼센트
   private double successPercent;
   //참여퍼센트
@@ -51,12 +55,14 @@ public class CommunityResponseDto {
 
   @QueryProjection
   @Builder
-  public CommunityResponseDto(Long communityId, List<Img> imgList, String title, boolean participant, List<Community> participantsList, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean secret, String password, String content, String dateStatus, String createAt, boolean writer) {
+  public CommunityResponseDto(Long communityId, Img img, String title, boolean participant, List<Community> participantsList, long limitScore, long limitParticipants, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean secret, String password, String content, String dateStatus, String createAt, boolean writer) {
     this.communityId = communityId;
-    this.imgList = imgList;
+    this.img = img;
     this.title = title;
     this.participant = participant;
     this.participantsList = participantsList;
+    this.limitScore = limitScore;
+    this.limitParticipants = limitParticipants;
     this.successPercent = successPercent;
     this.currentPercent = currentPercent;
     this.participantsCnt = participantsCnt;

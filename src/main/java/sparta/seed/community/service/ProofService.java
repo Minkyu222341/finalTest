@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +13,8 @@ import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Heart;
 import sparta.seed.community.domain.Proof;
 import sparta.seed.community.domain.dto.requestdto.ProofRequestDto;
+import sparta.seed.community.domain.dto.responsedto.ProofCountResponseDto;
+import sparta.seed.community.domain.dto.responsedto.ProofHeartResponseDto;
 import sparta.seed.community.domain.dto.responsedto.ProofResponseDto;
 import sparta.seed.community.repository.CommunityRepository;
 import sparta.seed.community.repository.ParticipantsRepository;
@@ -50,11 +51,14 @@ public class ProofService {
 		Sort.Direction direction = Sort.Direction.DESC;
 		Sort sort = Sort.by(direction, "createdAt");
 		Pageable pageable = PageRequest.of(page, size, sort);
+		try {
 		Page<Proof> replayList = proofRepository.findAllByCommunity_Id(communityId, pageable);
 		List<ProofResponseDto> proofResponseDtoList = new ArrayList<>();
 		for(Proof proof : replayList){
 			proofResponseDtoList.add(ProofResponseDto.builder()
 					.proofId(proof.getId())
+					.creatAt(proof.getCreatedAt())
+					.nickname(proof.getNickname())
 					.title(proof.getTitle())
 					.content(proof.getContent())
 					.img(proof.getImgList())
@@ -65,16 +69,18 @@ public class ProofService {
 					.build());
 		}
 		return proofResponseDtoList;
+		}catch (Exception e) {throw new IllegalArgumentException("해당 인증글이 존재하지 않습니다.");}
 	}
 
 	/**
 	 * 글에 달린 인증글 상세 조회
 	 */
 	public ProofResponseDto getProof(Long proofId, UserDetailsImpl userDetails) {
-		Proof proof = proofRepository.findById(proofId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+		Proof proof = findTheProofById(proofId);
 		return ProofResponseDto.builder()
 				.proofId(proof.getId())
+				.creatAt(proof.getCreatedAt())
+				.nickname(proof.getNickname())
 				.title(proof.getTitle())
 				.content(proof.getContent())
 				.img(proof.getImgList())
@@ -104,34 +110,33 @@ public class ProofService {
 				.community(community)
 				.build();
 
-		if(participantsRepository.existsByCommunityAndMemberId(community, loginUserId)) {
+		if (participantsRepository.existsByCommunityAndMemberId(community, loginUserId)) {
+			List<Img> imgList = new ArrayList<>();
 			for (MultipartFile file : multipartFile) {
 				S3Dto upload = s3Uploader.upload(file);
 				Img findImage = Img.builder()
-						.imgUrl(upload.getUploadImageUrl())
-						.fileName(upload.getFileName())
-						.proof(proof)
-						.build();
+								.imgUrl(upload.getUploadImageUrl())
+								.fileName(upload.getFileName())
+								.proof(proof)
+								.build();
 				proof.addImg(findImage);
-				imgRepository.save(findImage);
+				imgList.add(findImage);
 			}
-
+			imgRepository.saveAll(imgList);
 			proofRepository.save(proof);
 
 			ProofResponseDto proofResponseDto = ProofResponseDto.builder()
-					.proofId(proof.getId())
-					.title(proof.getTitle())
-					.content(proof.getContent())
-					.img(proof.getImgList())
-					.commentCnt(proof.getCommentList().size())
-					.heartCnt(proof.getHeartList().size())
-					.writer(true)
-					.heart(false)
-					.build();
+							.proofId(proof.getId())
+							.title(proof.getTitle())
+							.content(proof.getContent())
+							.img(proof.getImgList())
+							.commentCnt(proof.getCommentList().size())
+							.heartCnt(proof.getHeartList().size())
+							.writer(true)
+							.heart(false)
+							.build();
 			return ResponseEntity.ok().body(proofResponseDto);
-		}else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-		}
+		}throw new IllegalArgumentException("캠페인 참가자만 인증글을 작성할 수 있습니다.");
 	}
 
 	/**
@@ -140,8 +145,7 @@ public class ProofService {
 	@Transactional
 	public ResponseEntity<ProofResponseDto> updateProof(Long proofId, ProofRequestDto proofRequestDto,
 	                                                    List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
-		Proof proof = proofRepository.findById(proofId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+		Proof proof = findTheProofById(proofId);
 		if(userDetails !=null && proof.getMemberId().equals(userDetails.getId())){
 			proof.updateProof(proofRequestDto);
 
@@ -167,15 +171,14 @@ public class ProofService {
 					.build();
 			return ResponseEntity.ok().body(proofResponseDto);
 
-		}else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
 	}
 
 	/**
 	 * 인증글 삭제
 	 */
 	public Boolean deleteProof(Long proofId, UserDetailsImpl userDetails) {
-		Proof proof = proofRepository.findById(proofId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+		Proof proof = findTheProofById(proofId);
 
 		if(userDetails !=null && proof.getMemberId().equals(userDetails.getId())){
 			proofRepository.delete(proof);
@@ -186,11 +189,11 @@ public class ProofService {
 	/**
 	 * 전체 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	public List<ProofResponseDto> countAllProof(Long communityId) {
+	public List<ProofCountResponseDto> countAllProof(Long communityId) {
 		List<Proof> proofList = proofRepository.findAllByCommunity_Id(communityId);
-		List<ProofResponseDto> proofResponseDtoList = new ArrayList<>();
+		List<ProofCountResponseDto> proofResponseDtoList = new ArrayList<>();
 		for (Proof proof : proofList){
-			proofResponseDtoList.add(ProofResponseDto.builder()
+			proofResponseDtoList.add(ProofCountResponseDto.builder()
 					.proofId(proof.getId())
 					.commentCnt(proof.getCommentList().size())
 					.heartCnt(proof.getHeartList().size())
@@ -202,10 +205,9 @@ public class ProofService {
 	/**
 	 * 인증글 댓글 , 좋아요 갯수 조회
 	 */
-	public ProofResponseDto countProof(Long proofId) {
-		Proof proof = proofRepository.findById(proofId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
-		return ProofResponseDto.builder()
+	public ProofCountResponseDto countProof(Long proofId) {
+		Proof proof = findTheProofById(proofId);
+		return ProofCountResponseDto.builder()
 				.proofId(proof.getId())
 				.commentCnt(proof.getCommentList().size())
 				.heartCnt(proof.getHeartList().size())
@@ -215,9 +217,8 @@ public class ProofService {
 	/**
 	 * 인증글 좋아요
 	 */
-	public ProofResponseDto heartProof(Long proofId, UserDetailsImpl userDetails) {
-		Proof proof = proofRepository.findById(proofId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+	public ProofHeartResponseDto heartProof(Long proofId, UserDetailsImpl userDetails) {
+		Proof proof = findTheProofById(proofId);
 		Long loginUserId = userDetails.getId();
 
 		if(!heartRepository.existsByProofAndMemberId(proof, loginUserId)){
@@ -227,7 +228,7 @@ public class ProofService {
 					.build();
 			proof.addHeart(heart);
 			heartRepository.save(heart);
-			return ProofResponseDto.builder()
+			return ProofHeartResponseDto.builder()
 					.proofId(proof.getId())
 					.heart(true)
 					.heartCnt(proof.getHeartList().size()).build();
@@ -235,11 +236,16 @@ public class ProofService {
 			Heart heart = heartRepository.findByProofAndMemberId(proof, loginUserId);
 			proof.removeHeart(heart);
 			heartRepository.delete(heart);
-			return ProofResponseDto.builder()
+			return ProofHeartResponseDto.builder()
 					.proofId(proof.getId())
 					.heart(false)
 					.heartCnt(proof.getHeartList().size()).build();
 		}
+	}
+
+	private Proof findTheProofById(Long proofId) {
+		return proofRepository.findById(proofId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 	}
 
 }
