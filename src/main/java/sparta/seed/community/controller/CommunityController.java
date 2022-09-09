@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.community.domain.Participants;
 import sparta.seed.community.domain.dto.requestdto.CommunityRequestDto;
 import sparta.seed.community.domain.dto.requestdto.CommunitySearchCondition;
+import sparta.seed.community.domain.dto.responsedto.CommunityAllResponseDto;
 import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.community.service.CommunityService;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -30,9 +31,9 @@ public class CommunityController {
    * 그룹미션 전체조회
    */
   @GetMapping("/api/community")
-  public ResponseEntity<Slice<CommunityResponseDto>> getAllCommunity(Pageable pageable,
-                                                                     CommunitySearchCondition condition,
-                                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<Slice<CommunityAllResponseDto>> getAllCommunity(Pageable pageable,
+                                                                        CommunitySearchCondition condition,
+                                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return communityService.getAllCommunity(pageable, condition,userDetails);
   }
 

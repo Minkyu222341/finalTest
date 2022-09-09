@@ -46,7 +46,7 @@ public class MemberService {
    */
   public ResponseEntity<UserInfoResponseDto> getMyPage(UserDetailsImpl userDetails) {
     Member member = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
 
     return getUserInfo(member);
   }
@@ -66,7 +66,7 @@ public class MemberService {
   @Transactional
   public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails, NicknameRequestDto requestDto) {
     Member member = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     if (member.getNickname().equals(requestDto.getNickname())) {
       return ResponseEntity.badRequest().body(false);
     }
@@ -92,7 +92,7 @@ public class MemberService {
             .build());
       }
       return ResponseEntity.ok().body(responseDtoList);
-    }catch (Exception e) {throw new IllegalArgumentException("알 수 없는 사용자입니다.");}
+    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
   /**
@@ -110,7 +110,7 @@ public class MemberService {
           .clearMissionList(clearMissionList)
           .clearMissionCnt(clearMissionList.size())
           .build());
-    }catch (Exception e) {throw new IllegalArgumentException("알 수 없는 사용자입니다.");}
+    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
   private String getDateStatus(Community community) throws ParseException {
@@ -136,11 +136,11 @@ public class MemberService {
    */
   public ResponseEntity<UserInfoResponseDto> getUserinfo(Long memberId) {
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     if(!member.isSecret()){
       return getUserInfo(member);
 
-    }throw new IllegalArgumentException("비공개 처리된 유저입니다.");
+    }throw new CustomException(ErrorCode.CLOSED_USER);
   }
 
   /**
@@ -185,7 +185,6 @@ public class MemberService {
         .totalClear((int) clearMission)
         .nextLevelExp(5 - (Integer.parseInt(split[1]) / 2))
         .isSecret(member.isSecret())
-//          .isFriend()
         .build();
     return ResponseEntity.ok().body(userInfoResponseDto);
   }

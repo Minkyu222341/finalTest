@@ -2,6 +2,8 @@ package sparta.seed.mission.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import sparta.seed.exception.CustomException;
+import sparta.seed.exception.ErrorCode;
 import sparta.seed.member.domain.Member;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.mission.domain.ClearMission;
@@ -29,7 +31,7 @@ public class MissionService {
    */
   public MissionResponseDto getMissionAll(UserDetailsImpl userDetails) {
     Member loginMember = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     return MissionResponseDto.builder()
             .memberId(userDetails.getId())
             .dailyMission(loginMember.getDailyMission())
@@ -51,7 +53,7 @@ public class MissionService {
   @Transactional
   public MissionResponseDto injectMission(UserDetailsImpl userDetails) {
     Member loginMember = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
 
     while (loginMember.getDailyMission().size() < 5) { // 맴버가 가진 미션해시맵의 길이가 5이 될 때까지 반복
       loginMember.getDailyMission()
@@ -71,7 +73,7 @@ public class MissionService {
   @Transactional
   public Boolean completeMission(UserDetailsImpl userDetails, MissionRequestDto missionRequestDto) throws ParseException {
     Member loginMember = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     String weekOfMonth = dateUtil.weekOfMonth();
     ClearMission clearMission = ClearMission.builder()
             .memberId(userDetails.getId())

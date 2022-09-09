@@ -13,6 +13,7 @@ import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Participants;
 import sparta.seed.community.domain.dto.requestdto.CommunityRequestDto;
 import sparta.seed.community.domain.dto.requestdto.CommunitySearchCondition;
+import sparta.seed.community.domain.dto.responsedto.CommunityAllResponseDto;
 import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.community.repository.CommunityRepository;
 import sparta.seed.community.repository.ParticipantsRepository;
@@ -44,11 +45,11 @@ public class CommunityService {
   private final ProofRepository proofRepository;
 
 
-  public ResponseEntity<Slice<CommunityResponseDto>> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<Slice<CommunityAllResponseDto>> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
     QueryResults<Community> allCommunity = communityRepository.getAllCommunity(pageable, condition);
-    List<CommunityResponseDto> allCommunityList = getAllCommunityList(allCommunity, userDetails);
+    List<CommunityAllResponseDto> allCommunityList = getAllCommunityList(allCommunity, userDetails);
     boolean hasNext = hasNextPage(pageable, allCommunityList);
-    SliceImpl<CommunityResponseDto> communityResponseDtos = new SliceImpl<>(allCommunityList, pageable, hasNext);
+    SliceImpl<CommunityAllResponseDto> communityResponseDtos = new SliceImpl<>(allCommunityList, pageable, hasNext);
     return ResponseEntity.ok().body(communityResponseDtos);
   }
 
@@ -85,22 +86,26 @@ public class CommunityService {
     Community community = findTheCommunityByMemberId(id);
     Long certifiedProof = getCertifiedProof(community);
     CommunityResponseDto communityResponseDto = CommunityResponseDto.builder()
-            .communityId(community.getId())
-            .createAt(String.valueOf(community.getCreatedAt()))
-            .nickname(community.getNickname())
-            .img(community.getImg())
-            .startDate(community.getStartDate())
-            .endDate(community.getEndDate())
-            .secret(community.isPasswordFlag())
-            .password(community.getPassword())
-            .title(community.getTitle())
-            .content(community.getContent())
-            .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
-            .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
-            .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
-            .dateStatus(getDateStatus(community))
-            .participant(userDetails != null && participant(userDetails, community))
-            .build();
+        .communityId(community.getId())
+        .createAt(String.valueOf(community.getCreatedAt()))
+        .nickname(community.getNickname())
+        .title(community.getTitle())
+        .content(community.getContent())
+        .img(community.getImg())
+        .participantsList(community.getParticipantsList())
+        .participantsCnt(community.getParticipantsList().size())
+        .limitParticipants(community.getLimitParticipants())
+        .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+        .participant(userDetails != null && participant(userDetails, community))
+        .limitScore(community.getLimitScore())
+        .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
+        .startDate(community.getStartDate())
+        .endDate(community.getEndDate())
+        .dateStatus(getDateStatus(community))
+        .secret(community.isPasswordFlag())
+        .password(community.getPassword())
+        .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+        .build();
     return ResponseEntity.ok().body(communityResponseDto);
   }
 
@@ -167,7 +172,7 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return ResponseEntity.ok().body(participantsList);
   }
 
-  private boolean hasNextPage(Pageable pageable, List<CommunityResponseDto> CommunityList) {
+  private boolean hasNextPage(Pageable pageable, List<CommunityAllResponseDto> CommunityList) {
     boolean hasNext = false;
     if (CommunityList.size() > pageable.getPageSize()) {
       CommunityList.remove(pageable.getPageSize());
@@ -176,29 +181,29 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return hasNext;
   }
 
-  private List<CommunityResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl
+  private List<CommunityAllResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl
           userDetails) throws ParseException {
-    List<CommunityResponseDto> communityList = new ArrayList<>();
+    List<CommunityAllResponseDto> communityList = new ArrayList<>();
     for (Community community : allCommunity.getResults()) {
       Long certifiedProof = getCertifiedProof(community);
-      communityList.add(CommunityResponseDto.builder()
-              .communityId(community.getId())
-              .img(community.getImg())
-              .title(community.getTitle())
-              .participant(userDetails != null && participant(userDetails, community))
-              .participantsCnt(community.getParticipantsList().size())
-              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
-              .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
-              .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
-              .dateStatus(getDateStatus(community))
-              .build());
+      communityList.add(CommunityAllResponseDto.builder()
+          .communityId(community.getId())
+          .nickname(community.getNickname())
+          .title(community.getTitle())
+          .img(community.getImg())
+          .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+          .successPercent((Double.valueOf(certifiedProof) / (double) community.getLimitScore()) * 100)
+          .dateStatus(getDateStatus(community))
+          .secret(community.isPasswordFlag())
+          .password(community.getPassword())
+          .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+          .build());
     }
     return communityList;
   }
 
   private Boolean participant(UserDetailsImpl userDetails, Community community) {
-    Boolean participant = participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
-    return participant;
+    return participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
   }
 
   private Community createCommunity(CommunityRequestDto requestDto, Long loginUserId, String nickname) {
@@ -218,10 +223,10 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
 
   private Participants getGroupLeader(Long loginUserId, String nickname, Community community) {
     return Participants.builder()
-            .nickname(nickname)
-            .memberId(loginUserId)
-            .community(community)
-            .build();
+        .community(community)
+        .memberId(loginUserId)
+        .nickname(nickname)
+        .build();
   }
 
   private Community findTheCommunityByMemberId(Long id) {
@@ -229,8 +234,7 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
   }
 
   private Long getCertifiedProof(Community community) {
-    Long certifiedProof = proofRepository.getCertifiedProof(community);
-    return certifiedProof;
+    return proofRepository.getCertifiedProof(community);
   }
 
   private void validateWriter(UserDetailsImpl userDetails, Community community) {

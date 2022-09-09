@@ -20,6 +20,7 @@ public enum ErrorCode {
     WRONG_TYPE_TOKEN(HttpStatus.BAD_REQUEST, "400", "변조된 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.BAD_REQUEST, "401", "만료된 토큰입니다."),
     UNSUPPORTED_TOKEN(HttpStatus.BAD_REQUEST, "400", "변조된 토큰입니다."),
+    UNKNOWN_USER(HttpStatus.BAD_REQUEST, "400", "사용자를 알 수 없습니다."),
 
     /**
      * 권한
@@ -32,8 +33,17 @@ public enum ErrorCode {
     EXCESS_PARTICIPANT(HttpStatus.BAD_REQUEST,"400","참가 인원 초과"),
     INCORRECT_USERID(HttpStatus.BAD_REQUEST, "400", "작성자가 아닙니다."),
     ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST,"400","이미 참여 했습니다."),
-    NOT_FOUND_COMMUNITY(HttpStatus.BAD_REQUEST, "400", "게시글을 찾을 수 없습니다.");
+    NOT_PARTICIPATED(HttpStatus.BAD_REQUEST,"400","캠페인 참가자만 인증글을 작성할 수 있습니다."),
 
+    NOT_FOUND_COMMUNITY(HttpStatus.BAD_REQUEST, "400", "게시글을 찾을 수 없습니다."),
+    NOT_FOUND_PROOF(HttpStatus.BAD_REQUEST, "400", "인증글을 찾을 수 없습니다."),
+    NOT_FOUND_COMMENT(HttpStatus.BAD_REQUEST, "400", "댓글을 찾을 수 없습니다."),
+    NOT_FOUND_IMG(HttpStatus.BAD_REQUEST, "400", "이미지를 찾을 수 없습니다."),
+
+    /**
+     * 유저정보
+     */
+    CLOSED_USER(HttpStatus.BAD_REQUEST, "400", "비공개 처리된 유저입니다.");
 
 
 

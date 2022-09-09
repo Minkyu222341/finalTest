@@ -47,7 +47,7 @@ public class ProofController {
    * 인증글 작성
    */
 	@PostMapping(value = "/api/community/{communityId}/proof", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<ProofResponseDto> createProof(@PathVariable Long communityId,
+	public ResponseEntity<String> createProof(@PathVariable Long communityId,
 																											@Valid @RequestPart(value = "dto") ProofRequestDto proofRequestDto,
 																											@RequestPart List<MultipartFile> multipartFile,
 																											@AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -59,7 +59,7 @@ public class ProofController {
    * 인증글 수정
    */
 	@PatchMapping(value = "/api/proof/{proofId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<ProofResponseDto> updateProof(@PathVariable Long proofId,
+	public ResponseEntity<String> updateProof(@PathVariable Long proofId,
 	                                    @Valid @RequestPart(value = "dto") ProofRequestDto proofRequestDto,
 	                                    @RequestPart(required = false) List<MultipartFile> multipartFile,
 	                                    @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException{
@@ -70,7 +70,7 @@ public class ProofController {
    * 인증글 삭제
    */
 	@DeleteMapping("/api/proof/{proofId}")
-	public Boolean deleteProof(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+	public ResponseEntity<Boolean> deleteProof(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
 		return proofService.deleteProof(proofId, userDetails);
 	}
 

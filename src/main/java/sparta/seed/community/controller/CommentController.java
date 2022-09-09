@@ -32,7 +32,7 @@ public class CommentController {
    * 댓글작성
    */
 	@PostMapping(value = "/api/comments/{proofId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public CommentResponseDto createComment(@PathVariable Long proofId,
+	public ResponseEntity<String> createComment(@PathVariable Long proofId,
 	                                        @Valid @RequestPart(value = "dto") CommentRequestDto commentRequestDto,
 	                                        @RequestPart(required = false) MultipartFile multipartFile,
 	                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -43,7 +43,7 @@ public class CommentController {
 	 * 댓글 수정
 	 */
 	@PatchMapping(value = "/api/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
+	public ResponseEntity<String> updateComment(@PathVariable Long commentId,
 	                                                        @Valid @RequestPart(value = "dto") CommentRequestDto commentRequestDto,
 	                                                        @RequestPart(required = false) MultipartFile multipartFile,
 	                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -54,7 +54,7 @@ public class CommentController {
    * 댓글 삭제
    */
 	@DeleteMapping("/api/comments/{commentId}")
-	public Boolean deleteComment(@PathVariable Long commentId,  @AuthenticationPrincipal UserDetailsImpl userDetails){
+	public ResponseEntity<Boolean> deleteComment(@PathVariable Long commentId,  @AuthenticationPrincipal UserDetailsImpl userDetails){
 		return commentService.deleteComment(commentId, userDetails);
 	}
 
