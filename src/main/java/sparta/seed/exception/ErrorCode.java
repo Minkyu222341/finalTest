@@ -14,7 +14,7 @@ public enum ErrorCode {
     BE_NOT_VALID_TOKEN(HttpStatus.BAD_REQUEST,"400","유효하지않은 토큰입니다."),
     MEMBER_MISMATCH(HttpStatus.BAD_REQUEST,"400","유저정보가 일치하지 않습니다."),
     NEED_A_LOGIN(HttpStatus.BAD_REQUEST, "400", "로그인이 필요합니다."),
-    INDEX_NOT_FOUND(HttpStatus.BAD_REQUEST, "400", "인덱스가 존재하지 않습니다."),
+    INDEX_NOT_FOUND(HttpStatus.BAD_REQUEST, "1001", "인덱스가 존재하지 않습니다."),
     BOARD_NOT_FOUND(HttpStatus.BAD_REQUEST, "400", "게시글을 찾을 수 없습니다."),
     UNKNOWN_ERROR(HttpStatus.BAD_REQUEST, "400", "토큰이 존재하지 않습니다."),
     WRONG_TYPE_TOKEN(HttpStatus.BAD_REQUEST, "400", "변조된 토큰입니다."),

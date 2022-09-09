@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import sparta.seed.member.domain.Authority;
 import sparta.seed.member.domain.Member;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.member.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 

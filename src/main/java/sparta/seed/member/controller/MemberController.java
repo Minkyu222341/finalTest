@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
-import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.community.domain.dto.responsedto.CommunityMyJoinResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
 import sparta.seed.member.domain.requestdto.NicknameRequestDto;
 import sparta.seed.member.service.MemberService;
@@ -61,7 +59,7 @@ public class MemberController {
    * 그룹미션 확인
    */
   @GetMapping("/api/mypage/groupmission")
-  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return memberService.showGroupMissionList(userDetails);
   }
 

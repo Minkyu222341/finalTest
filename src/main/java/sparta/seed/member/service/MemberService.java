@@ -5,16 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.seed.community.domain.Community;
-import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
+import sparta.seed.community.domain.dto.responsedto.CommunityMyJoinResponseDto;
 import sparta.seed.community.repository.CommunityRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
 import sparta.seed.jwt.TokenProvider;
 import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
-import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Member;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
 import sparta.seed.member.domain.requestdto.NicknameRequestDto;
 import sparta.seed.member.repository.MemberRepository;
@@ -77,18 +75,15 @@ public class MemberService {
   /**
    * 그룹미션 확인
    */
-  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(UserDetailsImpl userDetails) throws ParseException {
     try {
       List<Community> communityList = communityRepository.findByMemberId(userDetails.getId());
-      List<CommunityResponseDto> responseDtoList = new ArrayList<>();
+      List<CommunityMyJoinResponseDto> responseDtoList = new ArrayList<>();
       for (Community community : communityList) {
-        responseDtoList.add(CommunityResponseDto.builder()
+        responseDtoList.add(CommunityMyJoinResponseDto.builder()
             .communityId(community.getId())
-            .createAt(String.valueOf(community.getCreatedAt()))
             .title(community.getTitle())
-            .successPercent(community.getProofList().size() / community.getLimitScore() * 100) // 인증글 갯수에 비례한 달성도
-            .writer(community.getMemberId().equals(userDetails.getId())) // 내가 이 모임글의 작성자인지
-            .dateStatus(getDateStatus(community)) // 모임이 시작전인지 시작했는지 종료되었는지
+            .img(community.getImg())
             .build());
       }
       return ResponseEntity.ok().body(responseDtoList);

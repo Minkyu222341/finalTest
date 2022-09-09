@@ -8,7 +8,6 @@ import sparta.seed.campaign.domain.Campaign;
 import sparta.seed.community.domain.Comment;
 import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Proof;
-import sparta.seed.s3.S3Dto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;

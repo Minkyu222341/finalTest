@@ -4,7 +4,6 @@ package sparta.seed.member.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.requestdto.NicknameRequestDto;
 import sparta.seed.util.Timestamped;
 
