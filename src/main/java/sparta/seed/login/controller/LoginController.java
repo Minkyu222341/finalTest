@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
+import sparta.seed.login.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.login.service.GoogleUserService;
 import sparta.seed.login.service.KakaoUserService;
 import sparta.seed.login.service.NaverUserService;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
-import sparta.seed.member.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.member.service.MemberService;
 
 import javax.servlet.http.HttpServletResponse;

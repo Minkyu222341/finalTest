@@ -34,33 +34,4 @@ public class RestApiExceptionHandler extends RuntimeException{
         ErrorCode code = e.getCode();
         return ErrorResponse.of(code);
     }
-
-
-    //전부 커스텀 Exception으로 변경 시 제거되도 되는 코드
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleArgumentException(IllegalArgumentException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.builder()
-                        .msg(e.getMessage())
-                        .errorCode("400")
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .build()
-                );
-    }
-
-
-    //전부 커스텀 Exception으로 변경 시 제거되도 되는 코드
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> usernameNotFoundException(UsernameNotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.builder()
-                        .msg(e.getMessage())
-                        .errorCode("400")
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .build()
-                );
-    }
-
 }

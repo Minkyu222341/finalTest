@@ -9,7 +9,6 @@ import java.time.LocalDate;
 @Getter
 public class CommentResponseDto {
 	private Long commentId;
-	private Long proofId;
 	private LocalDate creatAt;
 	private String nickname;
 	private String content;
@@ -18,9 +17,8 @@ public class CommentResponseDto {
 
 
 	@Builder
-	public CommentResponseDto(Long commentId, Long proofId, LocalDate creatAt, String nickname, String content, Img img, Boolean writer) {
+	public CommentResponseDto(Long commentId, LocalDate creatAt, String nickname, String content, Img img, Boolean writer) {
 		this.commentId = commentId;
-		this.proofId = proofId;
 		this.creatAt = creatAt;
 		this.nickname = nickname;
 		this.content = content;
