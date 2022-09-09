@@ -8,6 +8,7 @@ import sparta.seed.community.domain.Comment;
 import sparta.seed.community.domain.Proof;
 import sparta.seed.community.domain.dto.requestdto.CommentRequestDto;
 import sparta.seed.community.domain.dto.responsedto.CommentResponseDto;
+import sparta.seed.community.domain.dto.responsedto.CommentResponseListDto;
 import sparta.seed.community.repository.CommentRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
@@ -21,7 +22,6 @@ import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,15 +35,14 @@ public class CommentService {
 	/**
 	 * 댓글 조회
 	 */
-	public List<CommentResponseDto> getAllComment(Long proofId, UserDetailsImpl userDetails) {
+	public CommentResponseListDto getAllComment(Long proofId, UserDetailsImpl userDetails) {
 		try {
 			List<Comment> commentList = commentRepository.findAllByProof_Id(proofId);
-			List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+			CommentResponseListDto commentResponseListDtoList = new CommentResponseListDto(proofId);
 
 			for (Comment comment : commentList) {
-				commentResponseDtoList.add(CommentResponseDto.builder()
+				commentResponseListDtoList.addCommentResponseDto(CommentResponseDto.builder()
 						.commentId(comment.getId())
-						.proofId(comment.getProof().getId())
 						.creatAt(comment.getCreatedAt())
 						.nickname(comment.getNickname())
 						.content(comment.getContent())
@@ -51,7 +50,7 @@ public class CommentService {
 						.writer(userDetails != null && comment.getMemberId().equals(userDetails.getId()))
 						.build());
 			}
-			return commentResponseDtoList;
+			return commentResponseListDtoList;
 		}catch (Exception e) {throw new CustomException(ErrorCode.NOT_FOUND_COMMENT);}
 	}
 
@@ -62,28 +61,29 @@ public class CommentService {
 	                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
 		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
+			try {
+				Comment comment = Comment.builder()
+						.memberId(userDetails.getId())
+						.nickname(userDetails.getNickname())
+						.content(commentRequestDto.getContent())
+						.proof(proof)
+						.build();
+				proof.addComment(comment);
 
-			Comment comment = Comment.builder()
-					.memberId(userDetails.getId())
-					.nickname(userDetails.getNickname())
-					.content(commentRequestDto.getContent())
-					.proof(proof)
-					.build();
-			proof.addComment(comment);
+				if (multipartFile != null) {
+					S3Dto upload = s3Uploader.upload(multipartFile);
+					Img findImage = Img.builder()
+							.imgUrl(upload.getUploadImageUrl())
+							.fileName(upload.getFileName())
+							.comment(comment)
+							.build();
 
-		if(multipartFile != null){
-			S3Dto upload = s3Uploader.upload(multipartFile);
-			Img findImage = Img.builder()
-					.imgUrl(upload.getUploadImageUrl())
-					.fileName(upload.getFileName())
-					.comment(comment)
-					.build();
+					comment.setImg(findImage);
+					imgRepository.save(findImage);
+				}
 
-			comment.setImg(findImage);
-			imgRepository.save(findImage);
-		}
-
-			commentRepository.save(comment);
+				commentRepository.save(comment);
+			} catch (Exception e){new CustomException(ErrorCode.UNKNOWN_USER);}
 		return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
 	}
 

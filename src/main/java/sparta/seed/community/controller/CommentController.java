@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.community.domain.dto.requestdto.CommentRequestDto;
 import sparta.seed.community.domain.dto.responsedto.CommentResponseDto;
+import sparta.seed.community.domain.dto.responsedto.CommentResponseListDto;
 import sparta.seed.community.service.CommentService;
 import sparta.seed.sercurity.UserDetailsImpl;
 
@@ -24,7 +25,7 @@ public class CommentController {
    * 댓글 조회
    */
 	@GetMapping("/api/comments/{proofId}")
-	public List<CommentResponseDto> getAllComment(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+	public CommentResponseListDto getAllComment(@PathVariable Long proofId, @AuthenticationPrincipal UserDetailsImpl userDetails){
 		return commentService.getAllComment(proofId, userDetails);
 	}
 
