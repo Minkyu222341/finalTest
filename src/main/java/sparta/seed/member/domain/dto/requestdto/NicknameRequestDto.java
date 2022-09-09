@@ -1,4 +1,4 @@
-package sparta.seed.member.domain.requestdto;
+package sparta.seed.member.domain.dto.requestdto;
 
 import lombok.Builder;
 import lombok.Getter;

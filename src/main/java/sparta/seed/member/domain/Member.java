@@ -4,7 +4,7 @@ package sparta.seed.member.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.seed.member.domain.requestdto.NicknameRequestDto;
+import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
