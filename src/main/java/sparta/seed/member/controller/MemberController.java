@@ -75,7 +75,7 @@ public class MemberController {
   /**
    * 일일 미션 달성 현황 확인
    */
-  @GetMapping("/api/mypage/statistics")
+  @GetMapping("/api/mypage/stats/day")
   public ResponseEntity<ClearMissionResponseDto> targetDayMission(@RequestParam String targetDay, @AuthenticationPrincipal UserDetailsImpl userDetails){
     return memberService.targetDayMission(targetDay, userDetails);
   }
@@ -83,7 +83,7 @@ public class MemberController {
   /**
    * 유저정보 비공개 / 공개 설정
    */
-  @PatchMapping("/api/mypage/status")
+  @PatchMapping("/api/mypage/secret")
   public ResponseEntity<Boolean> isSecret(@AuthenticationPrincipal UserDetailsImpl userDetails) {
     return memberService.isSceret(userDetails);
   }

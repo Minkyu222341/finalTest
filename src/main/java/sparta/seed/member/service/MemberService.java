@@ -12,11 +12,10 @@ import sparta.seed.exception.ErrorCode;
 import sparta.seed.jwt.TokenProvider;
 import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
-import sparta.seed.login.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.member.domain.Member;
+import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.member.domain.dto.responsedto.NicknameResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
-import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.member.repository.RefreshTokenRepository;
 import sparta.seed.mission.domain.ClearMission;
@@ -74,7 +73,7 @@ public class MemberService {
           .success(true)
           .build());
     }
-    throw new CustomException(ErrorCode.ACCESS_DENIED);
+    throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
   }
 
   /**
