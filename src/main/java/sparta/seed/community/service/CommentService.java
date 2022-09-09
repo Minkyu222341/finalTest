@@ -63,7 +63,6 @@ public class CommentService {
 		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
 
-		if(multipartFile != null){
 			Comment comment = Comment.builder()
 					.memberId(userDetails.getId())
 					.nickname(userDetails.getNickname())
@@ -72,6 +71,7 @@ public class CommentService {
 					.build();
 			proof.addComment(comment);
 
+		if(multipartFile != null){
 			S3Dto upload = s3Uploader.upload(multipartFile);
 			Img findImage = Img.builder()
 					.imgUrl(upload.getUploadImageUrl())
@@ -81,9 +81,9 @@ public class CommentService {
 
 			comment.setImg(findImage);
 			imgRepository.save(findImage);
+		}
 
 			commentRepository.save(comment);
-		}
 		return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
 	}
 

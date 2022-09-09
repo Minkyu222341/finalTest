@@ -53,33 +53,34 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDtos);
   }
 
-  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
-    Long loginUserId = userDetails.getId();
-    String nickname = userDetails.getNickname();
-    if (multipartFile != null) {
+  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) {
+    try {
+      Long loginUserId = userDetails.getId();
+      String nickname = userDetails.getNickname();
+      if (multipartFile != null) {
+        Community community = createCommunity(requestDto, loginUserId, nickname);
+        Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+
+        S3Dto upload = s3Uploader.upload(multipartFile);
+        Img findImage = Img.builder()
+            .imgUrl(upload.getUploadImageUrl())
+            .fileName(upload.getFileName())
+            .community(community)
+            .build();
+        community.setImg(findImage);
+        imgRepository.save(findImage);
+
+        communityRepository.save(community);
+        participantsRepository.save(groupLeader);
+        return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+      }
+
       Community community = createCommunity(requestDto, loginUserId, nickname);
       Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-
-      S3Dto upload = s3Uploader.upload(multipartFile);
-      Img findImage = Img.builder()
-              .imgUrl(upload.getUploadImageUrl())
-              .fileName(upload.getFileName())
-              .community(community)
-              .build();
-      community.setImg(findImage);
-      imgRepository.save(findImage);
-
       communityRepository.save(community);
       participantsRepository.save(groupLeader);
       return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-    }
-
-    Community community = createCommunity(requestDto, loginUserId, nickname);
-    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-    communityRepository.save(community);
-    participantsRepository.save(groupLeader);
-    return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-
+    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
@@ -136,8 +137,8 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
 
        imgRepository.save(findImage);
      }
-   }
-   return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
+     return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
+   }throw new CustomException(ErrorCode.INCORRECT_USERID);
  }
 
   public ResponseEntity<String> deleteCommunity(Long id, UserDetailsImpl userDetails) {
