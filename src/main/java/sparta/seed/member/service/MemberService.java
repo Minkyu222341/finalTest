@@ -14,6 +14,7 @@ import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
 import sparta.seed.login.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.member.domain.Member;
+import sparta.seed.member.domain.dto.responsedto.NicknameResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
 import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.member.repository.MemberRepository;
@@ -63,20 +64,23 @@ public class MemberService {
    * 닉네임 변경
    */
   @Transactional
-  public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails, NicknameRequestDto requestDto) {
+  public ResponseEntity<NicknameResponseDto> updateNickname(UserDetailsImpl userDetails, NicknameRequestDto requestDto) {
     Member member = memberRepository.findById(userDetails.getId())
         .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
-    if (member.getNickname().equals(requestDto.getNickname())) {
-      return ResponseEntity.badRequest().body(false);
+    if (!(member.getNickname().equals(requestDto.getNickname()) && memberRepository.existsByNickname(requestDto.getNickname()))) {
+      member.updateNickname(requestDto);
+      return ResponseEntity.badRequest().body(NicknameResponseDto.builder()
+          .nickname(member.getNickname())
+          .success(true)
+          .build());
     }
-    member.updateNickname(requestDto);
-    return ResponseEntity.ok().body(true);
+    throw new CustomException(ErrorCode.ACCESS_DENIED);
   }
 
   /**
    * 그룹미션 확인
    */
-  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(UserDetailsImpl userDetails) {
     try {
       List<Community> communityList = communityRepository.findByMemberId(userDetails.getId());
       List<CommunityMyJoinResponseDto> responseDtoList = new ArrayList<>();

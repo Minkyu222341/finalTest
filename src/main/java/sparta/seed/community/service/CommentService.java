@@ -52,7 +52,7 @@ public class CommentService {
 						.build());
 			}
 			return commentResponseDtoList;
-		}catch (Exception e) {throw new IllegalArgumentException("해당 댓글이 존재하지 않습니다.");}
+		}catch (Exception e) {throw new CustomException(ErrorCode.NOT_FOUND_COMMENT);}
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class CommentService {
 	public ResponseEntity<String> createComment(Long proofId, CommentRequestDto commentRequestDto,
 	                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
 		Proof proof = proofRepository.findById(proofId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 인증글이 존재하지 않습니다."));
+				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
 
 			Comment comment = Comment.builder()
 					.memberId(userDetails.getId())

@@ -76,27 +76,26 @@ public class ProofService {
 	 */
 	public ResponseEntity<String> createProof(Long communityId, ProofRequestDto proofRequestDto,
 	                                                     List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
+		if(userDetails != null) {
+			Community community = communityRepository.findById(communityId)
+					.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMUNITY));
 
-		Long loginUserId = userDetails.getId();
-		String nickname = userDetails.getNickname();
-		Community community = communityRepository.findById(communityId)
-				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
+			Proof proof = Proof.builder()
+					.memberId(userDetails.getId())
+					.nickname(userDetails.getNickname())
+					.title(proofRequestDto.getTitle())
+					.content(proofRequestDto.getContent())
+					.community(community)
+					.build();
 
-		Proof proof = Proof.builder()
-				.memberId(loginUserId)
-				.nickname(nickname)
-				.title(proofRequestDto.getTitle())
-				.content(proofRequestDto.getContent())
-				.community(community)
-				.build();
+			if (participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId())) {
+				List<Img> imgList = new ArrayList<>();
+				buildImgList(multipartFile, proof, imgList);
+				proofRepository.save(proof);
+				return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
 
-		if (participantsRepository.existsByCommunityAndMemberId(community, loginUserId)) {
-			List<Img> imgList = new ArrayList<>();
-			buildImgList(multipartFile, proof, imgList);
-			proofRepository.save(proof);
-			return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-
-		}else throw new CustomException(ErrorCode.NOT_PARTICIPATED);
+			} else throw new CustomException(ErrorCode.NOT_PARTICIPATED);
+		}else throw new CustomException(ErrorCode.UNKNOWN_USER);
 	}
 
 	/**
@@ -172,28 +171,30 @@ public class ProofService {
 	 */
 	public ProofHeartResponseDto heartProof(Long proofId, UserDetailsImpl userDetails) {
 		Proof proof = findTheProofById(proofId);
-		Long loginUserId = userDetails.getId();
+		try {
+			Long loginUserId = userDetails.getId();
 
-		if(!heartRepository.existsByProofAndMemberId(proof, loginUserId)){
-			Heart heart = Heart.builder()
-					.proof(proof)
-					.memberId(loginUserId)
-					.build();
-			proof.addHeart(heart);
-			heartRepository.save(heart);
-			return ProofHeartResponseDto.builder()
-					.proofId(proof.getId())
-					.heart(true)
-					.heartCnt(proof.getHeartList().size()).build();
-		}else {
-			Heart heart = heartRepository.findByProofAndMemberId(proof, loginUserId);
-			proof.removeHeart(heart);
-			heartRepository.delete(heart);
-			return ProofHeartResponseDto.builder()
-					.proofId(proof.getId())
-					.heart(false)
-					.heartCnt(proof.getHeartList().size()).build();
-		}
+			if (!heartRepository.existsByProofAndMemberId(proof, loginUserId)) {
+				Heart heart = Heart.builder()
+						.proof(proof)
+						.memberId(loginUserId)
+						.build();
+				proof.addHeart(heart);
+				heartRepository.save(heart);
+				return ProofHeartResponseDto.builder()
+						.proofId(proof.getId())
+						.heart(true)
+						.heartCnt(proof.getHeartList().size()).build();
+			} else {
+				Heart heart = heartRepository.findByProofAndMemberId(proof, loginUserId);
+				proof.removeHeart(heart);
+				heartRepository.delete(heart);
+				return ProofHeartResponseDto.builder()
+						.proofId(proof.getId())
+						.heart(false)
+						.heartCnt(proof.getHeartList().size()).build();
+			}
+		}catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
 	}
 
 	private Proof findTheProofById(Long proofId) {
@@ -218,14 +219,16 @@ public class ProofService {
 
 	private void buildImgList(List<MultipartFile> multipartFile, Proof proof, List<Img> imgList) throws IOException {
 		for (MultipartFile file : multipartFile) {
-			S3Dto upload = s3Uploader.upload(file);
-			Img findImage = Img.builder()
-					.imgUrl(upload.getUploadImageUrl())
-					.fileName(upload.getFileName())
-					.proof(proof)
-					.build();
-			proof.addImg(findImage);
-			imgList.add(findImage);
+			if(multipartFile.size() < 6 && proof.getImgList().size() < 11){
+				S3Dto upload = s3Uploader.upload(file);
+				Img findImage = Img.builder()
+						.imgUrl(upload.getUploadImageUrl())
+						.fileName(upload.getFileName())
+						.proof(proof)
+						.build();
+				proof.addImg(findImage);
+				imgList.add(findImage);
+			}else throw new CustomException(ErrorCode.EXCEED_IMG_CNT);
 		}
 		imgRepository.saveAll(imgList);
 	}

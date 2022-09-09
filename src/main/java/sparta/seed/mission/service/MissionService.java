@@ -9,6 +9,7 @@ import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.mission.domain.ClearMission;
 import sparta.seed.mission.domain.Mission;
 import sparta.seed.mission.domain.dto.requestdto.MissionRequestDto;
+import sparta.seed.mission.domain.dto.responsedto.MissionDetailResponseDto;
 import sparta.seed.mission.domain.dto.responsedto.MissionResponseDto;
 import sparta.seed.mission.repository.ClearMissionRepository;
 import sparta.seed.mission.repository.MissionRepository;
@@ -17,6 +18,7 @@ import sparta.seed.util.DateUtil;
 
 import javax.transaction.Transactional;
 import java.text.ParseException;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,22 +29,10 @@ public class MissionService {
   private final DateUtil dateUtil;
 
   /**
-   * 데일리미션 확인
-   */
-  public MissionResponseDto getMissionAll(UserDetailsImpl userDetails) {
-    Member loginMember = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
-    return MissionResponseDto.builder()
-            .memberId(userDetails.getId())
-            .dailyMission(loginMember.getDailyMission())
-            .build();
-  }
-
-  /**
    * 미션 생성 - 관리자
    */
   public Mission crateMission(MissionRequestDto missionRequestDto) {
-    Mission mission = Mission.builder().content(missionRequestDto.getContent()).build();
+    Mission mission = Mission.builder().content(missionRequestDto.getMissionName()).build();
     missionRepository.save(mission);
     return mission;
   }
@@ -52,40 +42,49 @@ public class MissionService {
    */
   @Transactional
   public MissionResponseDto injectMission(UserDetailsImpl userDetails) {
-    Member loginMember = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
+    if (userDetails != null) {
+      Member loginMember = memberRepository.findById(userDetails.getId())
+          .orElseThrow(() -> new CustomException(ErrorCode.UNKNOWN_USER));
 
-    while (loginMember.getDailyMission().size() < 5) { // 맴버가 가진 미션해시맵의 길이가 5이 될 때까지 반복
-      loginMember.getDailyMission()
-              .put(missionRepository.findById((long) (Math.random() * missionRepository.count()))
-                      .get().getContent(), false); // 미션의 내용을 맴버가 가진 미션해시맵에 넣어줌
-    }
+      Map<String, Boolean> dailyMission = loginMember.getDailyMission();
 
-    return MissionResponseDto.builder()
-            .memberId(userDetails.getId())
-            .dailyMission(loginMember.getDailyMission())
-            .build();
+      while (dailyMission.size() < 5) { // 맴버가 가진 미션해시맵의 길이가 5이 될 때까지 반복
+        dailyMission.put(missionRepository.findById((long) (Math.random() * missionRepository.count()))
+            .get().getContent(), false); // 미션의 내용을 맴버가 가진 미션해시맵에 넣어줌
+      }
+
+      MissionResponseDto missionResponseDto = MissionResponseDto.builder()
+          .memberId(userDetails.getId())
+          .build();
+
+      for (String key : dailyMission.keySet()) {
+        boolean value = dailyMission.get(key);
+        missionResponseDto.addMisson(new MissionDetailResponseDto(key, value));
+      }
+
+      return missionResponseDto;
+    }else throw new CustomException(ErrorCode.UNKNOWN_ERROR);
   }
 
   /**
    * 미션 완료
    */
   @Transactional
-  public Boolean completeMission(UserDetailsImpl userDetails, MissionRequestDto missionRequestDto) throws ParseException {
+  public MissionDetailResponseDto completeMission(UserDetailsImpl userDetails, MissionRequestDto missionRequestDto) throws ParseException {
     Member loginMember = memberRepository.findById(userDetails.getId())
         .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     String weekOfMonth = dateUtil.weekOfMonth();
     ClearMission clearMission = ClearMission.builder()
             .memberId(userDetails.getId())
-            .content(missionRequestDto.getContent())
+            .content(missionRequestDto.getMissionName())
             .weekOfMonth(weekOfMonth)
             .build();
 
-    if (!loginMember.getDailyMission().get(missionRequestDto.getContent())) {
-      loginMember.getDailyMission().put(missionRequestDto.getContent(), true);
+    if (!loginMember.getDailyMission().get(missionRequestDto.getMissionName())) {
+      loginMember.getDailyMission().put(missionRequestDto.getMissionName(), true);
       clearMissionRepository.save(clearMission);
-    }
-    return true;
+      return new MissionDetailResponseDto(missionRequestDto.getMissionName(),true);
+    }else throw new CustomException(ErrorCode.ACCESS_DENIED);
   }
 
 }

@@ -143,28 +143,31 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
 
   public ResponseEntity<String> deleteCommunity(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
-    validateWriter(userDetails, community);
-    communityRepository.deleteById(id);
+    if(validateWriter(userDetails, community)){
+      communityRepository.deleteById(id);
+    }
     return ResponseEntity.ok().body(ResponseMsg.DELETED_SUCCESS.getMsg());
   }
 
   @Transactional
   public ResponseEntity<String> joinMission(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
-    if (community.getMemberId().equals(userDetails.getId()) || participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId())) {
-      throw new CustomException(ErrorCode.ALREADY_PARTICIPATED);
-    }
-    if (community.getParticipantsList().size() >= community.getLimitParticipants()) {
-      throw new CustomException(ErrorCode.EXCESS_PARTICIPANT);
-    }
-    Participants participants = Participants.builder()
-            .community(community)
-            .memberId(userDetails.getId())
-            .nickname(userDetails.getNickname())
-            .build();
-    community.addParticipant(participants);
-    participantsRepository.save(participants);
-    return ResponseEntity.ok().body(ResponseMsg.JOIN_SUCCESS.getMsg());
+    if(userDetails != null) {
+      if (community.getMemberId().equals(userDetails.getId()) || participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId())) {
+        throw new CustomException(ErrorCode.ALREADY_PARTICIPATED);
+      }
+      if (community.getParticipantsList().size() >= community.getLimitParticipants()) {
+        throw new CustomException(ErrorCode.EXCESS_PARTICIPANT);
+      }
+      Participants participants = Participants.builder()
+          .community(community)
+          .memberId(userDetails.getId())
+          .nickname(userDetails.getNickname())
+          .build();
+      community.addParticipant(participants);
+      participantsRepository.save(participants);
+      return ResponseEntity.ok().body(ResponseMsg.JOIN_SUCCESS.getMsg());
+    }throw new CustomException(ErrorCode.UNKNOWN_USER);
   }
 
   public ResponseEntity<List<Participants>> getParticipantsList(Long id) {
@@ -238,10 +241,10 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return proofRepository.getCertifiedProof(community);
   }
 
-  private void validateWriter(UserDetailsImpl userDetails, Community community) {
-    if (!community.getMemberId().equals(userDetails.getId())) {
-      throw new CustomException(ErrorCode.INCORRECT_USERID);
-    }
+  private Boolean validateWriter(UserDetailsImpl userDetails, Community community) {
+    if (userDetails!=null && community.getMemberId().equals(userDetails.getId())) {
+      return true;
+    } else throw new CustomException(ErrorCode.INCORRECT_USERID);
   }
 
   private String getDateStatus(Community community) throws ParseException {

@@ -3,16 +3,20 @@ package sparta.seed.mission.domain.dto.responsedto;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class MissionResponseDto {
 	private final Long memberId;
-	private final Map<String,Boolean> dailyMission;
+	private List<MissionDetailResponseDto> dailyMission = new ArrayList<>();
 
 	@Builder
-	public MissionResponseDto(Long memberId, Map<String, Boolean> dailyMission) {
+	public MissionResponseDto(Long memberId) {
 		this.memberId = memberId;
-		this.dailyMission = dailyMission;
+	}
+
+	public void addMisson(MissionDetailResponseDto missionListDto){
+		this.dailyMission.add(missionListDto);
 	}
 }

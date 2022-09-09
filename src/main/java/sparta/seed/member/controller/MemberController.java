@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sparta.seed.community.domain.dto.responsedto.CommunityMyJoinResponseDto;
+import sparta.seed.member.domain.dto.responsedto.NicknameResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
 import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.member.service.MemberService;
@@ -51,7 +52,7 @@ public class MemberController {
    * 닉네임 변경
    */
   @PatchMapping("/api/mypage/nickname")
-  public ResponseEntity<Boolean> updateNickname(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody NicknameRequestDto requestDto) {
+  public ResponseEntity<NicknameResponseDto> updateNickname(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody NicknameRequestDto requestDto) {
     return memberService.updateNickname(userDetails,requestDto);
   }
 
@@ -59,7 +60,7 @@ public class MemberController {
    * 그룹미션 확인
    */
   @GetMapping("/api/mypage/groupmission")
-  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
     return memberService.showGroupMissionList(userDetails);
   }
 

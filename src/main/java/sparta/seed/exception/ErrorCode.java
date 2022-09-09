@@ -39,11 +39,18 @@ public enum ErrorCode {
     NOT_FOUND_PROOF(HttpStatus.BAD_REQUEST, "400", "인증글을 찾을 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.BAD_REQUEST, "400", "댓글을 찾을 수 없습니다."),
     NOT_FOUND_IMG(HttpStatus.BAD_REQUEST, "400", "이미지를 찾을 수 없습니다."),
+    EXCEED_IMG_CNT(HttpStatus.BAD_REQUEST, "400", "이미지는 최대 5장까지 등록할 수 있습니다."),
 
     /**
      * 유저정보
      */
-    CLOSED_USER(HttpStatus.BAD_REQUEST, "400", "비공개 처리된 유저입니다.");
+    CLOSED_USER(HttpStatus.BAD_REQUEST, "400", "비공개 처리된 유저입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "400", "중복된 닉네임입니다."),
+
+    /**
+     * 미션
+     */
+    NOT_FOUND_MISSION(HttpStatus.BAD_REQUEST, "400", "오늘의 미션에서 찾을 수 없습니다.");
 
 
 
