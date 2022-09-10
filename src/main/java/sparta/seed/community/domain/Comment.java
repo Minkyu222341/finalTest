@@ -25,12 +25,12 @@ public class Comment extends Timestamped {
   //내용
   private String content;
   //인증글
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "proof_id")
   private Proof proof;
 
-  @OneToOne(mappedBy = "comment", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JsonManagedReference
   private Img img;
 
