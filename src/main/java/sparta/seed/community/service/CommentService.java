@@ -13,7 +13,6 @@ import sparta.seed.community.repository.CommentRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
-import sparta.seed.img.repository.ImgRepository;
 import sparta.seed.msg.ResponseMsg;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -27,7 +26,6 @@ import java.util.List;
 public class CommentService {
 	private final ProofRepository proofRepository;
 	private final CommentRepository commentRepository;
-	private final ImgRepository imgRepository;
 	private final S3Uploader s3Uploader;
 
 	/**
@@ -86,7 +84,7 @@ public class CommentService {
 		if (userDetails != null && comment.getMemberId().equals(userDetails.getId())) {
 			comment.update(commentRequestDto.getContent());
 
-				if (commentRequestDto.getDelete() | multipartFile != null) {
+				if (commentRequestDto.isDelete() | multipartFile != null) {
 					comment.setImg(returnImageUrl(multipartFile));
 				}
 

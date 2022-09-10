@@ -20,7 +20,6 @@ import sparta.seed.community.repository.ParticipantsRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
-import sparta.seed.img.repository.ImgRepository;
 import sparta.seed.msg.ResponseMsg;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -36,7 +35,6 @@ import java.util.List;
 public class CommunityService {
 
   private final CommunityRepository communityRepository;
-  private final ImgRepository imgRepository;
   private final S3Uploader s3Uploader;
   private final ParticipantsRepository participantsRepository;
   private final DateUtil dateUtil;

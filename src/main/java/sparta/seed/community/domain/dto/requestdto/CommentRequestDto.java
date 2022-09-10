@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class CommentRequestDto {
 	private String content;
-	private Boolean delete;
+	private boolean delete;
 }
