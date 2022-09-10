@@ -68,7 +68,7 @@ public class MemberService {
         .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     if (!(member.getNickname().equals(requestDto.getNickname()) && memberRepository.existsByNickname(requestDto.getNickname()))) {
       member.updateNickname(requestDto);
-      return ResponseEntity.badRequest().body(NicknameResponseDto.builder()
+      return ResponseEntity.ok().body(NicknameResponseDto.builder()
           .nickname(member.getNickname())
           .success(true)
           .build());
@@ -121,12 +121,13 @@ public class MemberService {
    */
   @Transactional
   public ResponseEntity<Boolean> isSceret(UserDetailsImpl userDetails) {
-    Optional<Member> member = memberRepository.findById(userDetails.getId());
-    if (!member.get().isSecret()) {
-      member.get().updateIsSecret(true);
+    Member member = memberRepository.findById(userDetails.getId())
+            .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
+    if (!member.isSecret()) {
+      member.updateIsSecret(true);
       return ResponseEntity.ok().body(true);
     }
-    member.get().updateIsSecret(false);
+    member.updateIsSecret(false);
     return ResponseEntity.ok().body(false);
   }
 
