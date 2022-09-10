@@ -101,7 +101,6 @@ public class ProofService {
 	/**
 	 * 인증글 수정
 	 */
-	@Transactional
 	public ResponseEntity<String> updateProof(Long proofId, ProofRequestDto proofRequestDto,
 	                                                    List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
 		Proof proof = findTheProofById(proofId);
@@ -230,6 +229,6 @@ public class ProofService {
 				imgList.add(findImage);
 			}else throw new CustomException(ErrorCode.EXCEED_IMG_CNT);
 		}
-		imgRepository.saveAll(imgList);
+		proofRepository.save(proof);
 	}
 }
