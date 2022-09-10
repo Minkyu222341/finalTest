@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sparta.seed.community.repository.HeartRepository;
 import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Heart;
 import sparta.seed.community.domain.Proof;
@@ -17,6 +16,7 @@ import sparta.seed.community.domain.dto.responsedto.ProofCountResponseDto;
 import sparta.seed.community.domain.dto.responsedto.ProofHeartResponseDto;
 import sparta.seed.community.domain.dto.responsedto.ProofResponseDto;
 import sparta.seed.community.repository.CommunityRepository;
+import sparta.seed.community.repository.HeartRepository;
 import sparta.seed.community.repository.ParticipantsRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
@@ -28,7 +28,6 @@ import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,7 +221,6 @@ public class ProofService {
 				S3Dto upload = s3Uploader.upload(file);
 				Img findImage = Img.builder()
 						.imgUrl(upload.getUploadImageUrl())
-						.fileName(upload.getFileName())
 						.proof(proof)
 						.build();
 				proof.addImg(findImage);

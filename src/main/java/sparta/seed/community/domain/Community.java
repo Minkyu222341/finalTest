@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import sparta.seed.community.domain.dto.requestdto.CommunityRequestDto;
-import sparta.seed.img.domain.Img;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -29,6 +28,7 @@ public class Community extends Timestamped {
   private Long memberId;
   //내용
   private String content;
+  private String img;
   //캠페인시작일
   private String startDate;
   //캠페인마감일
@@ -47,9 +47,6 @@ public class Community extends Timestamped {
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Proof> proofList = new ArrayList<>();
-  @OneToOne(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-  @JsonManagedReference
-  private Img img;
 
   @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   @JsonManagedReference
@@ -57,12 +54,13 @@ public class Community extends Timestamped {
 
 
   @Builder
-  public Community(Long id, String title, String nickname, Long memberId, String content, String startDate, String endDate, long limitScore, long limitParticipants, boolean secret, String password, boolean recruitment, List<Proof> proofList, Img img, List<Participants> participantsList) {
+  public Community(Long id, String title, String nickname, Long memberId, String content, String img, String startDate, String endDate, long limitScore, long limitParticipants, boolean secret, String password, boolean recruitment, List<Proof> proofList, List<Participants> participantsList) {
     this.id = id;
     this.title = title;
     this.nickname = nickname;
     this.memberId = memberId;
     this.content = content;
+    this.img = img;
     this.startDate = startDate;
     this.endDate = endDate;
     this.limitScore = limitScore;
@@ -71,7 +69,6 @@ public class Community extends Timestamped {
     this.password = password;
     this.recruitment = recruitment;
     this.proofList = proofList;
-    this.img = img;
     this.participantsList = participantsList;
   }
 
@@ -90,7 +87,7 @@ public class Community extends Timestamped {
     participantsList.add(participants);
   }
 
-  public void setImg(Img img) {
+  public void setImg(String img) {
     this.img = img;
   }
 

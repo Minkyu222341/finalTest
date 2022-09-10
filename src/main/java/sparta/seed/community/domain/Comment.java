@@ -1,11 +1,9 @@
 package sparta.seed.community.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.seed.img.domain.Img;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -24,18 +22,15 @@ public class Comment extends Timestamped {
   private Long memberId;
   //내용
   private String content;
+  private String img;
   //인증글
   @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "proof_id")
   private Proof proof;
 
-  @OneToOne(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @JsonManagedReference
-  private Img img;
-
   @Builder
-  public Comment(String nickname, Long memberId, String content, Img img, Proof proof) {
+  public Comment(String nickname, Long memberId, String content, String img, Proof proof) {
     this.nickname = nickname;
     this.memberId = memberId;
     this.content = content;
@@ -47,7 +42,7 @@ public class Comment extends Timestamped {
     this.content = content;
   }
 
-  public void setImg(Img img) {
+  public void setImg(String img) {
     this.img = img;
   }
 }

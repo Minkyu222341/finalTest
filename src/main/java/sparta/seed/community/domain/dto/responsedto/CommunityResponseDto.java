@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import sparta.seed.community.domain.Participants;
-import sparta.seed.img.domain.Img;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class CommunityResponseDto {
   private String nickname;
   private String title;
   private String content;
-  private Img img;
+  private String img;
   //모임 참가자
   private List<Participants> participantsList;
   private Integer participantsCnt;
@@ -43,7 +42,7 @@ public class CommunityResponseDto {
 
   @QueryProjection
   @Builder
-  public CommunityResponseDto(Long communityId, Img img, String title, boolean participant, List<Participants> participantsList, long limitScore, long limitParticipants, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean secret, String password, String content, String dateStatus, String createAt, boolean writer) {
+  public CommunityResponseDto(Long communityId, String img, String title, boolean participant, List<Participants> participantsList, long limitScore, long limitParticipants, double successPercent, double currentPercent, Integer participantsCnt, String nickname, String startDate, String endDate, boolean secret, String password, String content, String dateStatus, String createAt, boolean writer) {
     this.communityId = communityId;
     this.createAt = createAt;
     this.nickname = nickname;

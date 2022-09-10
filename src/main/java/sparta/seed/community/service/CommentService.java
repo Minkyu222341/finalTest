@@ -13,10 +13,8 @@ import sparta.seed.community.repository.CommentRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
-import sparta.seed.img.domain.Img;
 import sparta.seed.img.repository.ImgRepository;
 import sparta.seed.msg.ResponseMsg;
-import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
 
@@ -61,29 +59,17 @@ public class CommentService {
 	                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
 		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
-			try {
+
 				Comment comment = Comment.builder()
 						.memberId(userDetails.getId())
 						.nickname(userDetails.getNickname())
 						.content(commentRequestDto.getContent())
+						.img(returnImageUrl(multipartFile))
 						.proof(proof)
 						.build();
 				proof.addComment(comment);
 
-				if (multipartFile != null) {
-					S3Dto upload = s3Uploader.upload(multipartFile);
-					Img findImage = Img.builder()
-							.imgUrl(upload.getUploadImageUrl())
-							.fileName(upload.getFileName())
-							.comment(comment)
-							.build();
-
-					comment.setImg(findImage);
-					imgRepository.save(findImage);
-				}
-
 				commentRepository.save(comment);
-			} catch (Exception e){new CustomException(ErrorCode.UNKNOWN_USER);}
 		return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
 	}
 
@@ -100,24 +86,10 @@ public class CommentService {
 		if (userDetails != null && comment.getMemberId().equals(userDetails.getId())) {
 			comment.update(commentRequestDto.getContent());
 
-			if (multipartFile != null) {
-
-				if (imgRepository.findByComment(comment) != null) {
-					imgRepository.delete(comment.getImg());
+				if (commentRequestDto.getDelete() | multipartFile != null) {
+					comment.setImg(returnImageUrl(multipartFile));
 				}
 
-				S3Dto upload = s3Uploader.upload(multipartFile);
-
-				Img findImage = Img.builder()
-						.imgUrl(upload.getUploadImageUrl())
-						.fileName(upload.getFileName())
-						.comment(comment)
-						.build();
-
-				comment.setImg(findImage);
-
-				imgRepository.save(findImage);
-			}
 			return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
 		}throw new CustomException(ErrorCode.INCORRECT_USERID);
 	}
@@ -138,4 +110,9 @@ public class CommentService {
 		}throw new CustomException(ErrorCode.INCORRECT_USERID);
 	}
 
+	private String returnImageUrl(MultipartFile multipartFile) throws IOException {
+		if (multipartFile != null) {
+			return s3Uploader.upload(multipartFile).getUploadImageUrl();
+		}else return null;
+	}
 }

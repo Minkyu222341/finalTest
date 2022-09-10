@@ -20,10 +20,8 @@ import sparta.seed.community.repository.ParticipantsRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
-import sparta.seed.img.domain.Img;
 import sparta.seed.img.repository.ImgRepository;
 import sparta.seed.msg.ResponseMsg;
-import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
 import sparta.seed.util.DateUtil;
@@ -57,29 +55,15 @@ public class CommunityService {
     try {
       Long loginUserId = userDetails.getId();
       String nickname = userDetails.getNickname();
-      if (multipartFile != null) {
-        Community community = createCommunity(requestDto, loginUserId, nickname);
-        Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
 
-        S3Dto upload = s3Uploader.upload(multipartFile);
-        Img findImage = Img.builder()
-            .imgUrl(upload.getUploadImageUrl())
-            .fileName(upload.getFileName())
-            .community(community)
-            .build();
-        community.setImg(findImage);
-        imgRepository.save(findImage);
+        Community community = createCommunity(requestDto, multipartFile, loginUserId, nickname);
+        Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
 
         communityRepository.save(community);
         participantsRepository.save(groupLeader);
-        return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-      }
 
-      Community community = createCommunity(requestDto, loginUserId, nickname);
-      Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
-      communityRepository.save(community);
-      participantsRepository.save(groupLeader);
-      return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+        return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+
     }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
@@ -119,24 +103,10 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
    if (userDetails != null && community.getMemberId().equals(userDetails.getId())) {
      community.update(communityRequestDto);
 
-     if (multipartFile != null) {
-
-       if (imgRepository.findByCommunity(community) != null) {
-         imgRepository.delete(community.getImg());
-       }
-
-       S3Dto upload = s3Uploader.upload(multipartFile);
-
-       Img findImage = Img.builder()
-           .imgUrl(upload.getUploadImageUrl())
-           .fileName(upload.getFileName())
-           .community(community)
-           .build();
-
-       community.setImg(findImage);
-
-       imgRepository.save(findImage);
+     if (communityRequestDto.isDelete() | multipartFile != null) {
+       community.setImg(returnImageUrl(multipartFile));
      }
+
      return ResponseEntity.ok().body(ResponseMsg.UPDATE_SUCCESS.getMsg());
    }throw new CustomException(ErrorCode.INCORRECT_USERID);
  }
@@ -210,10 +180,11 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return participantsRepository.existsByCommunityAndMemberId(community, userDetails.getId());
   }
 
-  private Community createCommunity(CommunityRequestDto requestDto, Long loginUserId, String nickname) {
+  private Community createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, Long loginUserId, String nickname) throws IOException {
     return Community.builder()
             .title(requestDto.getTitle())
             .content(requestDto.getContent())
+            .img(returnImageUrl(multipartFile))
             .secret(requestDto.isSecret())
             .password(requestDto.getPassword())
             .memberId(loginUserId)
@@ -249,5 +220,11 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
 
   private String getDateStatus(Community community) throws ParseException {
     return dateUtil.dateStatus(community.getStartDate(), community.getEndDate());
+  }
+
+  private String returnImageUrl(MultipartFile multipartFile) throws IOException {
+    if (multipartFile != null) {
+      return s3Uploader.upload(multipartFile).getUploadImageUrl();
+    }else return null;
   }
 }
