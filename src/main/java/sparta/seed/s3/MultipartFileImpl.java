@@ -1,5 +1,6 @@
 package sparta.seed.s3;
 
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -12,16 +13,16 @@ public class MultipartFileImpl implements MultipartFile {
 	private String contentType;
 	private boolean empty;
 	private long size;
-	private byte[] bytes;
+	private byte[] content;
 	private InputStream inputStream;
 
-	public MultipartFileImpl(String fileName, byte[] bytes, MultipartFile originalImage) throws IOException {
+	public MultipartFileImpl(String fileName, byte[] content, MultipartFile originalImage) throws IOException {
 		this.fileName = fileName;
 		this.originalFilename = originalImage.getOriginalFilename();
 		this.contentType = originalImage.getContentType();
 		this.empty = originalImage.isEmpty();
 		this.size = originalImage.getSize();
-		this.bytes = bytes;
+		this.content = content;
 		this.inputStream = originalImage.getInputStream();
 	}
 
@@ -52,7 +53,7 @@ public class MultipartFileImpl implements MultipartFile {
 
 	@Override
 	public byte[] getBytes() {
-		return this.bytes;
+		return this.content;
 	}
 
 	@Override
@@ -61,6 +62,7 @@ public class MultipartFileImpl implements MultipartFile {
 	}
 
 	@Override
-	public void transferTo(File dest) throws IllegalStateException {
+	public void transferTo(File dest) throws IllegalStateException, IOException {
+		FileCopyUtils.copy(this.content, dest);
 	}
 }
