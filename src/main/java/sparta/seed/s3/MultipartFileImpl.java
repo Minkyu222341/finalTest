@@ -16,8 +16,8 @@ public class MultipartFileImpl implements MultipartFile {
 	private byte[] content;
 	private InputStream inputStream;
 
-	public MultipartFileImpl(String fileName, byte[] content, MultipartFile originalImage) throws IOException {
-		this.fileName = fileName;
+	public MultipartFileImpl(byte[] content, MultipartFile originalImage) throws IOException {
+		this.fileName = originalImage.getName();
 		this.originalFilename = originalImage.getOriginalFilename();
 		this.contentType = originalImage.getContentType();
 		this.empty = originalImage.isEmpty();

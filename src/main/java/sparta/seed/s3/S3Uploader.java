@@ -34,9 +34,8 @@ public class S3Uploader {
     public String bucket;  // S3 버킷 이름
 
     public S3Dto upload(MultipartFile multipartFile) throws IOException {
-        String fileName = multipartFile.getOriginalFilename();
-        String fileFormatName = multipartFile.getContentType().substring(multipartFile.getContentType().lastIndexOf("/") + 1);
-        MultipartFile resizeImage = resizeImage(fileName, fileFormatName, multipartFile, 100);
+
+        MultipartFile resizeImage = resizeImage(multipartFile, 100);
 
         File uploadFile = convert(resizeImage)  // 파일 변환할 수 없으면 에러
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> 파일 변환 실패"));
@@ -85,7 +84,7 @@ public class S3Uploader {
         amazonS3.deleteObject(request);
     }
 
-    MultipartFile resizeImage(String fileName, String fileFormatName, MultipartFile originalImage, int targetWidth) {
+    MultipartFile resizeImage(MultipartFile originalImage, int targetWidth) {
         try {
             // MultipartFile -> BufferedImage Convert
             BufferedImage image = ImageIO.read(originalImage.getInputStream());
@@ -105,12 +104,14 @@ public class S3Uploader {
             scale.setAttribute("newHeight", targetWidth * originHeight / originWidth);
             scale.process(imageMarvin.clone(), imageMarvin, null, null, false);
 
+            String fileFormatName = originalImage.getContentType().substring(originalImage.getContentType().lastIndexOf("/") + 1);
+
             BufferedImage imageNoAlpha = imageMarvin.getBufferedImageNoAlpha();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(imageNoAlpha, fileFormatName, baos);
             baos.flush();
 
-            return new MultipartFileImpl(fileName, baos.toByteArray(), originalImage);
+            return new MultipartFileImpl(baos.toByteArray(), originalImage);
 
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 리사이즈에 실패했습니다.");
