@@ -16,7 +16,7 @@ import javax.persistence.Table;
 public class RefreshToken {
 
   @Id
-  private String refreshKey;
+  private Long refreshKey;
   private String refreshValue;
 
   public RefreshToken updateValue(String token) {
@@ -25,7 +25,7 @@ public class RefreshToken {
   }
 
   @Builder
-  public RefreshToken(String refreshKey, String refreshValue) {
+  public RefreshToken(Long refreshKey, String refreshValue) {
     this.refreshKey = refreshKey;
     this.refreshValue = refreshValue;
   }

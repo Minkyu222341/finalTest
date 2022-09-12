@@ -10,7 +10,6 @@ import sparta.seed.community.repository.CommunityRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
 import sparta.seed.jwt.TokenProvider;
-import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
 import sparta.seed.member.domain.Member;
 import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
@@ -29,7 +28,6 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -152,11 +150,14 @@ public class MemberService {
       throw new CustomException(ErrorCode.BE_NOT_VALID_TOKEN);
     }
 
-    RefreshToken refreshToken = refreshTokenRepository.findByRefreshValue(tokenRequestDto.getRefreshToken())
-            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
+//    RefreshToken refreshToken = refreshTokenRepository.findByRefreshValue(tokenRequestDto.getRefreshToken())
+//            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
+//
+//    Member member = memberRepository.findById(Long.valueOf(refreshToken.getRefreshKey()))
+//            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
 
-    Member member = memberRepository.findById(Long.valueOf(refreshToken.getRefreshKey()))
-            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
+    Member member = memberRepository.secondVerification(tokenRequestDto.getRefreshToken());
+
 
     String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
 
