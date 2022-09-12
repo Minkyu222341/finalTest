@@ -34,7 +34,7 @@ public class CommunityController {
   public ResponseEntity<Slice<CommunityAllResponseDto>> getAllCommunity(Pageable pageable,
                                                                         CommunitySearchCondition condition,
                                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
-    return communityService.getAllCommunity(pageable, condition,userDetails);
+    return communityService.getAllCommunity(pageable, condition, userDetails);
   }
 
   /**
@@ -42,8 +42,8 @@ public class CommunityController {
    */
   @GetMapping("/api/community/{id}")
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(@PathVariable Long id,
-                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
-    return communityService.getDetailCommunity(id,userDetails);
+                                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+    return communityService.getDetailCommunity(id, userDetails);
   }
 
 
@@ -53,8 +53,8 @@ public class CommunityController {
   @PostMapping(value = "/api/community", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 
   public ResponseEntity<String> creatMemo(@RequestPart(value = "dto") CommunityRequestDto requestDto,
-                                             @RequestPart(required = false) MultipartFile multipartFile,
-                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {   //메모를 생성하려면 데이터를 물고다닐 Dto가 필요하다.  // 날아오는 녀석을 그대로 requestDto에 넣어주기 위해서 해당 어노테이션을 씀
+                                          @RequestPart(required = false) MultipartFile multipartFile,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {   //메모를 생성하려면 데이터를 물고다닐 Dto가 필요하다.  // 날아오는 녀석을 그대로 requestDto에 넣어주기 위해서 해당 어노테이션을 씀
     return communityService.createCommunity(requestDto, multipartFile, userDetails);
   }
 
@@ -64,9 +64,9 @@ public class CommunityController {
 
   @PatchMapping(value = "/api/community/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<String> updateCommunity(@PathVariable Long id,
-                                                 @Valid @RequestPart(value = "dto") CommunityRequestDto communityRequestDto,
-                                                 @RequestPart(required = false) MultipartFile multipartFile,
-                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+                                                @Valid @RequestPart(value = "dto") CommunityRequestDto communityRequestDto,
+                                                @RequestPart(required = false) MultipartFile multipartFile,
+                                                @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
     return communityService.updateCommunity(id, communityRequestDto, multipartFile, userDetails);
   }
 
@@ -94,5 +94,13 @@ public class CommunityController {
   @GetMapping("/api/community/{id}/participants")
   public ResponseEntity<List<Participants>> ParticipantsList(@PathVariable Long id) {
     return communityService.getParticipantsList(id);
+  }
+
+  /**
+   * 인기그룹
+   */
+  @GetMapping("/api/active")
+  public ResponseEntity<List<CommunityAllResponseDto>> activeCommunity() throws ParseException {
+    return communityService.activeCommunity();
   }
 }

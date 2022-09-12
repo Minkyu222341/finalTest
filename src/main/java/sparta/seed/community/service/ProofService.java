@@ -198,12 +198,12 @@ public class ProofService {
 						.heart(false)
 						.heartCnt(proof.getHeartList().size()).build();
 			}
-		}catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
+		}catch (Exception e) {throw new IllegalArgumentException(ErrorCode.UNKNOWN_USER.getMsg());}
 	}
 
 	private Proof findTheProofById(Long proofId) {
 		return proofRepository.findById(proofId)
-				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
+				.orElseThrow(() -> new NullPointerException(ErrorCode.NOT_FOUND_PROOF.getMsg()));
 	}
 
 	private ProofResponseDto buildProofResponseDto(UserDetailsImpl userDetails, Proof proof) {
@@ -231,7 +231,7 @@ public class ProofService {
 						.build();
 				proof.addImg(findImage);
 				imgList.add(findImage);
-			}else throw new CustomException(ErrorCode.EXCEED_IMG_CNT);
+			}else throw new IllegalArgumentException(ErrorCode.EXCEED_IMG_CNT.getMsg());
 		}
 		proofRepository.save(proof);
 	}

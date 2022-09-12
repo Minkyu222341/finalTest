@@ -144,6 +144,26 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     return ResponseEntity.ok().body(participantsList);
   }
 
+  public ResponseEntity<List<CommunityAllResponseDto>> activeCommunity() throws ParseException {
+    List<Community> communities = communityRepository.activeCommunity();
+    List<CommunityAllResponseDto> communityList = new ArrayList<>();
+    for (Community community : communities) {
+      Long certifiedProof = getCertifiedProof(community);
+      communityList.add(CommunityAllResponseDto.builder()
+              .communityId(community.getId())
+              .nickname(community.getNickname())
+              .title(community.getTitle())
+              .img(community.getImg())
+              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+              .successPercent((Double.valueOf(certifiedProof) / community.getParticipantsList().size()) * 100)
+              .dateStatus(getDateStatus(community))
+              .secret(community.isPasswordFlag())
+              .password(community.getPassword())
+              .build());
+    }
+    return ResponseEntity.ok().body(communityList);
+  }
+
   private boolean hasNextPage(Pageable pageable, List<CommunityAllResponseDto> CommunityList) {
     boolean hasNext = false;
     if (CommunityList.size() > pageable.getPageSize()) {
@@ -225,4 +245,6 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
       return s3Uploader.upload(multipartFile).getUploadImageUrl();
     }else return null;
   }
+
+
 }

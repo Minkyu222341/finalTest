@@ -12,6 +12,9 @@ import sparta.seed.community.repository.customrepository.CommunityRepositoryCust
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static sparta.seed.community.domain.QCommunity.community;
 
@@ -20,11 +23,11 @@ import static sparta.seed.community.domain.QCommunity.community;
 public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
   @PersistenceContext
   EntityManager em;
+
   @Override
   public QueryResults<Community> getAllCommunity(Pageable pageable, CommunitySearchCondition condition) {
     JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-
-    QueryResults<Community> result = queryFactory // querydsl 강의 뒷쪽 페이징 참고
+    return queryFactory // querydsl 강의 뒷쪽 페이징 참고
             .selectFrom(community)
             .where(titleEq(condition))
             .offset(pageable.getOffset())
@@ -32,8 +35,18 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
             .orderBy(community.id.desc())
             .where()
             .fetchResults();
-    return result;
   }
+
+  public List<Community> activeCommunity() {
+    JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+    return queryFactory.selectFrom(community)
+            .where(community.endDate.gt(String.valueOf(LocalDate.now())), community.startDate.loe(String.valueOf(LocalDate.now()))) // 종료일 > 현재 시간 , 시작일 <= 현재시간
+            .orderBy(community.proofList.size().desc()) // 인증글 갯수대로 정렬
+            .fetch().stream().limit(10).collect(Collectors.toList()); // 10개만 출력
+
+  }
+
+
   private BooleanExpression titleEq(CommunitySearchCondition condition) {
     return StringUtils.hasText(condition.getTitle()) ? community.title.contains(condition.getTitle()) : null;
   }
