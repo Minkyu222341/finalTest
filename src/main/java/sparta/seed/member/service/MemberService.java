@@ -149,19 +149,13 @@ public class MemberService {
     if (!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
       throw new CustomException(ErrorCode.BE_NOT_VALID_TOKEN);
     }
-
-//    RefreshToken refreshToken = refreshTokenRepository.findByRefreshValue(tokenRequestDto.getRefreshToken())
-//            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
-//
-//    Member member = memberRepository.findById(Long.valueOf(refreshToken.getRefreshKey()))
-//            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_MISMATCH));
-
-    Member member = memberRepository.secondVerification(tokenRequestDto.getRefreshToken());
-
-
-    String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
-
-    return ResponseEntity.ok().body(accessToken);
+    try {
+      Member member = memberRepository.secondVerification(tokenRequestDto.getRefreshToken());
+      String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()), member.getNickname());
+      return ResponseEntity.ok().body(accessToken);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.MEMBER_MISMATCH);
+    }
   }
 
   public List<ClearMissionResponseDto> getDailyMissionStats(MissionSearchCondition condition, UserDetailsImpl userDetails) {

@@ -24,7 +24,7 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
   public QueryResults<Community> getAllCommunity(Pageable pageable, CommunitySearchCondition condition) {
     JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
-    QueryResults<Community> result = queryFactory
+    QueryResults<Community> result = queryFactory // querydsl 강의 뒷쪽 페이징 참고
             .selectFrom(community)
             .where(titleEq(condition))
             .offset(pageable.getOffset())
