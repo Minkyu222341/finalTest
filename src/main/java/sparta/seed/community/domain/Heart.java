@@ -15,7 +15,7 @@ public class Heart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JsonBackReference
     @JoinColumn(name = "proofId")
     private Proof proof;

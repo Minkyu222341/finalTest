@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.seed.campaign.domain.Campaign;
-import sparta.seed.community.domain.Comment;
-import sparta.seed.community.domain.Community;
 import sparta.seed.community.domain.Proof;
 import sparta.seed.util.Timestamped;
 
@@ -22,12 +20,6 @@ public class Img extends Timestamped {
   private Long id;
 
   private String imgUrl;
-  private String fileName;
-
-  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
-  @JsonBackReference
-  @JoinColumn(name = "CommunityId")
-  private Community community;
 
   @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
@@ -39,19 +31,11 @@ public class Img extends Timestamped {
   @JoinColumn(name = "campaignId")
   private Campaign campaign;
 
-  @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
-  @JsonBackReference
-  @JoinColumn(name = "commentId")
-  private Comment comment;
-
   @Builder
-  public Img(Long id, String imgUrl, String fileName, Community community, Proof proof, Campaign campaign, Comment comment) {
+  public Img(Long id, String imgUrl, Proof proof, Campaign campaign) {
     this.id = id;
     this.imgUrl = imgUrl;
-    this.fileName = fileName;
-    this.community = community;
     this.proof = proof;
     this.campaign = campaign;
-    this.comment = comment;
   }
 }

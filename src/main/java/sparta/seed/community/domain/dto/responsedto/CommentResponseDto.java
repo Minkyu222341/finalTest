@@ -2,7 +2,6 @@ package sparta.seed.community.domain.dto.responsedto;
 
 import lombok.Builder;
 import lombok.Getter;
-import sparta.seed.img.domain.Img;
 
 import java.time.LocalDate;
 
@@ -12,12 +11,12 @@ public class CommentResponseDto {
 	private LocalDate creatAt;
 	private String nickname;
 	private String content;
-	private Img img;
+	private String img;
 	private boolean writer;
 
 
 	@Builder
-	public CommentResponseDto(Long commentId, LocalDate creatAt, String nickname, String content, Img img, Boolean writer) {
+	public CommentResponseDto(Long commentId, LocalDate creatAt, String nickname, String content, String img, Boolean writer) {
 		this.commentId = commentId;
 		this.creatAt = creatAt;
 		this.nickname = nickname;

@@ -31,7 +31,7 @@ public class Proof extends Timestamped {
   private String content;
 
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "community_id")
   private Community community;
@@ -67,10 +67,6 @@ public class Proof extends Timestamped {
   public void addImg(Img img){
     this.imgList.add(img);
   }
-  public void removeImg(Img img){
-    this.imgList.remove(img);
-  }
-
   public void addComment(Comment comment){
     this.commentList.add(comment);
   }
