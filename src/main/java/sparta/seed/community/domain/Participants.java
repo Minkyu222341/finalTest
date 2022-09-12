@@ -18,16 +18,11 @@ public class Participants {
   @ManyToOne
   @JsonBackReference
   private Community community;
-
   private Long memberId;
   private String nickname;
 
-
-
-
   @Builder
-  public Participants(Long id, Community community, Long memberId,String nickname) {
-    this.id = id;
+  public Participants(Community community, Long memberId,String nickname) {
     this.community = community;
     this.memberId = memberId;
     this.nickname = nickname;

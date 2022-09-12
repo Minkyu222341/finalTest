@@ -1,4 +1,4 @@
-package sparta.seed.community.controller;
+package sparta.seed.community.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import sparta.seed.community.domain.Heart;

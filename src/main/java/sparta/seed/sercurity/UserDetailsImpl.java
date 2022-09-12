@@ -52,15 +52,6 @@ public class UserDetailsImpl implements UserDetails {
         return member.getId();
     }
 
-    public String getSocialId() {
-        return member.getSocialId();
-    }
-
-    public String getProfileImage() {
-        return member.getProfileImage();
-    }
-
-
     @Override
     public boolean isAccountNonExpired() {
         return true;

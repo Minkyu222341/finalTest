@@ -23,7 +23,7 @@ import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Authority;
 import sparta.seed.member.domain.Member;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.login.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.member.repository.RefreshTokenRepository;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -48,7 +48,7 @@ public class GoogleUserService {
   private final MemberRepository memberRepository;
   private final RefreshTokenRepository refreshTokenRepository;
 
-  public MemberResponseDto googleLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+  public TokenResponseDto googleLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
     String accessToken = getAccessToken(code);
     SocialMemberRequestDto googleUserInfo = getGoogleUserInfo(accessToken);
@@ -157,7 +157,7 @@ public class GoogleUserService {
     return authentication;
   }
 
-  private MemberResponseDto jwtToken(Authentication authentication, HttpServletResponse response) {
+  private TokenResponseDto jwtToken(Authentication authentication, HttpServletResponse response) {
     UserDetailsImpl member = ((UserDetailsImpl) authentication.getPrincipal());
     String accessToken = tokenProvider.generateAccessToken(String.valueOf(member.getId()),member.getNickname());
     String refreshToken = tokenProvider.generateRefreshToken(String.valueOf(member.getId()));
@@ -170,7 +170,7 @@ public class GoogleUserService {
             .build();
     refreshTokenRepository.save(saveRefreshToken);
 
-    return MemberResponseDto.builder()
+    return TokenResponseDto.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .build();

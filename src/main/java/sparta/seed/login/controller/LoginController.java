@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
+import sparta.seed.login.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.login.service.GoogleUserService;
 import sparta.seed.login.service.KakaoUserService;
 import sparta.seed.login.service.NaverUserService;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
 import sparta.seed.member.service.MemberService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +25,7 @@ public class LoginController {
    * 카카오 로그인
    */
   @GetMapping("/user/kakao/callback")
-  public MemberResponseDto kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+  public TokenResponseDto kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
     return kakaoUserService.kakaoLogin(code, response);
   }
 
@@ -33,7 +33,7 @@ public class LoginController {
    * 구글 로그인
    */
   @GetMapping("/user/google/callback")
-  public MemberResponseDto googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+  public TokenResponseDto googleLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
     return googleUserService.googleLogin(code, response);
   }
 
@@ -41,7 +41,7 @@ public class LoginController {
    * 네이버 로그인
    */
   @GetMapping("/user/naver/callback")
-  public MemberResponseDto naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws JsonProcessingException {
+  public TokenResponseDto naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws JsonProcessingException {
     return naverUserService.naverLogin(code, state, response);
   }
   /**

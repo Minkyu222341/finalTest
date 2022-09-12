@@ -5,16 +5,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.seed.community.domain.Community;
-import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
+import sparta.seed.community.domain.dto.responsedto.CommunityMyJoinResponseDto;
 import sparta.seed.community.repository.CommunityRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
 import sparta.seed.jwt.TokenProvider;
 import sparta.seed.login.domain.RefreshToken;
 import sparta.seed.login.domain.dto.requestdto.RefreshTokenRequestDto;
-import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
 import sparta.seed.member.domain.Member;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
+import sparta.seed.member.domain.dto.responsedto.NicknameResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
 import sparta.seed.member.repository.MemberRepository;
 import sparta.seed.member.repository.RefreshTokenRepository;
@@ -45,44 +45,53 @@ public class MemberService {
    */
   public ResponseEntity<UserInfoResponseDto> getMyPage(UserDetailsImpl userDetails) {
     Member member = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
 
     return getUserInfo(member);
+  }
+
+  /**
+   * 닉네임 중복체크
+   */
+  public ResponseEntity<Boolean> checkNickname(NicknameRequestDto requestDto) {
+    if(memberRepository.existsByNickname(requestDto.getNickname())){
+      return ResponseEntity.ok().body(false);
+    }else return ResponseEntity.ok().body(true);
   }
 
   /**
    * 닉네임 변경
    */
   @Transactional
-  public ResponseEntity<Boolean> updateNickname(UserDetailsImpl userDetails, SocialMemberRequestDto requestDto) {
+  public ResponseEntity<NicknameResponseDto> updateNickname(UserDetailsImpl userDetails, NicknameRequestDto requestDto) {
     Member member = memberRepository.findById(userDetails.getId())
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
-    if (member.getNickname().equals(requestDto.getNickname())) {
-      return ResponseEntity.badRequest().body(false);
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
+    if (!(member.getNickname().equals(requestDto.getNickname()) && memberRepository.existsByNickname(requestDto.getNickname()))) {
+      member.updateNickname(requestDto);
+      return ResponseEntity.ok().body(NicknameResponseDto.builder()
+          .nickname(member.getNickname())
+          .success(true)
+          .build());
     }
-    member.updateNickname(requestDto);
-    return ResponseEntity.ok().body(true);
+    throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
   }
 
   /**
    * 그룹미션 확인
    */
-  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(UserDetailsImpl userDetails) {
     try {
       List<Community> communityList = communityRepository.findByMemberId(userDetails.getId());
-      List<CommunityResponseDto> responseDtoList = new ArrayList<>();
+      List<CommunityMyJoinResponseDto> responseDtoList = new ArrayList<>();
       for (Community community : communityList) {
-        responseDtoList.add(CommunityResponseDto.builder()
+        responseDtoList.add(CommunityMyJoinResponseDto.builder()
             .communityId(community.getId())
-            .createAt(String.valueOf(community.getCreatedAt()))
             .title(community.getTitle())
-            .successPercent(community.getProofList().size() / community.getLimitScore() * 100) // 인증글 갯수에 비례한 달성도
-            .writer(community.getMemberId().equals(userDetails.getId())) // 내가 이 모임글의 작성자인지
-            .dateStatus(getDateStatus(community)) // 모임이 시작전인지 시작했는지 종료되었는지
+            .img(community.getImg())
             .build());
       }
       return ResponseEntity.ok().body(responseDtoList);
-    }catch (Exception e) {throw new IllegalArgumentException("알 수 없는 사용자입니다.");}
+    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
   /**
@@ -100,7 +109,7 @@ public class MemberService {
           .clearMissionList(clearMissionList)
           .clearMissionCnt(clearMissionList.size())
           .build());
-    }catch (Exception e) {throw new IllegalArgumentException("알 수 없는 사용자입니다.");}
+    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
   private String getDateStatus(Community community) throws ParseException {
@@ -112,12 +121,13 @@ public class MemberService {
    */
   @Transactional
   public ResponseEntity<Boolean> isSceret(UserDetailsImpl userDetails) {
-    Optional<Member> member = memberRepository.findById(userDetails.getId());
-    if (!member.get().isSecret()) {
-      member.get().updateIsSecret(true);
+    Member member = memberRepository.findById(userDetails.getId())
+            .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
+    if (!member.isSecret()) {
+      member.updateIsSecret(true);
       return ResponseEntity.ok().body(true);
     }
-    member.get().updateIsSecret(false);
+    member.updateIsSecret(false);
     return ResponseEntity.ok().body(false);
   }
 
@@ -126,11 +136,11 @@ public class MemberService {
    */
   public ResponseEntity<UserInfoResponseDto> getUserinfo(Long memberId) {
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(()-> new IllegalArgumentException("알 수 없는 사용자입니다."));
+        .orElseThrow(()-> new CustomException(ErrorCode.UNKNOWN_USER));
     if(!member.isSecret()){
       return getUserInfo(member);
 
-    }throw new IllegalArgumentException("비공개 처리된 유저입니다.");
+    }throw new CustomException(ErrorCode.CLOSED_USER);
   }
 
   /**
@@ -175,7 +185,6 @@ public class MemberService {
         .totalClear((int) clearMission)
         .nextLevelExp(5 - (Integer.parseInt(split[1]) / 2))
         .isSecret(member.isSecret())
-//          .isFriend()
         .build();
     return ResponseEntity.ok().body(userInfoResponseDto);
   }

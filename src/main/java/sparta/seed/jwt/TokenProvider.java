@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import sparta.seed.member.domain.Authority;
 import sparta.seed.member.domain.Member;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.login.domain.dto.responsedto.TokenResponseDto;
 import sparta.seed.sercurity.UserDetailsImpl;
 
 import java.security.Key;
@@ -42,7 +42,7 @@ public class TokenProvider {
     this.key = Keys.hmacShaKeyFor(keyBytes);
   }
 
-  public MemberResponseDto generateTokenDto(Authentication authentication, UserDetailsImpl member) {
+  public TokenResponseDto generateTokenDto(Authentication authentication, UserDetailsImpl member) {
     String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
@@ -65,8 +65,7 @@ public class TokenProvider {
             .setHeaderParam("JWT_HEADER_PARAM_TYPE", "headerType")
             .compact();
 
-    return MemberResponseDto.builder()
-            .grantType(BEARER_TYPE)
+    return TokenResponseDto.builder()
             .accessToken(accessToken)
             .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
             .refreshToken(refreshToken)

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sparta.seed.community.domain.Participants;
 import sparta.seed.community.domain.dto.requestdto.CommunityRequestDto;
 import sparta.seed.community.domain.dto.requestdto.CommunitySearchCondition;
+import sparta.seed.community.domain.dto.responsedto.CommunityAllResponseDto;
 import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
 import sparta.seed.community.service.CommunityService;
 import sparta.seed.sercurity.UserDetailsImpl;
@@ -30,9 +31,9 @@ public class CommunityController {
    * 그룹미션 전체조회
    */
   @GetMapping("/api/community")
-  public ResponseEntity<Slice<CommunityResponseDto>> getAllCommunity(Pageable pageable,
-                                                                     CommunitySearchCondition condition,
-                                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<Slice<CommunityAllResponseDto>> getAllCommunity(Pageable pageable,
+                                                                        CommunitySearchCondition condition,
+                                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
     return communityService.getAllCommunity(pageable, condition,userDetails);
   }
 
@@ -53,7 +54,7 @@ public class CommunityController {
 
   public ResponseEntity<String> creatMemo(@RequestPart(value = "dto") CommunityRequestDto requestDto,
                                              @RequestPart(required = false) MultipartFile multipartFile,
-                                             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {   //메모를 생성하려면 데이터를 물고다닐 Dto가 필요하다.  // 날아오는 녀석을 그대로 requestDto에 넣어주기 위해서 해당 어노테이션을 씀
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {   //메모를 생성하려면 데이터를 물고다닐 Dto가 필요하다.  // 날아오는 녀석을 그대로 requestDto에 넣어주기 위해서 해당 어노테이션을 씀
     return communityService.createCommunity(requestDto, multipartFile, userDetails);
   }
 
@@ -83,7 +84,7 @@ public class CommunityController {
    * 그룹미션 참여하기
    */
   @PatchMapping("/api/join/{id}")
-  public ResponseEntity<String> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+  public ResponseEntity<String> joinMission(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return communityService.joinMission(id, userDetails);
   }
 

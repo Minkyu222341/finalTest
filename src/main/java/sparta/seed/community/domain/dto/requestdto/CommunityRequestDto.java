@@ -14,4 +14,5 @@ public class CommunityRequestDto {
   private String password;
   private String title;
   private String content;
+  private boolean delete;
 }

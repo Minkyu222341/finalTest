@@ -31,13 +31,13 @@ public class Proof extends Timestamped {
   private String content;
 
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
   @JsonBackReference
   @JoinColumn(name = "community_id")
   private Community community;
 
   //이미지리스트
-  @OneToMany(mappedBy = "proof", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "proof",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Img> imgList = new ArrayList<>();
 
@@ -67,7 +67,6 @@ public class Proof extends Timestamped {
   public void addImg(Img img){
     this.imgList.add(img);
   }
-
   public void addComment(Comment comment){
     this.commentList.add(comment);
   }

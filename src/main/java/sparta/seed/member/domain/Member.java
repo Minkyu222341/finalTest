@@ -4,7 +4,7 @@ package sparta.seed.member.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
+import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.util.Timestamped;
 
 import javax.persistence.*;
@@ -50,7 +50,7 @@ public class Member extends Timestamped {
     this.profileImage = profileImage;
   }
 
-  public void updateNickname(SocialMemberRequestDto requestDto) {
+  public void updateNickname(NicknameRequestDto requestDto) {
     nickname = requestDto.getNickname();
   }
 

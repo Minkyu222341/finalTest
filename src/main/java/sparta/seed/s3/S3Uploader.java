@@ -6,14 +6,18 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marvin.image.MarvinImage;
+import org.marvinproject.image.transform.scale.Scale;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,20 +34,22 @@ public class S3Uploader {
     public String bucket;  // S3 버킷 이름
 
     public S3Dto upload(MultipartFile multipartFile) throws IOException {
-        File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
+
+        MultipartFile resizeImage = resizeImage(multipartFile, 100);
+
+        File uploadFile = convert(resizeImage)  // 파일 변환할 수 없으면 에러
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> 파일 변환 실패"));
         return uploadToS3(uploadFile);
     }
 
     // S3로 파일 업로드하기
     @Transactional
-    public S3Dto uploadToS3(File uploadFile) throws IOException {
+    public S3Dto uploadToS3(File uploadFile) {
         String fileName = UUID.randomUUID() + uploadFile.getName();   // S3에 저장된 파일 이름
         String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
         removeNewFile(uploadFile);
-        S3Dto s3Dto = new S3Dto(fileName, uploadImageUrl);
 
-        return s3Dto;
+        return new S3Dto(fileName, uploadImageUrl);
     }
 
     // S3로 업로드
@@ -76,6 +82,40 @@ public class S3Uploader {
     public void remove(String filename) {
         DeleteObjectRequest request = new DeleteObjectRequest(bucket, filename);
         amazonS3.deleteObject(request);
+    }
+
+    MultipartFile resizeImage(MultipartFile originalImage, int targetWidth) {
+        try {
+            // MultipartFile -> BufferedImage Convert
+            BufferedImage image = ImageIO.read(originalImage.getInputStream());
+            // newWidth : newHeight = originWidth : originHeight
+            int originWidth = image.getWidth();
+            int originHeight = image.getHeight();
+
+            // origin 이미지가 resizing될 사이즈보다 작을 경우 resizing 작업 안 함
+            if(originWidth < targetWidth)
+                return originalImage;
+
+            MarvinImage imageMarvin = new MarvinImage(image);
+
+            Scale scale = new Scale();
+            scale.load();
+            scale.setAttribute("newWidth", targetWidth);
+            scale.setAttribute("newHeight", targetWidth * originHeight / originWidth);
+            scale.process(imageMarvin.clone(), imageMarvin, null, null, false);
+
+            String fileFormatName = originalImage.getContentType().substring(originalImage.getContentType().lastIndexOf("/") + 1);
+
+            BufferedImage imageNoAlpha = imageMarvin.getBufferedImageNoAlpha();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(imageNoAlpha, fileFormatName, baos);
+            baos.flush();
+
+            return new MultipartFileImpl(baos.toByteArray(), originalImage);
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 리사이즈에 실패했습니다.");
+        }
     }
 
 }

@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import sparta.seed.community.domain.dto.responsedto.CommunityResponseDto;
-import sparta.seed.login.domain.dto.requestdto.SocialMemberRequestDto;
-import sparta.seed.member.domain.dto.responsedto.MemberResponseDto;
+import sparta.seed.community.domain.dto.responsedto.CommunityMyJoinResponseDto;
+import sparta.seed.member.domain.dto.responsedto.NicknameResponseDto;
 import sparta.seed.member.domain.dto.responsedto.UserInfoResponseDto;
+import sparta.seed.member.domain.dto.requestdto.NicknameRequestDto;
 import sparta.seed.member.service.MemberService;
 import sparta.seed.mission.domain.dto.requestdto.MissionSearchCondition;
 import sparta.seed.mission.domain.dto.responsedto.ClearMissionResponseDto;
@@ -41,10 +41,18 @@ public class MemberController {
   }
 
   /**
+   * 닉네임 중복체크
+   */
+  @PostMapping("/api/mypage/nickname")
+  public ResponseEntity<Boolean> checkNickname(@RequestBody NicknameRequestDto requestDto) {
+    return memberService.checkNickname(requestDto);
+  }
+
+  /**
    * 닉네임 변경
    */
   @PatchMapping("/api/mypage/nickname")
-  public ResponseEntity<Boolean> updateNickname(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody SocialMemberRequestDto requestDto) {
+  public ResponseEntity<NicknameResponseDto> updateNickname(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody NicknameRequestDto requestDto) {
     return memberService.updateNickname(userDetails,requestDto);
   }
 
@@ -52,7 +60,7 @@ public class MemberController {
    * 그룹미션 확인
    */
   @GetMapping("/api/mypage/groupmission")
-  public ResponseEntity<List<CommunityResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+  public ResponseEntity<List<CommunityMyJoinResponseDto>> showGroupMissionList(@AuthenticationPrincipal UserDetailsImpl userDetails) {
     return memberService.showGroupMissionList(userDetails);
   }
 
@@ -67,7 +75,7 @@ public class MemberController {
   /**
    * 일일 미션 달성 현황 확인
    */
-  @GetMapping("/api/mypage/statistics")
+  @GetMapping("/api/mypage/stats/day")
   public ResponseEntity<ClearMissionResponseDto> targetDayMission(@RequestParam String targetDay, @AuthenticationPrincipal UserDetailsImpl userDetails){
     return memberService.targetDayMission(targetDay, userDetails);
   }
@@ -75,7 +83,7 @@ public class MemberController {
   /**
    * 유저정보 비공개 / 공개 설정
    */
-  @PatchMapping("/api/mypage/status")
+  @PatchMapping("/api/mypage/secret")
   public ResponseEntity<Boolean> isSecret(@AuthenticationPrincipal UserDetailsImpl userDetails) {
     return memberService.isSceret(userDetails);
   }
