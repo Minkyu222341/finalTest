@@ -12,4 +12,5 @@ public interface CommunityRepositoryCustom {
 
   List<Community> activeCommunity();
 
+  List<Community> endOfCommunity();
 }

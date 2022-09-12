@@ -100,7 +100,15 @@ public class CommunityController {
    * 인기그룹
    */
   @GetMapping("/api/active")
-  public ResponseEntity<List<CommunityAllResponseDto>> activeCommunity() throws ParseException {
-    return communityService.activeCommunity();
+  public ResponseEntity<List<CommunityAllResponseDto>> activeCommunity(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+    return communityService.activeCommunity(userDetails);
+  }
+
+  /**
+   * 종료 임박 그룹
+   */
+  @GetMapping("/api/nearDone")
+  public ResponseEntity<List<CommunityAllResponseDto>> endOfCommunity(@AuthenticationPrincipal UserDetailsImpl userDetails) throws ParseException {
+    return communityService.endOfCommunity(userDetails);
   }
 }

@@ -40,7 +40,9 @@ public class CommunityService {
   private final DateUtil dateUtil;
   private final ProofRepository proofRepository;
 
-
+  /**
+   *  캠페인 전체 조회
+   */
   public ResponseEntity<Slice<CommunityAllResponseDto>> getAllCommunity(Pageable pageable, CommunitySearchCondition condition, UserDetailsImpl userDetails) throws ParseException {
     QueryResults<Community> allCommunity = communityRepository.getAllCommunity(pageable, condition);
     List<CommunityAllResponseDto> allCommunityList = getAllCommunityList(allCommunity, userDetails);
@@ -49,6 +51,9 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDtos);
   }
 
+  /**
+   *  캠페인 작성
+   */
   public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) {
     try {
       Long loginUserId = userDetails.getId();
@@ -65,6 +70,9 @@ public class CommunityService {
     }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
+  /**
+   *  캠페인 상세 조회
+   */
   public ResponseEntity<CommunityResponseDto> getDetailCommunity(Long id, UserDetailsImpl userDetails) throws ParseException {
     Community community = findTheCommunityByMemberId(id);
     Long certifiedProof = getCertifiedProof(community);
@@ -92,6 +100,9 @@ public class CommunityService {
     return ResponseEntity.ok().body(communityResponseDto);
   }
 
+  /**
+   *  캠페인 업데이트
+   */
  @Transactional
 public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto communityRequestDto,
                                                MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
@@ -109,6 +120,9 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
    }throw new CustomException(ErrorCode.INCORRECT_USERID);
  }
 
+  /**
+   *  캠페인 삭제
+   */
   public ResponseEntity<String> deleteCommunity(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
     if(validateWriter(userDetails, community)){
@@ -116,7 +130,9 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     }
     return ResponseEntity.ok().body(ResponseMsg.DELETED_SUCCESS.getMsg());
   }
-
+  /**
+   *  캠페인 참가
+   */
   @Transactional
   public ResponseEntity<String> joinMission(Long id, UserDetailsImpl userDetails) {
     Community community = findTheCommunityByMemberId(id);
@@ -138,31 +154,33 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     }throw new CustomException(ErrorCode.UNKNOWN_USER);
   }
 
+  /**
+   *  캠페인 참여자 리스트 조회
+   */
   public ResponseEntity<List<Participants>> getParticipantsList(Long id) {
     Community community = findTheCommunityByMemberId(id);
     List<Participants> participantsList = community.getParticipantsList();
     return ResponseEntity.ok().body(participantsList);
   }
 
-  public ResponseEntity<List<CommunityAllResponseDto>> activeCommunity() throws ParseException {
+  /**
+   *  캠페인 인기그룹
+   */
+  public ResponseEntity<List<CommunityAllResponseDto>> activeCommunity(UserDetailsImpl userDetails) throws ParseException {
     List<Community> communities = communityRepository.activeCommunity();
-    List<CommunityAllResponseDto> communityList = new ArrayList<>();
-    for (Community community : communities) {
-      Long certifiedProof = getCertifiedProof(community);
-      communityList.add(CommunityAllResponseDto.builder()
-              .communityId(community.getId())
-              .nickname(community.getNickname())
-              .title(community.getTitle())
-              .img(community.getImg())
-              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
-              .successPercent((Double.valueOf(certifiedProof) / community.getParticipantsList().size()) * 100)
-              .dateStatus(getDateStatus(community))
-              .secret(community.isPasswordFlag())
-              .password(community.getPassword())
-              .build());
-    }
+    List<CommunityAllResponseDto> communityList = getCommunityAllResponseDtos(communities,userDetails);
     return ResponseEntity.ok().body(communityList);
   }
+  /**
+   *  캠페인 종료임박 그룹
+   */
+  public ResponseEntity<List<CommunityAllResponseDto>> endOfCommunity(UserDetailsImpl userDetails) throws ParseException {
+    List<Community> communities = communityRepository.endOfCommunity();
+    List<CommunityAllResponseDto> communityList = getCommunityAllResponseDtos(communities,userDetails);
+    return ResponseEntity.ok().body(communityList);
+  }
+
+  //공용메소드
 
   private boolean hasNextPage(Pageable pageable, List<CommunityAllResponseDto> CommunityList) {
     boolean hasNext = false;
@@ -172,7 +190,6 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
     }
     return hasNext;
   }
-
   private List<CommunityAllResponseDto> getAllCommunityList(QueryResults<Community> allCommunity, UserDetailsImpl
           userDetails) throws ParseException {
     List<CommunityAllResponseDto> communityList = new ArrayList<>();
@@ -247,4 +264,25 @@ public ResponseEntity<String> updateCommunity(Long id, CommunityRequestDto commu
   }
 
 
+
+  private List<CommunityAllResponseDto> getCommunityAllResponseDtos(List<Community> communities,UserDetailsImpl
+          userDetails) throws ParseException {
+    List<CommunityAllResponseDto> communityList = new ArrayList<>();
+    for (Community community : communities) {
+      Long certifiedProof = getCertifiedProof(community);
+      communityList.add(CommunityAllResponseDto.builder()
+              .communityId(community.getId())
+              .nickname(community.getNickname())
+              .title(community.getTitle())
+              .img(community.getImg())
+              .currentPercent(((double) community.getParticipantsList().size() / (double) community.getLimitParticipants()) * 100)
+              .successPercent((Double.valueOf(certifiedProof) / community.getParticipantsList().size()) * 100)
+              .dateStatus(getDateStatus(community))
+              .secret(community.isPasswordFlag())
+              .password(community.getPassword())
+              .writer(userDetails != null && community.getMemberId().equals(userDetails.getId()))
+              .build());
+    }
+    return communityList;
+  }
 }
