@@ -27,8 +27,10 @@ import sparta.seed.msg.ResponseMsg;
 import sparta.seed.s3.S3Dto;
 import sparta.seed.s3.S3Uploader;
 import sparta.seed.sercurity.UserDetailsImpl;
+import sparta.seed.util.DateUtil;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,7 @@ public class ProofService {
 	private final HeartRepository heartRepository;
 	private final ImgRepository imgRepository;
 	private final S3Uploader s3Uploader;
+	private final DateUtil dateUtil;
 
 	/**
 	  글에 달린 인증글 조회
@@ -74,10 +77,11 @@ public class ProofService {
 	 * 인증글 작성
 	 */
 	public ResponseEntity<String> createProof(Long communityId, ProofRequestDto proofRequestDto,
-	                                                     List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException {
+	                                                     List<MultipartFile> multipartFile, UserDetailsImpl userDetails) throws IOException, ParseException {
 		if(userDetails != null) {
 			Community community = communityRepository.findById(communityId)
 					.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMMUNITY));
+			isStartedCommunity(community);
 
 			Proof proof = Proof.builder()
 					.memberId(userDetails.getId())
@@ -169,9 +173,11 @@ public class ProofService {
 	 */
 	public ProofHeartResponseDto heartProof(Long proofId, UserDetailsImpl userDetails) {
 		Proof proof = findTheProofById(proofId);
+		Long loginUserId = userDetails.getId();
+		if (!participantsRepository.existsByCommunityAndMemberId(proof.getCommunity(), userDetails.getId())) {
+			throw new CustomException(ErrorCode.ACCESS_DENIED);
+		}
 		try {
-			Long loginUserId = userDetails.getId();
-
 			if (!heartRepository.existsByProofAndMemberId(proof, loginUserId)) {
 				Heart heart = Heart.builder()
 						.proof(proof)
@@ -192,12 +198,12 @@ public class ProofService {
 						.heart(false)
 						.heartCnt(proof.getHeartList().size()).build();
 			}
-		}catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
+		}catch (Exception e) {throw new IllegalArgumentException(ErrorCode.UNKNOWN_USER.getMsg());}
 	}
 
 	private Proof findTheProofById(Long proofId) {
 		return proofRepository.findById(proofId)
-				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
+				.orElseThrow(() -> new NullPointerException(ErrorCode.NOT_FOUND_PROOF.getMsg()));
 	}
 
 	private ProofResponseDto buildProofResponseDto(UserDetailsImpl userDetails, Proof proof) {
@@ -225,8 +231,16 @@ public class ProofService {
 						.build();
 				proof.addImg(findImage);
 				imgList.add(findImage);
-			}else throw new CustomException(ErrorCode.EXCEED_IMG_CNT);
+			}else throw new IllegalArgumentException(ErrorCode.EXCEED_IMG_CNT.getMsg());
 		}
 		proofRepository.save(proof);
+	}
+
+	private void isStartedCommunity(Community community) throws ParseException {
+		if(dateUtil.dateStatus(community.getStartDate(), community.getEndDate()).equals("before")){
+			throw new CustomException(ErrorCode.NOT_BEGIN);
+		} else if (dateUtil.dateStatus(community.getStartDate(), community.getEndDate()).equals("end")) {
+			throw new CustomException(ErrorCode.ALREADY_END_COMMUNITY);
+		}
 	}
 }

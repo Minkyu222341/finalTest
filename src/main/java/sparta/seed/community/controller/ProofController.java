@@ -15,6 +15,7 @@ import sparta.seed.sercurity.UserDetailsImpl;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -50,7 +51,7 @@ public class ProofController {
 	public ResponseEntity<String> createProof(@PathVariable Long communityId,
 																											@Valid @RequestPart(value = "dto") ProofRequestDto proofRequestDto,
 																											@RequestPart List<MultipartFile> multipartFile,
-																											@AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+																											@AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException, ParseException {
 
 		return proofService.createProof(communityId, proofRequestDto, multipartFile, userDetails);
 	}
