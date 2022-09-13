@@ -165,7 +165,7 @@ public class GoogleUserService {
     response.addHeader("Authorization", "Bearer " + accessToken);
 
     RefreshToken saveRefreshToken = RefreshToken.builder()
-            .refreshKey(String.valueOf(member.getId()))
+            .refreshKey(member.getId())
             .refreshValue(refreshToken)
             .build();
     refreshTokenRepository.save(saveRefreshToken);

@@ -10,6 +10,7 @@ import sparta.seed.community.domain.dto.requestdto.CommentRequestDto;
 import sparta.seed.community.domain.dto.responsedto.CommentResponseDto;
 import sparta.seed.community.domain.dto.responsedto.CommentResponseListDto;
 import sparta.seed.community.repository.CommentRepository;
+import sparta.seed.community.repository.ParticipantsRepository;
 import sparta.seed.community.repository.ProofRepository;
 import sparta.seed.exception.CustomException;
 import sparta.seed.exception.ErrorCode;
@@ -27,6 +28,7 @@ public class CommentService {
 	private final ProofRepository proofRepository;
 	private final CommentRepository commentRepository;
 	private final S3Uploader s3Uploader;
+	private final ParticipantsRepository participantsRepository;
 
 	/**
 	 * 댓글 조회
@@ -57,7 +59,9 @@ public class CommentService {
 	                                        MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
 		Proof proof = proofRepository.findById(proofId)
 				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PROOF));
-
+		if (!participantsRepository.existsByCommunityAndMemberId(proof.getCommunity(), userDetails.getId())) {
+			throw new CustomException(ErrorCode.ACCESS_DENIED);
+		}
 				Comment comment = Comment.builder()
 						.memberId(userDetails.getId())
 						.nickname(userDetails.getNickname())

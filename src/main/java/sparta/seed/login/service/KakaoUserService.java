@@ -149,7 +149,7 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     response.setHeader("Authorization", "Bearer " + accessToken);
 
     RefreshToken saveRefreshToken = RefreshToken.builder()
-            .refreshKey(String.valueOf(member.getId()))
+            .refreshKey(member.getId())
             .refreshValue(refreshToken)
             .build();
     refreshTokenRepository.save(saveRefreshToken);
