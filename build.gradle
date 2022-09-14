@@ -21,11 +21,11 @@ repositories {
 }
 
 dependencies {
-    // lombok 에서 mapstruct binding 해주는 기능이 추가되었습니다.!
-    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
-    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
-    annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+//    // lombok 에서 mapstruct binding 해주는 기능이 추가되었습니다.!
+//    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+//    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+//    annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+//    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     //쿼리dsl
     implementation 'com.querydsl:querydsl-jpa'
     implementation 'com.querydsl:querydsl-apt'
