@@ -11,19 +11,19 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class SeedApplication {
 
-//  public static final String APPLICATION_LOCATIONS = "spring.config.location="
-//          + "classpath:application.properties,"
-//          + "/app/config/springboot-webservice/real-application.yml";
-//
-//  public static void main(String[] args) {
-//    new SpringApplicationBuilder(SeedApplication.class)
-//            .properties(APPLICATION_LOCATIONS)
-//            .run(args);
-//
-//  }
+  public static final String APPLICATION_LOCATIONS = "spring.config.location="
+          + "classpath:application.properties,"
+          + "/app/config/springboot-webservice/real-application.yml";
 
   public static void main(String[] args) {
-    SpringApplication.run(SeedApplication.class, args);
+    new SpringApplicationBuilder(SeedApplication.class)
+            .properties(APPLICATION_LOCATIONS)
+            .run(args);
+
   }
+
+//  public static void main(String[] args) {
+//    SpringApplication.run(SeedApplication.class, args);
+//  }
 
 }
