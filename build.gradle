@@ -21,11 +21,11 @@ repositories {
 }
 
 dependencies {
-//    // lombok 에서 mapstruct binding 해주는 기능이 추가되었습니다.!
-//    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
-//    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
-//    annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
-//    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    // lombok 에서 mapstruct binding 해주는 기능이 추가되었습니다.!
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     //쿼리dsl
     implementation 'com.querydsl:querydsl-jpa'
     implementation 'com.querydsl:querydsl-apt'
@@ -51,8 +51,8 @@ dependencies {
     implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: '5.6.3'
 
     //JsonOBJECT 관련 의존성
+    implementation 'org.json:json:20200518'
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
-    implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '5.5.7.Final'
 
     //	이미지업로드 aws관련 의존성
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
@@ -61,15 +61,15 @@ dependencies {
     //크롤링
     implementation'org.seleniumhq.selenium:selenium-java:4.0.0'
 //    implementation'org.seleniumhq.selenium:selenium-java:3.141.59'
-//    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
 
     //이미지 리사이징
     implementation 'com.github.downgoon:marvin:1.5.5'
     implementation 'com.github.downgoon:MarvinPlugins:1.5.5'
     compile group: 'org.springframework', name: 'spring-test'
+
     /*암호화*/
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
-//    implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
 }
 
 tasks.named('test') {
