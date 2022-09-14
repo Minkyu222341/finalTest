@@ -61,8 +61,9 @@ public class KakaoUserService extends DefaultOAuth2UserService {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", "f072c106f2f26c3921bee727b2df0ccd");
-    body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
+//    body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
 //    body.add("redirect_uri", "http://localhost:3000/user/kakao/callback");
+    body.add("redirect_uri", "http://13.124.55.159:8080/user/kakao/callback");
     body.add("code", code);
 
     HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
