@@ -1,21 +1,17 @@
 # switch.sh
 
-# shellcheck disable=SC1128
+#!/bin/bash
 #
 # Crawl current connected port of WAS
-# shellcheck disable=SC2002
 CURRENT_PORT=$(cat /home/ec2-user/service_url.inc  | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
 echo "> Nginx currently proxies to ${CURRENT_PORT}."
 
 # Toggle port number
-# shellcheck disable=SC1046
-# shellcheck disable=SC1073
-if [ "${CURRENT_PORT}" -eq 8081 ]; then
+if [ ${CURRENT_PORT} -eq 8081 ]; then
     TARGET_PORT=8082
-# shellcheck disable=SC1072
-if [ ${CURRENT_PORT} -eq 8082 ]; then
+elif [ ${CURRENT_PORT} -eq 8082 ]; then
     TARGET_PORT=8081
 else
     echo "> No WAS is connected to nginx"
