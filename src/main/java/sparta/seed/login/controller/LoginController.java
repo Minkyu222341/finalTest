@@ -53,4 +53,9 @@ public class LoginController {
     return memberService.reissue(requestDto);
   }
 
+  @GetMapping("/health")
+  public String checkHealth() {
+    return "healthy";
+  }
+
 }
