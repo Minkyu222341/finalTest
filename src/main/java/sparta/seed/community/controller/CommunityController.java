@@ -114,6 +114,6 @@ public class CommunityController {
 
   @GetMapping("/test")
   public String testset() {
-    return "무중단 테스트";
+    return "무중단 테스트 222";
   }
 }
