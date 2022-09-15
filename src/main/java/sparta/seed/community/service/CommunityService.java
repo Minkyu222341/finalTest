@@ -54,20 +54,21 @@ public class CommunityService {
   /**
    *  캠페인 작성
    */
-  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) {
-    try {
-      Long loginUserId = userDetails.getId();
-      String nickname = userDetails.getNickname();
+  public ResponseEntity<String> createCommunity(CommunityRequestDto requestDto, MultipartFile multipartFile, UserDetailsImpl userDetails) throws IOException {
+    Long loginUserId = userDetails.getId();
+    String nickname = userDetails.getNickname();
 
-        Community community = createCommunity(requestDto, multipartFile, loginUserId, nickname);
-        Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
+    Community community = createCommunity(requestDto, multipartFile, loginUserId, nickname);
+    Participants groupLeader = getGroupLeader(loginUserId, nickname, community);
 
-        communityRepository.save(community);
-        participantsRepository.save(groupLeader);
+    communityRepository.save(community);
+    participantsRepository.save(groupLeader);
 
-        return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
-
-    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
+    return ResponseEntity.ok().body(ResponseMsg.WRITE_SUCCESS.getMsg());
+//    try {
+//
+//
+//    }catch (Exception e) {throw new CustomException(ErrorCode.UNKNOWN_USER);}
   }
 
   /**
