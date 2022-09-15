@@ -1,11 +1,9 @@
-# logging-deploy.yml
-
 name: logging-system
 
 on:
   workflow_dispatch:
   
-env: # 새로 추가한 부분
+env:
   S3_BUCKET_NAME: us-earth
   PROJECT_NAME: UsEarth
 
@@ -14,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -45,7 +42,6 @@ jobs:
 
     - name: Upload to S3
       run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
-      
-      ### 새로 추가한 부분 ###
+    
     - name: Code Deploy
       run: aws deploy create-deployment --application-name logging-system-deploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name develop --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
