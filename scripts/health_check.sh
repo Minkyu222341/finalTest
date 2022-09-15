@@ -17,20 +17,30 @@ else
 fi
 
 
-echo "> Start health check of WAS at 'http://127.0.0.1:${TARGET_PORT}' ..."
+echo "> curl -s http://localhost:$TARGET_PORT/health "
+sleep 10
 
-for RETRY_COUNT in 1 2 3 4 5 6 7 8 9 10
+for retry_count in {1..10}
 do
-    echo "> #${RETRY_COUNT} trying..."
-    RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}"  http://127.0.0.1:${TARGET_PORT}/health)
-#    RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}"  http://127.0.0.1:${TARGET_PORT})
+  response=$(curl -s http://localhost:$TARGET_PORT/health)
+  up_count=$(echo $response | grep 'UP' | wc -l)
 
-    if [ ${RESPONSE_CODE} -eq 200 ]; then
-        echo "> New WAS successfully running"
-        exit 0
-    elif [ ${RETRY_COUNT} -eq 10 ]; then
-        echo "> Health check failed."
-        exit 1
-    fi
-    sleep 10
+  if [ $up_count -ge 1 ]
+  then # $up_count >= 1 ("UP" 문자열이 있는지 검증)
+      echo "> Health check 성공"
+      break
+  else
+      echo "> Health check의 응답을 알 수 없거나 혹은 status가 UP이 아닙니다."
+      echo "> Health check: ${response}"
+  fi
+
+  if [ $retry_count -eq 10 ]
+  then
+    echo "> Health check 실패. "
+    echo "> Nginx에 연결하지 않고 배포를 종료합니다."
+    exit 1
+  fi
+
+  echo "> Health check 연결 실패. 재시도..."
+  sleep 10
 done
