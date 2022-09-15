@@ -112,7 +112,7 @@ public class CommunityController {
     return communityService.endOfCommunity(userDetails);
   }
 
-  @GetMapping("test")
+  @GetMapping("/test")
   public String testset() {
     return "무중단 테스트";
   }
